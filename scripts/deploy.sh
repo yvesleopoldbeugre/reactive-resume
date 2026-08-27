@@ -83,6 +83,20 @@ else
 	log "Skipping git pull (--no-pull); deploying the working tree as-is"
 fi
 
+# Clean up *before* pulling/building too, not just after a successful deploy below -- otherwise
+# a build cache or dangling images left over from a previous failed/interrupted run (e.g. the
+# on-server builds this script no longer does by default) can fill the disk and fail the very
+# next pull before there's ever a successful deploy to trigger the post-deploy cleanup.
+log "Pruning unused Docker data before deploying"
+docker image prune -f >/dev/null
+docker builder prune -f >/dev/null 2>&1 || true
+
+AVAILABLE_KB="$(df -Pk . | awk 'NR==2 {print $4}')"
+if [[ -n "$AVAILABLE_KB" && "$AVAILABLE_KB" -lt 2097152 ]]; then
+	echo "⚠ Less than 2GB free on this disk ($((AVAILABLE_KB / 1024))MB) -- the image pull/extract may fail." >&2
+	echo "  If it does, try: docker builder prune -a -f && docker system prune -a -f" >&2
+fi
+
 if [[ "$DO_BUILD" == true ]]; then
 	log "Building the $SERVICE image locally"
 	docker compose build "$SERVICE"
