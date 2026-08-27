@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 #
-# Deploys Essor: pulls the latest code, rebuilds the reactive_resume image, and
-# recreates the container via Docker Compose. Meant to run on the actual deployment
-# host (behind Traefik) or locally against a docker-compose stack already brought up
-# with `compose.yml`. Database migrations run automatically at server startup, so
-# there is no separate migration step here.
+# Deploys Essor: pulls the latest code, fetches the reactive_resume image built by CI
+# (.github/workflows/docker-build.yml), and recreates the container via Docker Compose.
+# Meant to run on the actual deployment host (behind Traefik) or locally against a
+# docker-compose stack already brought up with `compose.yml`. Database migrations run
+# automatically at server startup, so there is no separate migration step here.
 #
 # Usage:
-#   ./scripts/deploy.sh              # git pull + build + redeploy
-#   ./scripts/deploy.sh --no-pull    # skip git pull, build + redeploy from the working tree as-is
+#   ./scripts/deploy.sh              # git pull + pull the CI-built image + redeploy
+#   ./scripts/deploy.sh --no-pull    # skip git pull, deploy from the working tree as-is
 #   ./scripts/deploy.sh --branch foo # pull a specific branch instead of the current one
+#   ./scripts/deploy.sh --build      # build the image locally instead of pulling it from
+#                                     # the registry (slow on a bandwidth-constrained server;
+#                                     # mainly useful for local dev or testing an unpushed branch)
 
 set -euo pipefail
 
@@ -18,12 +21,17 @@ cd "$REPO_ROOT"
 
 SERVICE="reactive_resume"
 DO_PULL=true
+DO_BUILD=false
 BRANCH=""
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 	--no-pull)
 		DO_PULL=false
+		shift
+		;;
+	--build)
+		DO_BUILD=true
 		shift
 		;;
 	--branch)
@@ -75,8 +83,13 @@ else
 	log "Skipping git pull (--no-pull); deploying the working tree as-is"
 fi
 
-log "Building the $SERVICE image"
-docker compose build "$SERVICE"
+if [[ "$DO_BUILD" == true ]]; then
+	log "Building the $SERVICE image locally"
+	docker compose build "$SERVICE"
+else
+	log "Pulling the $SERVICE image built by CI"
+	docker compose pull "$SERVICE"
+fi
 
 log "Recreating the $SERVICE container"
 docker compose up -d "$SERVICE"

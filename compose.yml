@@ -80,7 +80,10 @@ services:
         condition: service_healthy
 
   reactive_resume:
-    # image: ghcr.io/amruthpillai/reactive-resume:latest
+    # Built by .github/workflows/docker-build.yml on every push to main. `docker compose pull`
+    # fetches this pre-built image (fast); `build:` below is only used when you explicitly run
+    # `docker compose build` (local dev/testing, or a one-off build without waiting for CI).
+    image: ghcr.io/yvesleopoldbeugre/reactive-resume:latest
     build:
       context: .
       dockerfile: Dockerfile
