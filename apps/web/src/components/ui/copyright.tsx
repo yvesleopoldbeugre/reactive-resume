@@ -1,4 +1,5 @@
 import { Trans } from "@lingui/react/macro";
+import { BRAND, UPSTREAM } from "@reactive-resume/brand";
 import { cn } from "@reactive-resume/utils/style";
 
 type Props = React.ComponentProps<"div">;
@@ -8,9 +9,9 @@ export function Copyright({ className, ...props }: Props) {
 		<div className={cn("text-muted-foreground/80 text-xs leading-relaxed", className)} {...props}>
 			<p>
 				<Trans>
-					Licensed under{" "}
+					Built on open-source software licensed under{" "}
 					<a
-						href="https://github.com/AmruthPillai/Reactive-Resume/blob/main/LICENSE"
+						href={UPSTREAM.licenseUrl}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="font-medium underline underline-offset-2"
@@ -21,28 +22,9 @@ export function Copyright({ className, ...props }: Props) {
 				</Trans>
 			</p>
 
-			<p>
-				<Trans comment="Tagline shown in app footer/about area">By the community, for the community.</Trans>
-			</p>
-
-			<p>
-				<Trans>
-					A passion project by{" "}
-					<a
-						target="_blank"
-						rel="noopener noreferrer"
-						href="https://amruthpillai.com"
-						className="font-medium underline underline-offset-2"
-					>
-						Amruth Pillai
-					</a>
-					.
-				</Trans>
-			</p>
-
 			<p className="mt-4">
 				<Trans comment="App version label in footer; includes semantic version variable">
-					Reactive Resume v<bdi>{__APP_VERSION__}</bdi>
+					{BRAND.name} v<bdi>{__APP_VERSION__}</bdi>
 				</Trans>
 			</p>
 		</div>

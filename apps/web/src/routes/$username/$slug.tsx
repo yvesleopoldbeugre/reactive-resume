@@ -2,6 +2,7 @@ import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { RouterOutput } from "@/libs/orpc/client";
 import { ORPCError } from "@orpc/client";
 import { createFileRoute, lazyRouteComponent, notFound, redirect } from "@tanstack/react-router";
+import { BRAND } from "@reactive-resume/brand";
 import { orpc } from "@/libs/orpc/client";
 import { createNoindexFollowMeta, createResumeSocialMeta, getCanonicalRootUrl } from "@/libs/seo";
 
@@ -19,10 +20,10 @@ export const Route = createFileRoute("/$username/$slug")({
 	},
 	head: ({ loaderData, params }) => {
 		const resume = loaderData?.resume;
-		const name = resume ? resume.data.basics.name || resume.name || "Resume" : "Reactive Resume";
+		const name = resume ? resume.data.basics.name || resume.name || "Resume" : BRAND.name;
 
 		if (!resume) {
-			return { meta: [{ title: `${name} - Reactive Resume` }, createNoindexFollowMeta()] };
+			return { meta: [{ title: `${name} - ${BRAND.name}` }, createNoindexFollowMeta()] };
 		}
 
 		const { basics, summary, metadata } = resume.data;
@@ -39,7 +40,7 @@ export const Route = createFileRoute("/$username/$slug")({
 
 		return {
 			meta: [
-				{ title: `${name} - Reactive Resume` },
+				{ title: `${name} - ${BRAND.name}` },
 				createNoindexFollowMeta(),
 				...createResumeSocialMeta({ canonicalUrl, title: socialTitle, description, imageUrl }),
 			],

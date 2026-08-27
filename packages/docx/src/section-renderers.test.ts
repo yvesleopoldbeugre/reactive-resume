@@ -146,22 +146,49 @@ describe("renderCustomSection", () => {
 		expect(paragraphs.length).toBeGreaterThanOrEqual(2);
 	});
 
-	it("renders recipient + content for a cover-letter custom section", () => {
+	it("renders each part's content for a cover-letter custom section, one item per part", () => {
 		const section: CustomSection = {
 			...baseCustom,
 			type: "cover-letter",
 			title: "Cover Letter",
 			items: [
-				{
-					id: "x",
-					hidden: false,
-					recipient: "<p>Dear Jane,</p>",
-					content: "<p>Body</p>",
-				} as never,
+				{ id: "x", hidden: false, partType: "recipient", content: "<p>Dear Jane,</p>" } as never,
+				{ id: "y", hidden: false, partType: "paragraph", content: "<p>Body</p>" } as never,
 			],
 		};
 		const paragraphs = renderCustomSection(section, HEX);
 		expect(paragraphs).toHaveLength(2);
+	});
+
+	it("renders the subject part in bold with the template's accent color, regardless of its source HTML", () => {
+		const section: CustomSection = {
+			...baseCustom,
+			type: "cover-letter",
+			title: "Cover Letter",
+			items: [{ id: "x", hidden: false, partType: "subject", content: "<p>Application for Role X</p>" } as never],
+		};
+		const paragraphs = renderCustomSection(section, HEX);
+		expect(paragraphs).toHaveLength(1);
+		const serialized = JSON.stringify(paragraphs);
+		expect(serialized).toContain("Application for Role X");
+		expect(serialized).toContain('"rootKey":"w:b"');
+		expect(serialized).toContain(HEX.replace("#", ""));
+	});
+
+	it("inserts extra spacing before the closing and signature parts", () => {
+		const section: CustomSection = {
+			...baseCustom,
+			type: "cover-letter",
+			title: "Cover Letter",
+			items: [
+				{ id: "a", hidden: false, partType: "paragraph", content: "<p>Body</p>" } as never,
+				{ id: "b", hidden: false, partType: "closing", content: "<p>Best regards,</p>" } as never,
+				{ id: "c", hidden: false, partType: "signature", content: "<p>Jane Doe</p>" } as never,
+			],
+		};
+		const paragraphs = renderCustomSection(section, HEX);
+		// 1 body paragraph + 1 spacer + 1 closing paragraph + 1 spacer + 1 signature paragraph
+		expect(paragraphs).toHaveLength(5);
 	});
 });
 

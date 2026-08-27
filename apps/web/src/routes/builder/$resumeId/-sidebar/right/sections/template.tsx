@@ -2,7 +2,7 @@ import { useLingui } from "@lingui/react";
 import { SwapIcon } from "@phosphor-icons/react";
 import { Badge } from "@reactive-resume/ui/components/badge";
 import { Button } from "@reactive-resume/ui/components/button";
-import { templates } from "@/dialogs/resume/template/data";
+import { getTemplateMetadataForKind, templates } from "@/dialogs/resume/template/data";
 import { useDialogStore } from "@/dialogs/store";
 import { useCurrentResume } from "@/features/resume/builder/draft";
 import { SectionBase } from "../shared/section-base";
@@ -21,7 +21,7 @@ function TemplateSectionForm() {
 	const resume = useCurrentResume();
 	const template = resume.data.metadata.template;
 
-	const metadata = templates[template];
+	const metadata = getTemplateMetadataForKind(templates[template], resume.kind);
 
 	const onOpenTemplateGallery = () => {
 		openDialog("resume.template.gallery", undefined);

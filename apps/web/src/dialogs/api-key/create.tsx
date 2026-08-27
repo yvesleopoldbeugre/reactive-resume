@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useCopyToClipboard } from "usehooks-ts";
 import z from "zod";
+import { BRAND } from "@reactive-resume/brand";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DialogContent,
@@ -92,7 +93,7 @@ const CreateApiKeyForm = ({ setApiKey }: CreateApiKeyFormProps) => {
 				</DialogTitle>
 				<DialogDescription>
 					<Trans>
-						This will generate a new API key to access the Reactive Resume API to allow machines to interact with your
+						This will generate a new API key to access the {BRAND.name} API to allow machines to interact with your
 						resume data.
 					</Trans>
 				</DialogDescription>

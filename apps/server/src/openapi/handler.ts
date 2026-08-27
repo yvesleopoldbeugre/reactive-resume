@@ -6,6 +6,7 @@ import { BatchHandlerPlugin, RequestHeadersPlugin, StrictGetMethodPlugin } from 
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { downloadResumePdfProcedure } from "@reactive-resume/api/features/resume/export";
 import router from "@reactive-resume/api/routers";
+import { BRAND, UPSTREAM } from "@reactive-resume/brand";
 import { env } from "@reactive-resume/env/server";
 import { resumeDataSchema } from "@reactive-resume/schema/resume/data";
 import { appVersion } from "../app-version";
@@ -44,14 +45,13 @@ export async function handleOpenApi(request: Request) {
 	if (request.method === "GET" && (request.url.endsWith("/spec.json") || request.url.endsWith("/spec"))) {
 		const spec = await openAPIGenerator.generate(openAPIRouter, {
 			info: {
-				title: "Reactive Resume",
+				title: BRAND.name,
 				version: appVersion,
-				description: "Reactive Resume API",
-				license: { name: "MIT", url: "https://github.com/amruthpillai/reactive-resume/blob/main/LICENSE" },
-				contact: { name: "Amruth Pillai", email: "hello@amruthpillai.com", url: "https://amruthpillai.com" },
+				description: `${BRAND.name} API`,
+				license: { name: "MIT", url: UPSTREAM.licenseUrl },
+				contact: { name: BRAND.name, email: BRAND.supportEmail, url: BRAND.url },
 			},
 			servers: [{ url: `${env.APP_URL}/api/openapi` }],
-			externalDocs: { url: "https://docs.rxresu.me", description: "Reactive Resume Documentation" },
 			commonSchemas: {
 				ResumeData: { schema: resumeDataSchema },
 			},

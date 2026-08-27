@@ -36,11 +36,11 @@ describe("resolveLocale", () => {
 		expect(resolveLocale("fr-FR")).toBe("fr-FR");
 	});
 
-	it("returns en-US default for invalid locale", () => {
-		expect(resolveLocale("xx-YY")).toBe("en-US");
+	it("returns fr-FR default for invalid locale", () => {
+		expect(resolveLocale("xx-YY")).toBe("fr-FR");
 	});
 
-	it("returns en-US default for empty string", () => {
-		expect(resolveLocale("")).toBe("en-US");
+	it("returns fr-FR default for empty string", () => {
+		expect(resolveLocale("")).toBe("fr-FR");
 	});
 });

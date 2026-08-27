@@ -16,6 +16,7 @@
 		"test:agent": "vitest run --reporter=agent --reporter=json --outputFile.json=reports/vitest-results.json --passWithNoTests"
 	},
 	"dependencies": {
+		"@reactive-resume/brand": "workspace:*",
 		"@reactive-resume/env": "workspace:*",
 		"nodemailer": "^9.0.3",
 		"react": "^19.2.7",

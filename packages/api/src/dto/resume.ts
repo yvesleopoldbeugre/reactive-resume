@@ -3,11 +3,17 @@ import z from "zod";
 import * as schema from "@reactive-resume/db/schema";
 import { jsonPatchOperationSchema } from "@reactive-resume/resume/patch";
 import { resumeDataSchema } from "@reactive-resume/schema/resume/data";
+import { templateSchema } from "@reactive-resume/schema/templates";
+
+const resumeKindSchema = z
+	.enum(["resume", "cover-letter"])
+	.describe("Whether this document is a resume or a standalone cover letter.");
 
 const resumeSchema = createSelectSchema(schema.resume, {
 	id: z.string().describe("The ID of the resume."),
 	name: z.string().trim().min(1).describe("The name of the resume."),
 	slug: z.string().trim().min(1).describe("The slug of the resume."),
+	kind: resumeKindSchema,
 	tags: z.array(z.string()).describe("The tags of the resume."),
 	isPublic: z.boolean().describe("Whether the resume is public."),
 	isLocked: z.boolean().describe("Whether the resume is locked."),
@@ -22,6 +28,7 @@ export const resumeDto = {
 	list: {
 		input: z
 			.object({
+				kind: resumeKindSchema.optional().describe("Filter by document kind. Omit to list resumes (the default)."),
 				tags: z.array(z.string()).optional().default([]),
 				sort: z.enum(["lastUpdatedAt", "createdAt", "name"]).optional().default("lastUpdatedAt"),
 			})
@@ -47,9 +54,15 @@ export const resumeDto = {
 	},
 
 	create: {
-		input: resumeSchema
-			.pick({ name: true, slug: true, tags: true })
-			.extend({ withSampleData: z.boolean().default(false) }),
+		input: resumeSchema.pick({ name: true, slug: true, tags: true }).extend({
+			kind: resumeKindSchema.optional().default("resume"),
+			withSampleData: z.boolean().default(false),
+			template: templateSchema.optional().describe("The template to create the resume with, if chosen upfront."),
+			templatePresetId: z
+				.string()
+				.optional()
+				.describe("The ID of an admin-published template preset to seed the resume from, if chosen upfront."),
+		}),
 		output: z.string().describe("The ID of the created resume."),
 	},
 

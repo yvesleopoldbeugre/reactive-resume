@@ -12,6 +12,7 @@ import {
 	MarkdownLogoIcon,
 } from "@phosphor-icons/react";
 import { useId, useState } from "react";
+import { isDedicatedCoverLetterTemplate } from "@reactive-resume/schema/templates";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
@@ -62,17 +63,31 @@ function FormatRow({ action, description, disabled, icon, title }: FormatRowProp
 }
 
 export function ResumeDownloadDialog({ resume, trigger }: ResumeDownloadDialogProps) {
+	const isCoverLetterDocument = resume?.kind === "cover-letter";
 	const [open, setOpen] = useState(false);
-	const [scope, setScope] = useState<ResumeExportTarget>("resume");
+	const [scope, setScope] = useState<ResumeExportTarget>(() => (isCoverLetterDocument ? "cover-letter" : "resume"));
 	const [includeCoverLetterHeader, setIncludeCoverLetterHeader] = useState(false);
 	const includeHeaderSwitchId = useId();
 	const { hasCoverLetter, isExporting, onDownloadDOCX, onDownloadJSON, onDownloadMarkdown, onDownloadPDF } =
 		useResumeExport(resume);
 	const disabled = !resume || isExporting;
 
-	// Cover letter can't be the active scope when the resume has none (also guards a stale toggle).
-	const activeScope: ResumeExportTarget = scope === "cover-letter" && !hasCoverLetter ? "resume" : scope;
-	const jsonDisabled = activeScope === "cover-letter";
+	// A cover-letter-kind document only ever has one possible scope — the letter itself — so it's
+	// forced regardless of the (hidden, in that case) Resume/Cover-letter tab state. For a resume,
+	// cover letter can't be the active scope when it has none (also guards a stale toggle).
+	const activeScope: ResumeExportTarget = isCoverLetterDocument
+		? "cover-letter"
+		: scope === "cover-letter" && !hasCoverLetter
+			? "resume"
+			: scope;
+	// JSON export of a cover-letter-kind document is the whole document, not a partial view, so it
+	// stays enabled; it's only disabled when viewing the cover-letter-only slice of a mixed resume.
+	const jsonDisabled = activeScope === "cover-letter" && !isCoverLetterDocument;
+	// A dedicated cover-letter template (see `templateKindMap`) always shows its header — the
+	// toggle below would have no visible effect for it, so it's hidden rather than left dead.
+	const usesDedicatedCoverLetterTemplate = Boolean(
+		resume && isDedicatedCoverLetterTemplate(resume.data.metadata.template),
+	);
 
 	const run = (action: () => void | Promise<void>) => {
 		setOpen(false);
@@ -88,24 +103,30 @@ export function ResumeDownloadDialog({ resume, trigger }: ResumeDownloadDialogPr
 						<Trans>Download</Trans>
 					</DialogTitle>
 					<DialogDescription>
-						<Trans>Export your resume or cover letter in the format you need.</Trans>
+						{isCoverLetterDocument ? (
+							<Trans>Export your cover letter in the format you need.</Trans>
+						) : (
+							<Trans>Export your resume or cover letter in the format you need.</Trans>
+						)}
 					</DialogDescription>
 				</DialogHeader>
 
-				<Tabs value={activeScope} onValueChange={(value) => setScope(value as ResumeExportTarget)}>
-					<TabsList className="h-11! w-full">
-						<TabsTrigger value="resume">
-							<FileTextIcon />
-							<Trans>Resume</Trans>
-						</TabsTrigger>
-						<TabsTrigger value="cover-letter" disabled={!hasCoverLetter}>
-							<EnvelopeSimpleIcon />
-							<Trans>Cover letter</Trans>
-						</TabsTrigger>
-					</TabsList>
-				</Tabs>
+				{!isCoverLetterDocument && (
+					<Tabs value={activeScope} onValueChange={(value) => setScope(value as ResumeExportTarget)}>
+						<TabsList className="h-11! w-full">
+							<TabsTrigger value="resume">
+								<FileTextIcon />
+								<Trans>Resume</Trans>
+							</TabsTrigger>
+							<TabsTrigger value="cover-letter" disabled={!hasCoverLetter}>
+								<EnvelopeSimpleIcon />
+								<Trans>Cover letter</Trans>
+							</TabsTrigger>
+						</TabsList>
+					</Tabs>
+				)}
 
-				{activeScope === "cover-letter" && (
+				{activeScope === "cover-letter" && !usesDedicatedCoverLetterTemplate && (
 					<label
 						htmlFor={includeHeaderSwitchId}
 						className="flex cursor-pointer items-center gap-3 rounded-lg border bg-background p-3"

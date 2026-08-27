@@ -61,7 +61,7 @@ export const localeSchema = z.enum([
 
 export type Locale = z.infer<typeof localeSchema>;
 
-export const defaultLocale: Locale = "en-US";
+export const defaultLocale: Locale = "fr-FR";
 
 export function isLocale(value: unknown): value is Locale {
 	return localeSchema.safeParse(value).success;

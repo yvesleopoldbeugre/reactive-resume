@@ -1,5 +1,6 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { ResumeRenderOptions } from "../../context";
+import { isDedicatedCoverLetterTemplate } from "@reactive-resume/schema/templates";
 import { filterSections } from "./filtering";
 
 type HeaderResumeData = ResumeData & {
@@ -18,4 +19,7 @@ const isCoverLetterOnlyDocument = (data: ResumeData) => {
 };
 
 export const shouldShowResumeHeader = (data: HeaderResumeData, pageIndex: number) =>
-	pageIndex === 0 && (data.renderOptions?.includeCoverLetterHeader || !isCoverLetterOnlyDocument(data));
+	pageIndex === 0 &&
+	(isDedicatedCoverLetterTemplate(data.metadata.template) ||
+		data.renderOptions?.includeCoverLetterHeader ||
+		!isCoverLetterOnlyDocument(data));

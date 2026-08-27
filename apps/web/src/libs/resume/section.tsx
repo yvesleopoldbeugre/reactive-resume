@@ -17,7 +17,6 @@ import {
 	GraduationCapIcon,
 	HandHeartIcon,
 	ImageIcon,
-	InfoIcon,
 	LayoutIcon,
 	MessengerLogoIcon,
 	NotepadIcon,
@@ -53,8 +52,7 @@ export type RightSidebarSection =
 	| "sharing"
 	| "statistics"
 	| "analysis"
-	| "export"
-	| "information";
+	| "export";
 
 export type SidebarSection = LeftSidebarSection | RightSidebarSection;
 
@@ -77,6 +75,15 @@ export const leftSidebarSections: LeftSidebarSection[] = [
 	"custom",
 ] as const;
 
+// Cover-letter-kind documents only ever have contact info (basics) and the one pre-seeded
+// `cover-letter` custom section — the itemized resume sections (experience, education, ...)
+// have nothing to hold for a letter, so they're hidden rather than shown empty.
+const coverLetterLeftSidebarSections: LeftSidebarSection[] = ["basics", "custom"];
+
+export function getVisibleLeftSidebarSections(kind: "resume" | "cover-letter"): LeftSidebarSection[] {
+	return kind === "cover-letter" ? coverLetterLeftSidebarSections : leftSidebarSections;
+}
+
 export const rightSidebarSections: RightSidebarSection[] = [
 	"template",
 	"layout",
@@ -89,7 +96,6 @@ export const rightSidebarSections: RightSidebarSection[] = [
 	"notes",
 	"analysis",
 	"export",
-	"information",
 ] as const;
 
 export const getSectionTitle = (type: SidebarSection | CustomOnlyType): string => {
@@ -128,7 +134,6 @@ export const getSectionTitle = (type: SidebarSection | CustomOnlyType): string =
 			.with("statistics", () => t`Statistics`)
 			.with("analysis", () => t`Resume Analysis`)
 			.with("export", () => t`Export`)
-			.with("information", () => t`Information`)
 
 			.exhaustive()
 	);
@@ -172,7 +177,6 @@ export const getSectionIcon = (type: SidebarSection | CustomOnlyType, props?: Ic
 			.with("statistics", () => <ChartLineIcon {...iconProps} />)
 			.with("analysis", () => <BrainIcon {...iconProps} />)
 			.with("export", () => <DownloadIcon {...iconProps} />)
-			.with("information", () => <InfoIcon {...iconProps} />)
 
 			.exhaustive()
 	);

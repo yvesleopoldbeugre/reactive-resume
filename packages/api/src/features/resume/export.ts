@@ -22,7 +22,7 @@ type CreateResumePdfDownloadInput = {
 
 export async function createResumePdfDownload(input: CreateResumePdfDownloadInput) {
 	const resume = await resumeService.getById({ id: input.id, userId: input.userId });
-	const target = input.target ?? "resume";
+	const target = input.target ?? (resume.kind === "cover-letter" ? "cover-letter" : "resume");
 	if (target === "cover-letter" && !resumeHasCoverLetter(resume.data)) {
 		throw new ORPCError("NOT_FOUND", { message: "No cover letter found for this resume" });
 	}

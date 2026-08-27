@@ -16,12 +16,13 @@ import {
 	Tailwind,
 	Text,
 } from "react-email";
+import { BRAND } from "@reactive-resume/brand";
 
 // ponytail: server dev consumes this source through tsx, which emits React.createElement here.
 void React;
 
-const appName = "Reactive Resume";
-const logoUrl = "https://rxresu.me/icon/dark.svg";
+const appName = BRAND.name;
+const logoUrl = `${BRAND.url}/icon/dark.svg`;
 
 interface AuthEmailLayoutProps {
 	preview: string;
@@ -41,30 +42,30 @@ function AuthEmailLayout({ preview, heading, intro, details, actionLabel, action
 					presets: [pixelBasedPreset],
 					theme: {
 						fontFamily: {
-							body: ["IBM Plex Sans", "sans-serif"],
-							heading: ["IBM Plex Sans Condensed", "sans-serif"],
+							body: ["Poppins", "sans-serif"],
+							heading: ["Poppins", "sans-serif"],
 						},
 					},
 				}}
 			>
 				<Head>
 					<Font
-						fontFamily="IBM Plex Sans Condensed"
+						fontFamily="Poppins"
 						fallbackFontFamily="sans-serif"
-						fontWeight={500}
+						fontWeight={700}
 						fontStyle="normal"
 						webFont={{
-							url: "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXGKVElMYYaJe8bpLHnCwDKr932-G7dytD-DmvrswZSAXcomDVmadSD2FlDB6g4tIOm6_De.woff2",
+							url: "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk.woff2",
 							format: "woff2",
 						}}
 					/>
 					<Font
-						fontFamily="IBM Plex Sans"
+						fontFamily="Poppins"
 						fallbackFontFamily="sans-serif"
 						fontWeight={400}
 						fontStyle="normal"
 						webFont={{
-							url: "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXGKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1swZSAXcomDVmadSD6llDB6g4tIOm6_De.woff2",
+							url: "https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecnFHGPc.woff2",
 							format: "woff2",
 						}}
 					/>
@@ -111,21 +112,7 @@ function AuthEmailLayout({ preview, heading, intro, details, actionLabel, action
 
 							<Hr className="my-10 border-zinc-700" />
 
-							<Text className="mt-8 text-xs leading-1 opacity-40">By the community, for the community.</Text>
-							<Text className="text-xs leading-1 opacity-40">
-								A passion project by{" "}
-								<Link
-									target="_blank"
-									rel="noopener noreferrer"
-									href="https://amruthpillai.com"
-									className="text-inherit underline underline-offset-2"
-								>
-									Amruth Pillai
-								</Link>
-								.
-							</Text>
-
-							<Text className="mt-8 font-heading font-medium text-base tracking-tight opacity-80">Reactive Resume</Text>
+							<Text className="mt-8 font-heading font-medium text-base tracking-tight opacity-80">{appName}</Text>
 						</Section>
 					</Container>
 				</Body>
@@ -147,7 +134,7 @@ export function ResetPasswordEmail({ url }: ResetPasswordEmailProps) {
 			details="If this was not you, you can ignore this message and your password will remain unchanged."
 			actionLabel="Create New Password"
 			actionUrl={url}
-			outro="For security, only use links from emails sent by Reactive Resume."
+			outro={`For security, only use links from emails sent by ${appName}.`}
 		/>
 	);
 }

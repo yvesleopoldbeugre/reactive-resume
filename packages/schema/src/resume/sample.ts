@@ -1,3 +1,4 @@
+import type { Locale } from "@reactive-resume/utils/locale";
 import type { ResumeData } from "./data";
 
 export const sampleResumeData: ResumeData = {
@@ -553,12 +554,56 @@ export const sampleResumeData: ResumeData = {
 			type: "cover-letter",
 			items: [
 				{
-					id: "019bef5b-0f8d-77d1-9b2a-4a1b65e1b8aa",
+					id: "019bef5b-0f8d-77d1-9b2a-4a1b65e1b8a1",
 					hidden: false,
-					recipient:
-						'<p>Hiring Manager<br />Sunrise Games Studio<br />Seattle, WA<br /><a href="mailto:hiring@sunrisegames.com">hiring@sunrisegames.com</a></p>',
+					partType: "recipient",
 					content:
-						"<p>Dear Hiring Manager,</p><p>I'm excited to apply for the Senior Gameplay Engineer role at Sunrise Games Studio. Over the past five years, I have shipped cross-platform titles in Unity and Unreal Engine, leading core gameplay and tooling efforts that improved iteration speed and player experience. At Cascade Studios, I architected combat systems and optimized performance to maintain 60 FPS on console while partnering closely with design and art.</p><p>I thrive in collaborative, cross-disciplinary teams and enjoy mentoring junior engineers. I'd welcome the chance to bring my gameplay systems expertise and tooling focus to your next title.</p><p>Sincerely,<br />David Kowalski</p>",
+						'<p>Hiring Manager<br />Sunrise Games Studio<br />Seattle, WA<br /><a href="mailto:hiring@sunrisegames.com">hiring@sunrisegames.com</a></p>',
+				},
+				{
+					id: "019bef5b-0f8d-77d1-9b2a-4a1b65e1b8a2",
+					hidden: false,
+					partType: "subject",
+					content: "<p>Subject: Application for the Senior Gameplay Engineer position</p>",
+				},
+				{
+					id: "019bef5b-0f8d-77d1-9b2a-4a1b65e1b8a3",
+					hidden: false,
+					partType: "salutation",
+					content: "<p>Dear Hiring Manager,</p>",
+				},
+				{
+					id: "019bef5b-0f8d-77d1-9b2a-4a1b65e1b8a4",
+					hidden: false,
+					partType: "paragraph",
+					content:
+						"<p>I'm excited to apply for the Senior Gameplay Engineer role at Sunrise Games Studio. Over the past five years, I have shipped cross-platform titles in Unity and Unreal Engine, leading core gameplay and tooling efforts that improved iteration speed and player experience.</p>",
+				},
+				{
+					id: "019bef5b-0f8d-77d1-9b2a-4a1b65e1b8a5",
+					hidden: false,
+					partType: "paragraph",
+					content:
+						"<p>At Cascade Studios, I architected combat systems and optimized performance to maintain 60 FPS on console while partnering closely with design and art.</p>",
+				},
+				{
+					id: "019bef5b-0f8d-77d1-9b2a-4a1b65e1b8a6",
+					hidden: false,
+					partType: "paragraph",
+					content: "<p>I thrive in collaborative, cross-disciplinary teams and enjoy mentoring junior engineers.</p>",
+				},
+				{
+					id: "019bef5b-0f8d-77d1-9b2a-4a1b65e1b8a7",
+					hidden: false,
+					partType: "closing",
+					content:
+						"<p>I'd welcome the chance to bring my gameplay systems expertise and tooling focus to your next title.</p>",
+				},
+				{
+					id: "019bef5b-0f8d-77d1-9b2a-4a1b65e1b8a8",
+					hidden: false,
+					partType: "signature",
+					content: "<p>Sincerely,<br />David Kowalski</p>",
 				},
 			],
 		},
@@ -631,14 +676,242 @@ export const sampleResumeData: ResumeData = {
 	},
 };
 
-/**
- * Returns the sample resume, optionally overriding `basics.name` so the seeded
- * content reflects the name the user entered when creating the resume. When no
- * name is given, the default sample persona is returned unchanged.
- */
-export const createSampleResumeData = (name?: string): ResumeData => {
-	const trimmed = name?.trim();
-	if (!trimmed) return sampleResumeData;
+// French text overrides, applied by position via `.map()` below (never by array indexing)
+// so translating a field never risks an out-of-bounds / possibly-undefined access.
+const experienceDescriptionsFr = [
+	"<ul><li><p>Programmeur gameplay principal sur un titre action-aventure AAA non annoncé, développé sous Unreal Engine 5 pour PC et consoles nouvelle génération</p></li><li><p>Conception et implémentation du système de combat principal, incluant la détection de coups, les enchaînements et l'IA ennemie couvrant plus de 15 types d'ennemis</p></li><li><p>Développement d'outils d'éditeur personnalisés en C++ ayant réduit de 40 % le temps d'itération des level designers et amélioré l'efficacité globale de l'équipe</p></li><li><p>Optimisation du pipeline de rendu et des systèmes de gameplay pour maintenir 60 FPS sur toutes les plateformes cibles, avec 95 % de stabilité du framerate</p></li><li><p>Ad nostrud enim adipisicing ea proident aliqua veniam nisi amet ea irure et mollit.</p></li></ul><p></p>",
+];
 
-	return { ...sampleResumeData, basics: { ...sampleResumeData.basics, name: trimmed } };
+const educationOverridesFr = [
+	{
+		degree: "Licence de Sciences",
+		description:
+			"<p>Spécialisation en développement de jeux vidéo. Matières principales : architecture de moteur de jeu, infographie, intelligence artificielle, simulation physique, mathématiques 3D, génie logiciel, structures de données et algorithmes</p>",
+	},
+];
+
+const projectOverridesFr = [
+	{
+		websiteLabel: "Voir sur itch.io",
+		description:
+			"<p>Développeur solo d'un jeu de plateforme 2D narratif sous Unity. Système de dialogue personnalisé, embranchements narratifs et pixel art atmosphérique. Actuellement en développement, avec une démo publiée sur itch.io ayant dépassé 5 000 téléchargements et reçu des retours communautaires positifs. Sortie Steam prévue au T2 2025.</p>",
+	},
+	{
+		websiteLabel: "Voir sur GitHub",
+		description:
+			"<p>Création et maintenance d'un framework de dialogue open-source pour Unity, avec éditeur visuel par nœuds, support de la localisation et intégration de doublages. Le projet compte plus de 800 étoiles GitHub et est activement utilisé par des studios indépendants dans le monde entier. Documentation et exemples de projets inclus.</p>",
+	},
+	{
+		websiteLabel: "",
+		description:
+			"<p>Participant régulier aux game jams Ludum Dare et Global Game Jam. Création de plus de 12 prototypes explorant des mécaniques et styles artistiques expérimentaux. Prix « Meilleur Gameplay » au Ludum Dare 48 avec le jeu de réflexion « Deeper and Deeper », classé dans le top 5 % général.</p>",
+	},
+];
+
+const languageOverridesFr = [
+	{ language: "Anglais", fluency: "Langue maternelle" },
+	{ language: "Polonais", fluency: "Conversationnel" },
+];
+
+const interestOverridesFr = [
+	{ name: "Game Design", keywords: ["Mécaniques", "Level Design", "Psychologie du joueur"] },
+	{ name: "IA & Génération Procédurale", keywords: ["PCG", "Machine Learning", "Gameplay émergent"] },
+	{ name: "Développement de jeux indépendants", keywords: ["Solo Dev", "Game Jams", "Communauté"] },
+	{ name: "Art technique", keywords: ["Shaders", "VFX", "Optimisation"] },
+];
+
+const awardOverridesFr = [
+	{
+		title: "Meilleur Gameplay - Ludum Dare 48",
+		description:
+			"<p>Prix décerné pour le jeu de réflexion « Deeper and Deeper », classé dans le top 5 % général parmi plus de 3 000 participations</p>",
+	},
+	{
+		title: "Prix d'Excellence Employé",
+		description:
+			"<p>Récompense pour contribution exceptionnelle au développement de « Starbound Odyssey » et pour l'exigence de qualité du code</p>",
+	},
+];
+
+const publicationOverridesFr = [
+	{
+		title: "Optimiser les jeux Unity pour mobile : un guide pratique",
+		description:
+			"<p>Article technique sur les techniques d'optimisation mobile : regroupement des appels de rendu, systèmes de LOD et gestion de la mémoire</p>",
+	},
+	{
+		title: "Construire des systèmes de dialogue modulaires",
+		description:
+			"<p>Présentation sur la conception de systèmes de dialogue flexibles pour jeux narratifs, devant plus de 60 développeurs locaux</p>",
+	},
+];
+
+const volunteerDescriptionsFr = [
+	"<p>Membre actif de la communauté locale de développement de jeux indépendants. Organisation de vitrines mensuelles et mentorat de développeurs en herbe via revues de code et conseils techniques.</p>",
+	"<p>Instructeur bénévole enseignant les bases de la programmation de jeux vidéo à des collégiens. Animation de plus de 8 ateliers d'introduction à Unity et aux principes de game design.</p>",
+];
+
+const secondExperienceDescriptionsFr = [
+	"<ul><li>Développeur principal sur « Starbound Odyssey », un rogue-like de science-fiction ayant dépassé 500 000 ventes sur Steam avec des avis « Très positifs »</li><li>Mise en œuvre de systèmes de génération procédurale pour les niveaux, les rencontres ennemies et le butin, sous Unity et C#</li><li>Conception et programmation des systèmes de progression du joueur : arbres de compétences, améliorations d'équipement et mécaniques de méta-progression</li><li>Création d'un système de sauvegarde robuste avec sauvegardes cloud et jeu croisé entre PC et Nintendo Switch</li><li>Intégration de SDK tiers pour l'analytique (GameAnalytics), les succès (Steamworks) et le réseau multijoueur (Photon)</li><li>Correction de bugs critiques et équilibrage du gameplay selon les retours communautaires et la télémétrie, avec 12 mises à jour post-lancement</li><li>Collaboration étroite avec les artistes pour les VFX, animations et shaders, en préservant les performances cibles</li></ul>",
+	"<ul><li><p>Contribution au développement de trois jeux de réflexion mobiles sous Unity, cumulant plus de 2 M de téléchargements sur iOS et Android</p></li><li><p>Mise en œuvre de systèmes d'interface, de contrôles tactiles et de reconnaissance de gestes optimisés pour mobile</p></li><li><p>Développement de fonctionnalités de monétisation (publicités récompensées, achats intégrés, récompenses quotidiennes) ayant augmenté la rétention de 25 %</p></li><li><p>Optimisation de l'usage mémoire et des temps de chargement, réduisant la taille de l'application de 35 % via compression des assets et optimisation du code</p></li><li><p>Collaboration avec les game designers pour équilibrer les courbes de difficulté via des tests A/B</p></li></ul><p></p>",
+];
+
+/** Zips `items` with a same-length `overrides` array by position, without ever indexing either array directly. */
+function zipOverrides<T, O extends object>(items: readonly T[], overrides: readonly O[]): (T & O)[] {
+	return items.map((item, index) => ({ ...item, ...overrides[index] })) as (T & O)[];
+}
+
+/** Narrows a possibly-missing array element to `T`, failing loudly (not silently) if the fixture ever shrinks. */
+function expectItem<T>(value: T | undefined, description: string): T {
+	if (value === undefined) throw new Error(`sample.ts: expected ${description} to exist`);
+	return value;
+}
+
+// Destructured once (not indexed inline below) so accessing them stays type-safe.
+const [rawExpCustomSection, rawCoverLetterCustomSection] = sampleResumeData.customSections;
+const expCustomSection = expectItem(rawExpCustomSection, "the second work-experience custom section");
+const coverLetterCustomSection = expectItem(rawCoverLetterCustomSection, "the cover-letter custom section");
+
+/** French translation of {@link sampleResumeData}, used when seeding sample content for fr-FR. */
+export const sampleResumeDataFr: ResumeData = {
+	...sampleResumeData,
+	basics: {
+		...sampleResumeData.basics,
+		headline: "Développeur de jeux vidéo | Spécialiste Unity & Unreal Engine",
+	},
+	summary: {
+		...sampleResumeData.summary,
+		content:
+			"<p><strong>Développeur de jeux vidéo passionné avec plus de 5 ans d'expérience professionnelle</strong>, créant des systèmes de gameplay engageants et des expériences joueur soignées sur de multiples plateformes. Spécialisé en Unity et Unreal Engine avec une forte expertise en C#, C++ et principes de game design. Capacité avérée à collaborer efficacement avec des équipes pluridisciplinaires (designers, artistes, QA) pour livrer des jeux de qualité dans les délais et le périmètre prévus.</p>",
+	},
+	sections: {
+		...sampleResumeData.sections,
+		experience: {
+			...sampleResumeData.sections.experience,
+			items: zipOverrides(
+				sampleResumeData.sections.experience.items,
+				experienceDescriptionsFr.map((description) => ({ description })),
+			),
+		},
+		education: {
+			...sampleResumeData.sections.education,
+			items: zipOverrides(sampleResumeData.sections.education.items, educationOverridesFr),
+		},
+		projects: {
+			...sampleResumeData.sections.projects,
+			items: zipOverrides(sampleResumeData.sections.projects.items, projectOverridesFr).map((item) => ({
+				...item,
+				website: item.websiteLabel ? { ...item.website, label: item.websiteLabel } : item.website,
+			})),
+		},
+		skills: {
+			...sampleResumeData.sections.skills,
+			items: sampleResumeData.sections.skills.items.map((item) => ({
+				...item,
+				proficiency: item.proficiency === "Expert" ? "Expert" : "Avancé",
+			})),
+		},
+		languages: {
+			...sampleResumeData.sections.languages,
+			items: zipOverrides(sampleResumeData.sections.languages.items, languageOverridesFr),
+		},
+		interests: {
+			...sampleResumeData.sections.interests,
+			items: zipOverrides(sampleResumeData.sections.interests.items, interestOverridesFr),
+		},
+		awards: {
+			...sampleResumeData.sections.awards,
+			items: zipOverrides(sampleResumeData.sections.awards.items, awardOverridesFr),
+		},
+		publications: {
+			...sampleResumeData.sections.publications,
+			items: zipOverrides(sampleResumeData.sections.publications.items, publicationOverridesFr),
+		},
+		volunteer: {
+			...sampleResumeData.sections.volunteer,
+			items: zipOverrides(
+				sampleResumeData.sections.volunteer.items,
+				volunteerDescriptionsFr.map((description) => ({ description })),
+			),
+		},
+		references: {
+			...sampleResumeData.sections.references,
+			items: zipOverrides(sampleResumeData.sections.references.items, [{ name: "Disponible sur demande" }]),
+		},
+	},
+	// The first custom section is the second work experience block (Pixel Forge / Mobile Games
+	// Studio); the second is the cover letter. Built from the destructured sections above so
+	// nothing here indexes into the `customSections` array directly.
+	customSections: [
+		{
+			...expCustomSection,
+			items: zipOverrides(
+				expCustomSection.items,
+				secondExperienceDescriptionsFr.map((description) => ({ description })),
+			),
+		},
+		{
+			...coverLetterCustomSection,
+			title: "Lettre de motivation",
+			items: zipOverrides(coverLetterCustomSection.items, [
+				{
+					content:
+						'<p>Responsable du recrutement<br />Sunrise Games Studio<br />Seattle, WA<br /><a href="mailto:hiring@sunrisegames.com">hiring@sunrisegames.com</a></p>',
+				},
+				{ content: "<p>Objet : Candidature au poste d'Ingénieur Gameplay Senior</p>" },
+				{ content: "<p>Madame, Monsieur,</p>" },
+				{
+					content:
+						"<p>Je suis ravi de postuler au poste d'Ingénieur Gameplay Senior chez Sunrise Games Studio. Au cours des cinq dernières années, j'ai livré des titres multiplateformes sous Unity et Unreal Engine, en dirigeant les efforts de gameplay et d'outillage qui ont amélioré la vitesse d'itération et l'expérience joueur.</p>",
+				},
+				{
+					content:
+						"<p>Chez Cascade Studios, j'ai conçu des systèmes de combat et optimisé les performances pour maintenir 60 FPS sur console, en étroite collaboration avec le design et l'art.</p>",
+				},
+				{
+					content:
+						"<p>Je m'épanouis dans des équipes collaboratives et pluridisciplinaires et j'aime accompagner les ingénieurs juniors.</p>",
+				},
+				{
+					content:
+						"<p>Je serais ravi d'apporter mon expertise en systèmes de gameplay et en outillage à votre prochain titre.</p>",
+				},
+				{ content: "<p>Cordialement,<br />David Kowalski</p>" },
+			]),
+		},
+	],
+	metadata: {
+		...sampleResumeData.metadata,
+		page: { ...sampleResumeData.metadata.page, locale: "fr-FR" },
+	},
+};
+
+/** Picks the sample persona whose prose matches the given locale (falls back to English). */
+const getBaseSampleResumeData = (locale?: Locale): ResumeData =>
+	locale === "fr-FR" ? sampleResumeDataFr : sampleResumeData;
+
+/**
+ * Returns the sample resume for the given locale, optionally overriding `basics.name`/
+ * `basics.email` so the seeded content reflects the account holder's real name/email
+ * instead of the sample persona's. Every other field (headline, experience, skills, etc.)
+ * stays fictional placeholder content for the user to edit or replace. When neither
+ * override is given, the locale's default sample persona is returned unchanged.
+ */
+export const createSampleResumeData = (
+	overrides?: { name?: string | undefined; email?: string | undefined },
+	locale?: Locale,
+): ResumeData => {
+	const base = getBaseSampleResumeData(locale);
+	const name = overrides?.name?.trim();
+	const email = overrides?.email?.trim();
+	if (!name && !email) return base;
+
+	return {
+		...base,
+		basics: {
+			...base.basics,
+			...(name ? { name } : {}),
+			...(email ? { email } : {}),
+		},
+	};
 };

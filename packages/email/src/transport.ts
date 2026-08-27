@@ -2,6 +2,7 @@ import type { SendMailOptions, Transporter } from "nodemailer";
 import type { ReactElement } from "react";
 import nodemailer from "nodemailer";
 import { render } from "react-email";
+import { BRAND } from "@reactive-resume/brand";
 import { env } from "@reactive-resume/env/server";
 
 type SendEmailOptions = {
@@ -40,7 +41,7 @@ const getTransport = () => {
 
 export const sendEmail = async (options: SendEmailOptions) => {
 	const transport = getTransport();
-	const from = options.from ?? env.SMTP_FROM ?? "Reactive Resume <noreply@localhost>";
+	const from = options.from ?? env.SMTP_FROM ?? `${BRAND.name} <noreply@localhost>`;
 	const payload: SendMailOptions = {
 		to: options.to,
 		from,

@@ -5,6 +5,7 @@ import {
 	customFieldSchema,
 	experienceItemSchema,
 	layoutSchema,
+	normalizeCoverLetterSection,
 	pageSchema,
 	pictureSchema,
 	resumeDataSchema,
@@ -306,6 +307,99 @@ describe("baseSectionSchema", () => {
 		const result = baseSectionSchema.safeParse({ title: "Test", icon: "none", columns: 1, hidden: false });
 		expect(result.success).toBe(true);
 		if (result.success) expect(result.data.icon).toBe("none");
+	});
+});
+
+describe("normalizeCoverLetterSection", () => {
+	const baseSection = {
+		title: "Cover Letter",
+		icon: "",
+		columns: 1,
+		hidden: false,
+		keepTogether: false,
+		startOnNewPage: false,
+		id: "section-1",
+		type: "cover-letter" as const,
+	};
+
+	it("expands a legacy {recipient, content} item into recipient + paragraph parts", () => {
+		const normalized = normalizeCoverLetterSection({
+			...baseSection,
+			items: [{ id: "item-1", hidden: false, recipient: "<p>Jane Doe</p>", content: "<p>Dear Jane,</p>" }],
+		}) as { items: unknown[] };
+
+		expect(normalized.items).toHaveLength(2);
+		expect(normalized.items[0]).toMatchObject({ id: "item-1", partType: "recipient", content: "<p>Jane Doe</p>" });
+		expect(normalized.items[1]).toMatchObject({
+			id: "item-1-body",
+			partType: "paragraph",
+			content: "<p>Dear Jane,</p>",
+		});
+	});
+
+	it("drops an empty recipient/content half instead of emitting an empty part", () => {
+		const normalized = normalizeCoverLetterSection({
+			...baseSection,
+			items: [{ id: "item-1", hidden: false, recipient: "", content: "<p>Dear Jane,</p>" }],
+		}) as { items: unknown[] };
+
+		expect(normalized.items).toHaveLength(1);
+		expect(normalized.items[0]).toMatchObject({ partType: "paragraph", content: "<p>Dear Jane,</p>" });
+	});
+
+	it("passes through already-migrated items unchanged (idempotent)", () => {
+		const normalized = normalizeCoverLetterSection({
+			...baseSection,
+			items: [{ id: "item-1", hidden: false, partType: "salutation", content: "<p>Dear Jane,</p>" }],
+		}) as { items: unknown[] };
+
+		expect(normalized.items).toHaveLength(1);
+		expect(normalized.items[0]).toMatchObject({ id: "item-1", partType: "salutation", content: "<p>Dear Jane,</p>" });
+	});
+
+	it("preserves per-item hidden state through the expansion", () => {
+		const normalized = normalizeCoverLetterSection({
+			...baseSection,
+			items: [{ id: "item-1", hidden: true, recipient: "<p>Jane Doe</p>", content: "<p>Dear Jane,</p>" }],
+		}) as { items: { hidden: boolean }[] };
+
+		expect(normalized.items.every((item) => item.hidden)).toBe(true);
+	});
+
+	it("does not affect non-cover-letter section types", () => {
+		const normalized = normalizeCoverLetterSection({
+			...baseSection,
+			type: "summary",
+			items: [{ id: "item-1", hidden: false, content: "<p>Just a summary item</p>" }],
+		}) as { items: unknown[] };
+
+		expect(normalized.items).toHaveLength(1);
+	});
+});
+
+describe("resumeDataSchema (cover-letter legacy normalization, end-to-end)", () => {
+	it("normalizes a legacy-shaped cover-letter custom section when parsing a full resume", () => {
+		const withLegacyCoverLetter = {
+			...defaultResumeData,
+			customSections: [
+				{
+					title: "Cover Letter",
+					icon: "",
+					columns: 1,
+					hidden: false,
+					keepTogether: false,
+					startOnNewPage: false,
+					id: "section-1",
+					type: "cover-letter" as const,
+					items: [{ id: "item-1", hidden: false, recipient: "<p>Jane Doe</p>", content: "<p>Dear Jane,</p>" }],
+				},
+			],
+		};
+
+		const result = resumeDataSchema.safeParse(withLegacyCoverLetter);
+		expect(result.success).toBe(true);
+		if (!result.success) return;
+		expect(result.data.customSections[0]?.items).toHaveLength(2);
 	});
 });
 

@@ -18,7 +18,7 @@ function resolveWebDistPath() {
 
 const staticRoot = resolveWebDistPath();
 const indexHtmlPath = `${staticRoot}/index.html`;
-const noindexShellPrefixes = ["/auth", "/dashboard", "/builder", "/agent", "/templates"];
+const noindexShellPrefixes = ["/auth", "/dashboard", "/builder", "/agent", "/templates", "/admin"];
 const reservedPublicResumeSegments = new Set([
 	"api",
 	"mcp",
@@ -29,6 +29,7 @@ const reservedPublicResumeSegments = new Set([
 	"builder",
 	"agent",
 	"templates",
+	"admin",
 ]);
 
 export const serveWebDistStatic = serveStatic({ root: staticRoot });

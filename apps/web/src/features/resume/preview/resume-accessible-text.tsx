@@ -197,7 +197,7 @@ function renderItem(type: CustomSectionType, item: CustomSectionItem): ReactNode
 		case "cover-letter": {
 			const it = item as CoverLetterItem;
 
-			return <ItemBody description={joinInline(stripHtml(it.recipient), stripHtml(it.content))} />;
+			return <ItemBody description={stripHtml(it.content)} />;
 		}
 		case "summary": {
 			const it = item as SummaryItem;

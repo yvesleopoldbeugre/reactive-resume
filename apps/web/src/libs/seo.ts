@@ -1,6 +1,7 @@
-const productionRootUrl = "https://rxresu.me/";
-const appName = "Reactive Resume";
-const repositoryUrl = "https://github.com/amruthpillai/reactive-resume";
+import { BRAND } from "@reactive-resume/brand";
+
+const productionRootUrl = `${BRAND.url}/`;
+const appName = BRAND.name;
 
 type JsonLd = Record<string, unknown>;
 
@@ -70,23 +71,9 @@ export const getRootStructuredData = (canonicalUrl: string): JsonLd[] => [
 		"@type": ["SoftwareApplication", "WebApplication"],
 		name: appName,
 		url: canonicalUrl,
-		description:
-			"Reactive Resume is a free and open-source resume builder that simplifies the process of creating, updating, and sharing your resume.",
+		description: BRAND.description,
 		applicationCategory: "BusinessApplication",
 		operatingSystem: "Web",
-		isAccessibleForFree: true,
-		offers: {
-			"@type": "Offer",
-			price: "0",
-			priceCurrency: "USD",
-		},
-		codeRepository: repositoryUrl,
-	},
-	{
-		"@type": "Project",
-		name: appName,
-		url: canonicalUrl,
-		sameAs: [repositoryUrl],
 	},
 	{
 		"@type": "FAQPage",
@@ -102,40 +89,38 @@ export const getRootStructuredData = (canonicalUrl: string): JsonLd[] => [
 ];
 
 export const createRootStructuredDataScript = (canonicalUrl: string) =>
-	createStructuredDataScript("reactive-resume-structured-data", {
+	createStructuredDataScript("essor-structured-data", {
 		"@context": "https://schema.org",
 		"@graph": getRootStructuredData(canonicalUrl),
 	});
 
 const homeFaqJsonLdItems = [
 	{
-		question: "Is Reactive Resume really free?",
+		question: "Comment mes données sont-elles protégées ?",
 		answer:
-			"Yes! Reactive Resume is completely free to use, with no hidden costs, premium tiers, or subscription fees. It's open-source and will always remain free.",
+			"Vos données sont stockées de manière sécurisée et ne sont jamais partagées avec des tiers. Vous gardez le contrôle total sur votre CV et vos informations.",
 	},
 	{
-		question: "How is my data protected?",
+		question: "Puis-je exporter mon CV en PDF ?",
 		answer:
-			"Your data is stored securely and is never shared with third parties. You can also self-host Reactive Resume on your own servers for complete control over your data.",
+			"Absolument ! Vous pouvez exporter votre CV en PDF en un clic. Le PDF exporté conserve parfaitement toute votre mise en forme.",
 	},
 	{
-		question: "Can I export my resume to PDF?",
+		question: "Puis-je aussi créer une lettre de motivation ?",
 		answer:
-			"Absolutely! You can export your resume to PDF with a single click. The exported PDF maintains all your formatting and styling perfectly.",
+			"Oui ! Les lettres de motivation sont gérées comme des documents à part entière, séparés de vos CV, avec les mêmes modèles, couleurs et options d'export.",
 	},
 	{
-		question: "Is Reactive Resume available in multiple languages?",
-		answer:
-			"Yes, Reactive Resume is available in multiple languages. You can choose your preferred language in the settings page, or using the language switcher in the top right corner. If you don't see your language, or you would like to improve the existing translations, you can contribute to the translations on Crowdin.",
+		question: `${appName} est-il disponible en plusieurs langues ?`,
+		answer: `Oui, ${appName} est disponible en plusieurs langues. Vous pouvez choisir votre langue préférée dans les paramètres, ou via le sélecteur de langue en haut à droite.`,
 	},
 	{
-		question: "What makes Reactive Resume different from other resume builders?",
-		answer:
-			"Reactive Resume is open-source, privacy-focused, and completely free. Unlike other resume builders, it doesn't show ads, track your data, or limit your features behind a paywall.",
+		question: `Qu'est-ce qui distingue ${appName} des autres créateurs de CV ?`,
+		answer: `${appName} est simple, rapide et pensé pour vous aider à décrocher un entretien : modèles soignés, personnalisation complète et export PDF impeccable, sans publicité ni suivi intrusif.`,
 	},
 	{
-		question: "How do I share my resume?",
+		question: "Comment partager mon CV ?",
 		answer:
-			"You can share your resume via a unique public URL, protect it with a password, or download it as a PDF to share directly. The choice is yours!",
+			"Vous pouvez partager votre CV via une URL publique unique, la protéger par un mot de passe, ou le télécharger en PDF pour le transmettre directement. Le choix est le vôtre !",
 	},
 ] as const;

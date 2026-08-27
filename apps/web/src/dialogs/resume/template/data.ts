@@ -1,6 +1,7 @@
 import type { MessageDescriptor } from "@lingui/core";
 import type { Template } from "@reactive-resume/schema/templates";
 import { msg } from "@lingui/core/macro";
+import { templateKindMap } from "@reactive-resume/schema/templates";
 
 export type TemplateMetadata = {
 	name: string;
@@ -11,6 +12,17 @@ export type TemplateMetadata = {
 };
 
 export const templates = {
+	// Always defined first so it sorts first in the admin base-template grid — the other
+	// entries are iterated via `Object.entries` in this object's declaration order.
+	custom: {
+		name: "Créer un nouveau modèle",
+		description: msg`A blank structural starting point: choose a skeleton, header, sidebar, and heading style from scratch instead of starting from a built-in template.`,
+		imageUrl: "/templates/jpg/custom.jpg",
+		tags: ["Sur mesure"],
+		// The real position depends on the resume's `metadata.skin`, not this static catalog —
+		// see `resolveSidebarPosition` in the layout panel for the dynamic override.
+		sidebarPosition: "none",
+	},
 	azurill: {
 		name: "Azurill",
 		description: msg`Two-column with a bold colored sidebar and skill bars; great for creative or tech roles where visual flair is welcome.`,
@@ -116,4 +128,67 @@ export const templates = {
 		tags: ["Single-column", "ATS friendly", "Uppercase headings", "Executive", "Consulting", "Startup"],
 		sidebarPosition: "none",
 	},
+	// Dedicated to cover letters (see `templateKindMap`) — built for a single flowing letter
+	// (sender header + body), not a CV's sections/sidebar.
+	eevee: {
+		name: "Eevee",
+		description: msg`Sober letterhead: sender name and contact info above a plain rule, no color; understated and versatile for any cover letter.`,
+		imageUrl: "/templates/jpg/eevee.jpg",
+		tags: ["Cover letter", "Sober", "No decoration", "Versatile"],
+		sidebarPosition: "none",
+	},
+	vulpix: {
+		name: "Vulpix",
+		description: msg`A single colored accent rule under the sender's name; the lightest touch of color for a cover letter.`,
+		imageUrl: "/templates/jpg/vulpix.jpg",
+		tags: ["Cover letter", "Accent colors", "Understated"],
+		sidebarPosition: "none",
+	},
+	togepi: {
+		name: "Togepi",
+		description: msg`A soft pastel-tinted band behind the sender's name and contact info; warm and approachable for a cover letter.`,
+		imageUrl: "/templates/jpg/togepi.jpg",
+		tags: ["Cover letter", "Soft accent", "Pastel"],
+		sidebarPosition: "none",
+	},
+	snorlax: {
+		name: "Snorlax",
+		description: msg`A bold, full-width colored header band with inverted text; the boldest color treatment for a cover letter.`,
+		imageUrl: "/templates/jpg/snorlax.jpg",
+		tags: ["Cover letter", "Bold", "Accent colors"],
+		sidebarPosition: "none",
+	},
+	espeon: {
+		name: "Espeon",
+		description: msg`A decorative colored side column for the sender's identity, letter body beside it; distinctive structure for a cover letter.`,
+		imageUrl: "/templates/jpg/espeon.jpg",
+		tags: ["Cover letter", "Sidebar", "Distinctive"],
+		sidebarPosition: "left",
+	},
 } as const satisfies Record<Template, TemplateMetadata>;
+
+/**
+ * All templates authored for `kind`, in catalog order. Does not exclude `custom` (a `kind:
+ * "resume"` template) — callers that already filter it out for other reasons keep doing so
+ * themselves, same as before this helper existed.
+ */
+export function getTemplatesForKind(kind: "resume" | "cover-letter"): [Template, TemplateMetadata][] {
+	return (Object.entries(templates) as [Template, TemplateMetadata][]).filter(
+		([template]) => templateKindMap[template] === kind,
+	);
+}
+
+// Every CV template's static `imageUrl` is a full-resume screenshot (photo, sidebar, skill bars).
+// For a cover-letter-kind preview, that fallback briefly flashes a misleading full-CV image before
+// the live-rendered preview replaces it. Swap in one generic letter-shaped fallback for that brief
+// window instead — the live render (which does differ per dedicated cover-letter template) takes
+// over a moment later, so this only affects the loading flash, not the actual preview shown.
+const COVER_LETTER_FALLBACK_IMAGE = "/templates/jpg/cover-letter-sample.jpg";
+
+export function getTemplateMetadataForKind(
+	metadata: TemplateMetadata,
+	kind: "resume" | "cover-letter",
+): TemplateMetadata {
+	if (kind !== "cover-letter") return metadata;
+	return { ...metadata, imageUrl: COVER_LETTER_FALLBACK_IMAGE };
+}

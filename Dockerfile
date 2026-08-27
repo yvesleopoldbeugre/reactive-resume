@@ -40,14 +40,12 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store,sharing=locked \
 
 FROM node:${NODE_VERSION}-slim AS runtime
 
-LABEL maintainer="amruthpillai"
+LABEL maintainer="essor"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.title="Reactive Resume"
-LABEL org.opencontainers.image.description="A free and open-source resume builder."
-LABEL org.opencontainers.image.vendor="Amruth Pillai"
-LABEL org.opencontainers.image.url="https://rxresu.me"
-LABEL org.opencontainers.image.documentation="https://docs.rxresu.me"
-LABEL org.opencontainers.image.source="https://github.com/amruthpillai/reactive-resume"
+LABEL org.opencontainers.image.title="Essor"
+LABEL org.opencontainers.image.description="Essor est un créateur de CV moderne qui vous aide à construire, personnaliser et partager un CV professionnel en quelques minutes."
+LABEL org.opencontainers.image.vendor="Essor"
+LABEL org.opencontainers.image.url="https://essor.cv"
 
 ENV NODE_ENV="production" \
     PORT=3000 \

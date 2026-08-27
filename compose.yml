@@ -68,7 +68,7 @@ services:
       /bin/sh -c "
         sleep 5;
         mc alias set seaweedfs http://seaweedfs:8333 seaweedfs seaweedfs;
-        mc mb seaweedfs/reactive-resume;
+        mc mb seaweedfs/essor;
         exit 0;
       "
     networks:
@@ -85,10 +85,21 @@ services:
     networks:
       - data_network
       - storage_network
-    ports:
-      - "3000:3000"
+      - traefik-public
+    # No direct host port: all traffic comes in through Traefik (see labels below).
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.essor.rule=Host(`essor.askoetude.com`)
+      - traefik.http.routers.essor.entrypoints=websecure
+      - traefik.http.routers.essor.tls=true
+      - traefik.http.routers.essor.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      - traefik.http.services.essor.loadbalancer.server.port=3000
     env_file:
       - path: .env.example
+        required: false
+      # Real secrets/overrides (gitignored) layered on top of the example defaults above.
+      - path: .env
         required: false
     volumes:
       - ./data:/app/data
@@ -116,3 +127,6 @@ volumes:
 networks:
   data_network:
   storage_network:
+  # Owned by the separate Traefik stack; this project only joins it.
+  traefik-public:
+    external: true

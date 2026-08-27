@@ -35,6 +35,7 @@
 		"@reactive-resume/ai": "workspace:*",
 		"@reactive-resume/api": "workspace:*",
 		"@reactive-resume/auth": "workspace:*",
+		"@reactive-resume/brand": "workspace:*",
 		"@reactive-resume/docx": "workspace:*",
 		"@reactive-resume/fonts": "workspace:*",
 		"@reactive-resume/import": "workspace:*",

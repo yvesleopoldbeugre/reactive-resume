@@ -8,7 +8,7 @@ import { isRTL, localeSchema } from "@reactive-resume/utils/locale";
 export { isRTL };
 
 const storageKey = "locale";
-const defaultLocale: Locale = "en-US";
+const defaultLocale: Locale = "fr-FR";
 const messageLoaders = import.meta.glob<{ messages: Messages }>("../../locales/*.po");
 
 export const localeMap = {

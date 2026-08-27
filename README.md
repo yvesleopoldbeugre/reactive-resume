@@ -1,49 +1,12 @@
 <div align="center">
-  <a href="https://rxresu.me">
-    <img src="apps/web/public/opengraph/banner.jpg" alt="Reactive Resume" />
-  </a>
+  <h1>Essor</h1>
 
-  <h1>Reactive Resume</h1>
-
-  <p>Reactive Resume is a free and open-source resume builder that simplifies the process of creating, updating, and sharing your resume.</p>
-
-  <p>
-    <a href="https://rxresu.me"><strong>Get Started</strong></a>
-    ·
-    <a href="https://docs.rxresu.me"><strong>Learn More</strong></a>
-  </p>
-
-  <p>
-    <img src="https://img.shields.io/github/package-json/v/amruthpillai/reactive-resume?style=flat-square" alt="Reactive Resume Version">
-    <img src="https://img.shields.io/github/stars/amruthpillai/Reactive-Resume?style=flat-square" alt="GitHub Stars">
-    <img src="https://img.shields.io/github/license/amruthpillai/Reactive-Resume?style=flat-square" alt="License" />
-    <img src="https://img.shields.io/docker/pulls/amruthpillai/reactive-resume?style=flat-square" alt="Docker Pulls" />
-    <a href="https://discord.gg/aSyA5ZSxpb"><img src="https://img.shields.io/discord/1173518977851473940?style=flat-square&label=discord" alt="Discord" /></a>
-    <a href="https://crowdin.com/project/reactive-resume"><img src="https://badges.crowdin.net/reactive-resume/localized.svg?style=flat-square" alt="Crowdin" /></a>
-    <a href="https://github.com/sponsors/AmruthPillai"><img src="https://img.shields.io/github/sponsors/AmruthPillai?style=flat-square&label=sponsors" alt="Sponsors" /></a>
-    <a href="https://opencollective.com/reactive-resume/donate"><img src="https://img.shields.io/opencollective/backers/reactive-resume?style=flat-square&label=donations" alt="Donations" /></a>
-  </p>
+  <p>Essor est un créateur de CV moderne qui vous aide à construire, personnaliser et partager un CV professionnel en quelques minutes.</p>
 </div>
 
 ---
 
-Reactive Resume makes building resumes straightforward. Pick a template, fill in your details, and export to PDF—no account required for basic use. For those who want more control, the entire application can be self-hosted on your own infrastructure.
-
-Built with privacy as a core principle, Reactive Resume gives you complete ownership of your data. The codebase is fully open-source under the MIT license, with no tracking, no ads, and no hidden costs.
-
-## Sponsors
-
-Reactive Resume stays free, open-source, and independent because companies choose to support the work behind it. Thank you to every sponsor who helps fund hosting, maintenance, and continued development for the community.
-
-<p>
-  <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=reactive-resume">
-    <img src="apps/web/public/sponsors/atlas-cloud-logo-white.svg" alt="Atlas Cloud" width="320" />
-  </a>
-</p>
-
-[Atlas Cloud](https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=reactive-resume) supports Reactive Resume as a project sponsor. Atlas Cloud provides a unified AI platform for developers, with access to hundreds of models for chat, image generation, video generation, media processing, and GPU cloud workloads through one API key, one endpoint, and one billing account.
-
-If your company would like to sponsor Reactive Resume, email [hello@amruthpillai.com](mailto:hello@amruthpillai.com).
+Pick a template, fill in your details, and export to PDF. Essor is built on top of [Reactive Resume](https://github.com/amruthpillai/reactive-resume) (MIT-licensed), with its own visual identity and product direction.
 
 ## Features
 
@@ -153,13 +116,9 @@ If your company would like to sponsor Reactive Resume, email [hello@amruthpillai
 
 ## Quick Start
 
-The quickest way to run Reactive Resume locally:
+The quickest way to run Essor locally:
 
 ```bash
-# Clone the repository
-git clone --depth=1  https://github.com/amruthpillai/reactive-resume.git
-cd reactive-resume
-
 # Start all services
 docker compose up -d
 
@@ -167,14 +126,12 @@ docker compose up -d
 open http://localhost:3000
 ```
 
-[![Build with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/amruthpillai/reactive-resume)
-
-For detailed setup instructions, environment configuration, and self-hosting guides, see the [documentation](https://docs.rxresu.me).
+See `AGENTS.md` for the full local development setup (pnpm workspaces, Postgres, environment variables).
 
 ## Tech Stack
 
 | Category         | Technology                      |
-| ---------------- | ------------------------------- |
+| ----------------- | -------------------------------- |
 | Framework        | TanStack Start (React 19, Vite) |
 | Runtime          | Node.js                         |
 | Language         | TypeScript                      |
@@ -185,81 +142,21 @@ For detailed setup instructions, environment configuration, and self-hosting gui
 | UI Components    | Base UI + shadcn-style package  |
 | State Management | Zustand + TanStack Query        |
 
-## Documentation
-
-Comprehensive guides are available at [docs.rxresu.me](https://docs.rxresu.me):
-
-| Guide                                                                        | Description                      |
-| ---------------------------------------------------------------------------- | -------------------------------- |
-| [Getting Started](https://docs.rxresu.me/getting-started)                    | First-time setup and basic usage |
-| [Self-Hosting](https://docs.rxresu.me/self-hosting/docker)                   | Deploy on your own server        |
-| [Development Setup](https://docs.rxresu.me/contributing/development)         | Local development environment    |
-| [Project Architecture](https://docs.rxresu.me/contributing/architecture)     | Codebase structure and patterns  |
-| [Exporting Your Resume](https://docs.rxresu.me/guides/exporting-your-resume) | PDF and JSON export options      |
-
 ## Self-Hosting
 
-Reactive Resume can be self-hosted using Docker. The stack includes:
+Essor can be self-hosted using Docker. The stack includes:
 
 - **PostgreSQL** — Database for storing user data and resumes
 - **SeaweedFS** (optional) — S3-compatible storage for file uploads
 
-> **From v5.1.0 onwards** — PDF generation now runs entirely client-side via `@react-pdf/renderer`. New deployments no longer require Browserless, Chromium, or any external print service as a dependency. The `PRINTER_*` and `BROWSERLESS_*` environment variables are no longer read and can be removed from your `.env`.
+PDF generation runs entirely client-side via `@react-pdf/renderer` — no Browserless, Chromium, or external print service is required.
 
-Pull the latest image from Docker Hub or GitHub Container Registry:
+Build the image from this repository:
 
 ```bash
-# Docker Hub
-docker pull amruthpillai/reactive-resume:latest
-
-# GitHub Container Registry
-docker pull ghcr.io/amruthpillai/reactive-resume:latest
+docker build -t essor .
 ```
-
-See the [self-hosting guide](https://docs.rxresu.me/self-hosting/docker) for complete instructions.
-
-## Support
-
-Reactive Resume is and always will be free and open-source. If it has helped you land a job or saved you time, please consider supporting continued development:
-
-<p>
-  <a href="https://github.com/sponsors/AmruthPillai">
-    <img src="https://img.shields.io/badge/GitHub%20Sponsors-Support-ea4aaa?style=flat-square&logo=github-sponsors" alt="GitHub Sponsors" />
-  </a>
-  <a href="https://opencollective.com/reactive-resume/donate">
-    <img src="https://img.shields.io/badge/Open%20Collective-Contribute-7FADF2?style=flat-square&logo=open-collective" alt="Open Collective" />
-  </a>
-</p>
-
-Other ways to support:
-
-- Star this repository
-- Report bugs and suggest features
-- Improve documentation
-- Help with translations
-
-## Star History
-
-<a href="https://www.star-history.com/?repos=amruthpillai%2Freactive-resume&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=amruthpillai/reactive-resume&type=date&theme=dark&legend=top-left&sealed_token=BF8sVMes0z5BhdkMhtFklhxeikeGUrSyW-CcY9E_RCQI5zqUHEbMRwcB075fUewbAtlNoCnDlWhDWjrDGhTcXMojsS2I0RCqcL-Y9p3Ez3H1A2QpRMthjFilP0YOCJEE9AZqRrqzlvj1uU2y5ixarXOuUXuuSw5DkLMViSMD8Ldl0H3BEgclnjWw4fI4" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=amruthpillai/reactive-resume&type=date&legend=top-left&sealed_token=BF8sVMes0z5BhdkMhtFklhxeikeGUrSyW-CcY9E_RCQI5zqUHEbMRwcB075fUewbAtlNoCnDlWhDWjrDGhTcXMojsS2I0RCqcL-Y9p3Ez3H1A2QpRMthjFilP0YOCJEE9AZqRrqzlvj1uU2y5ixarXOuUXuuSw5DkLMViSMD8Ldl0H3BEgclnjWw4fI4" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=amruthpillai/reactive-resume&type=date&legend=top-left&sealed_token=BF8sVMes0z5BhdkMhtFklhxeikeGUrSyW-CcY9E_RCQI5zqUHEbMRwcB075fUewbAtlNoCnDlWhDWjrDGhTcXMojsS2I0RCqcL-Y9p3Ez3H1A2QpRMthjFilP0YOCJEE9AZqRrqzlvj1uU2y5ixarXOuUXuuSw5DkLMViSMD8Ldl0H3BEgclnjWw4fI4" />
- </picture>
-</a>
-
-## Contributing
-
-Contributions make open-source thrive. Whether fixing a typo or adding a feature, all contributions are welcome.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-See the [development setup guide](https://docs.rxresu.me/contributing/development) for detailed instructions on how to set up the project locally.
 
 ## License
 
-[MIT](./LICENSE) — do whatever you want with it.
+Essor is built on top of [Reactive Resume](https://github.com/amruthpillai/reactive-resume), used under the [MIT license](./LICENSE). Modifications and additions made for Essor are also released under MIT.

@@ -1,0 +1,1 @@
+ALTER TABLE "resume" ADD COLUMN "kind" text DEFAULT 'resume' NOT NULL;

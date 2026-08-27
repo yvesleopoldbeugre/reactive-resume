@@ -10,13 +10,20 @@ type Resume = RouterOutput["resume"]["list"][number];
 type Props = {
 	resumes: Resume[];
 	hasResumes: boolean;
+	kind?: "resume" | "cover-letter";
 };
 
-export function GridView({ resumes, hasResumes }: Props) {
+export function GridView({ resumes, hasResumes, kind = "resume" }: Props) {
+	const isCoverLetter = kind === "cover-letter";
+
 	if (resumes.length === 0 && hasResumes) {
 		return (
 			<p className="py-8 text-center text-muted-foreground text-sm">
-				<Trans>No resumes match your search.</Trans>
+				{isCoverLetter ? (
+					<Trans>No cover letters match your search.</Trans>
+				) : (
+					<Trans>No resumes match your search.</Trans>
+				)}
 			</p>
 		);
 	}
@@ -31,18 +38,20 @@ export function GridView({ resumes, hasResumes }: Props) {
 					transition={{ duration: 0.2, ease: "easeOut" }}
 					className="will-change-[transform,opacity]"
 				>
-					<CreateResumeCard />
+					<CreateResumeCard kind={kind} />
 				</m.div>
 
-				<m.div
-					initial={{ y: -20 }}
-					animate={{ opacity: 1, y: 0 }}
-					exit={{ y: -20 }}
-					transition={{ duration: 0.2, delay: 0.03, ease: "easeOut" }}
-					className="will-change-[transform,opacity]"
-				>
-					<ImportResumeCard />
-				</m.div>
+				{!isCoverLetter && (
+					<m.div
+						initial={{ y: -20 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ y: -20 }}
+						transition={{ duration: 0.2, delay: 0.03, ease: "easeOut" }}
+						className="will-change-[transform,opacity]"
+					>
+						<ImportResumeCard />
+					</m.div>
+				)}
 			</div>
 		);
 	}

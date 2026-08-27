@@ -85,12 +85,16 @@ interface TemplateConfig {
 	headerPosition: "full-width" | "main-only" | "sidebar-only";
 }
 
-const TEMPLATE_CONFIGS: Record<Template, TemplateConfig> = {
+// "custom" has no static entry: its layout comes from `metadata.skin` (see `resolveTemplateConfig`),
+// since each admin-authored "from scratch" preset can configure a different structure.
+const TEMPLATE_CONFIGS: Record<Exclude<Template, "custom">, TemplateConfig> = {
 	azurill: { sidebarSide: "left", sidebarBackground: "none", headerPosition: "full-width" },
 	bronzor: { sidebarSide: "right", sidebarBackground: "none", headerPosition: "full-width" },
 	chikorita: { sidebarSide: "right", sidebarBackground: "solid", headerPosition: "main-only" },
 	ditgar: { sidebarSide: "left", sidebarBackground: "tint", headerPosition: "sidebar-only" },
 	ditto: { sidebarSide: "left", sidebarBackground: "none", headerPosition: "full-width" },
+	eevee: { sidebarSide: "none", sidebarBackground: "none", headerPosition: "full-width" },
+	espeon: { sidebarSide: "none", sidebarBackground: "none", headerPosition: "full-width" },
 	gengar: { sidebarSide: "left", sidebarBackground: "tint", headerPosition: "sidebar-only" },
 	glalie: { sidebarSide: "left", sidebarBackground: "tint", headerPosition: "sidebar-only" },
 	kakuna: { sidebarSide: "right", sidebarBackground: "none", headerPosition: "full-width" },
@@ -101,6 +105,9 @@ const TEMPLATE_CONFIGS: Record<Template, TemplateConfig> = {
 	pikachu: { sidebarSide: "left", sidebarBackground: "none", headerPosition: "main-only" },
 	rhyhorn: { sidebarSide: "right", sidebarBackground: "none", headerPosition: "full-width" },
 	scizor: { sidebarSide: "left", sidebarBackground: "none", headerPosition: "full-width" },
+	snorlax: { sidebarSide: "none", sidebarBackground: "none", headerPosition: "full-width" },
+	togepi: { sidebarSide: "none", sidebarBackground: "none", headerPosition: "full-width" },
+	vulpix: { sidebarSide: "none", sidebarBackground: "none", headerPosition: "full-width" },
 };
 
 const DEFAULT_TEMPLATE_CONFIG: TemplateConfig = {
@@ -108,6 +115,28 @@ const DEFAULT_TEMPLATE_CONFIG: TemplateConfig = {
 	sidebarBackground: "none",
 	headerPosition: "full-width",
 };
+
+/** Maps a `custom` template's `metadata.skin` onto the same axes the static `TEMPLATE_CONFIGS` use. */
+function resolveCustomTemplateConfig(skin: ResumeData["metadata"]["skin"]): TemplateConfig {
+	if (!skin) return DEFAULT_TEMPLATE_CONFIG;
+
+	return {
+		sidebarSide: skin.skeleton === "stacked" ? "none" : skin.sidebar.position === "before" ? "left" : "right",
+		sidebarBackground: skin.sidebar.fill,
+		headerPosition:
+			skin.header.placement === "full-width"
+				? "full-width"
+				: skin.header.placement === "main"
+					? "main-only"
+					: "sidebar-only",
+	};
+}
+
+function resolveTemplateConfig(data: ResumeData): TemplateConfig {
+	if (data.metadata.template === "custom") return resolveCustomTemplateConfig(data.metadata.skin);
+
+	return TEMPLATE_CONFIGS[data.metadata.template] ?? DEFAULT_TEMPLATE_CONFIG;
+}
 
 /**
  * Blends a hex color toward white at the given opacity (0-1).
@@ -385,7 +414,7 @@ export function buildDocument(data: ResumeData, resolveTitle?: SectionTitleResol
 	const sidebarWidth = data.metadata.layout.sidebarWidth;
 
 	// Template-aware layout config
-	const templateConfig = TEMPLATE_CONFIGS[data.metadata.template] ?? DEFAULT_TEMPLATE_CONFIG;
+	const templateConfig = resolveTemplateConfig(data);
 
 	// Compute sidebar background shading hex
 	let sidebarShadingHex: string | undefined;

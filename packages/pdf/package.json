@@ -21,6 +21,7 @@
 	},
 	"dependencies": {
 		"@react-pdf/renderer": "^4.5.1",
+		"@reactive-resume/brand": "workspace:*",
 		"@reactive-resume/fonts": "workspace:*",
 		"@reactive-resume/schema": "workspace:*",
 		"@reactive-resume/utils": "workspace:*",

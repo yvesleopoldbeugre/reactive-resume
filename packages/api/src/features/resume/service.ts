@@ -1,6 +1,6 @@
 import type { JsonPatchOperation } from "@reactive-resume/resume/patch";
 import type { StoredResumeAnalysis } from "@reactive-resume/schema/resume/analysis";
-import type { ResumeData } from "@reactive-resume/schema/resume/data";
+import type { CustomSection, ResumeData } from "@reactive-resume/schema/resume/data";
 import type { Locale } from "@reactive-resume/utils/locale";
 import type { ResumeUpdatedEvent } from "./events";
 import { ORPCError } from "@orpc/client";
@@ -11,8 +11,11 @@ import { match } from "ts-pattern";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { applyResumePatches, ResumePatchError } from "@reactive-resume/resume/patch";
+import { isTemplateAllowedForPlan } from "@reactive-resume/schema/billing/plans";
+import { normalizeCoverLetterSection } from "@reactive-resume/schema/resume/data";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { generateId } from "@reactive-resume/utils/string";
+import { billingService } from "../billing/service";
 import { getStorageService } from "../storage/service";
 import { grantResumeAccess, hasResumeAccess } from "./access";
 import { assertCanView, isOwner, redactResumeForViewer, shouldCountForStatistics } from "./access-policy";
@@ -20,6 +23,20 @@ import { publishResumeUpdated } from "./events";
 import { clientKeyFromHeaders, shouldCountView } from "./view-dedup";
 
 type DbOrTx = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * `getById`/`getBySlug` read `resume.data` straight off the DB without going through
+ * `resumeDataSchema` (unlike `update`/`patch`/`import`, which validate on the way in), so a
+ * legacy-shaped cover-letter document would otherwise reach `export.ts`, `duplicate`, and every
+ * other internal caller of these two functions unnormalized. Applying the same normalization
+ * `resumeDataSchema` uses closes that gap in one place instead of scattering it across callers.
+ */
+function normalizeResumeCoverLetters(data: ResumeData): ResumeData {
+	return {
+		...data,
+		customSections: data.customSections.map((section) => normalizeCoverLetterSection(section) as CustomSection),
+	};
+}
 
 function resumeVersionConflict(updatedAt: Date) {
 	return new ORPCError("RESUME_VERSION_CONFLICT", {
@@ -133,6 +150,7 @@ async function applyResumePatchTx(
 			id: schema.resume.id,
 			name: schema.resume.name,
 			slug: schema.resume.slug,
+			kind: schema.resume.kind,
 			tags: schema.resume.tags,
 			data: schema.resume.data,
 			isPublic: schema.resume.isPublic,
@@ -316,6 +334,7 @@ function toSharedResumeResponse(
 		id: string;
 		name: string;
 		slug: string;
+		kind: "resume" | "cover-letter";
 		tags: string[];
 		data: ResumeData;
 		isPublic: boolean;
@@ -327,6 +346,7 @@ function toSharedResumeResponse(
 		id: resume.id,
 		name: resume.name,
 		slug: resume.slug,
+		kind: resume.kind,
 		tags: resume.tags,
 		data: resume.data,
 		isPublic: resume.isPublic,
@@ -422,12 +442,18 @@ export const resumeService = {
 		},
 	},
 
-	list: async (input: { userId: string; tags: string[]; sort: "lastUpdatedAt" | "createdAt" | "name" }) => {
+	list: async (input: {
+		userId: string;
+		tags: string[];
+		sort: "lastUpdatedAt" | "createdAt" | "name";
+		kind?: "resume" | "cover-letter";
+	}) => {
 		return await db
 			.select({
 				id: schema.resume.id,
 				name: schema.resume.name,
 				slug: schema.resume.slug,
+				kind: schema.resume.kind,
 				tags: schema.resume.tags,
 				isPublic: schema.resume.isPublic,
 				isLocked: schema.resume.isLocked,
@@ -438,6 +464,7 @@ export const resumeService = {
 			.where(
 				and(
 					eq(schema.resume.userId, input.userId),
+					input.kind ? eq(schema.resume.kind, input.kind) : undefined,
 					match(input.tags.length)
 						.with(0, () => undefined)
 						.otherwise(() => arrayContains(schema.resume.tags, input.tags)),
@@ -458,6 +485,7 @@ export const resumeService = {
 				id: schema.resume.id,
 				name: schema.resume.name,
 				slug: schema.resume.slug,
+				kind: schema.resume.kind,
 				tags: schema.resume.tags,
 				data: schema.resume.data,
 				isPublic: schema.resume.isPublic,
@@ -470,7 +498,7 @@ export const resumeService = {
 
 		if (!resume) throw new ORPCError("NOT_FOUND");
 
-		return resume;
+		return { ...resume, data: normalizeResumeCoverLetters(resume.data) };
 	},
 
 	getBySlug: async (input: { username: string; slug: string; requestHeaders: Headers; currentUserId?: string }) => {
@@ -480,6 +508,7 @@ export const resumeService = {
 				userId: schema.resume.userId,
 				name: schema.resume.name,
 				slug: schema.resume.slug,
+				kind: schema.resume.kind,
 				tags: schema.resume.tags,
 				data: schema.resume.data,
 				isPublic: schema.resume.isPublic,
@@ -492,6 +521,8 @@ export const resumeService = {
 			.where(and(eq(schema.resume.slug, input.slug), eq(schema.user.username, input.username)));
 
 		if (!resume) throw new ORPCError("NOT_FOUND");
+
+		resume.data = normalizeResumeCoverLetters(resume.data);
 
 		const viewer = input.currentUserId ? { id: input.currentUserId } : null;
 		assertCanView(resume, viewer);
@@ -517,6 +548,7 @@ export const resumeService = {
 		userId: string;
 		name: string;
 		slug: string;
+		kind?: "resume" | "cover-letter";
 		tags: string[];
 		locale: Locale;
 		data?: ResumeData;
@@ -525,11 +557,31 @@ export const resumeService = {
 		const data = input.data ?? defaultResumeData;
 		data.metadata.page.locale = input.locale;
 
+		const { plan } = await billingService.getMySubscription({ userId: input.userId });
+
+		if (plan.documentLimit !== null) {
+			const documentCount = await billingService.countDocuments(input.userId);
+			if (documentCount >= plan.documentLimit) {
+				throw new ORPCError("DOCUMENT_QUOTA_EXCEEDED", {
+					status: 402,
+					message: `Your plan allows up to ${plan.documentLimit} documents. Upgrade to create more.`,
+				});
+			}
+		}
+
+		if (!isTemplateAllowedForPlan(plan.id, data.metadata.template)) {
+			throw new ORPCError("TEMPLATE_LOCKED", {
+				status: 402,
+				message: "This template isn't included in your plan. Upgrade to unlock it.",
+			});
+		}
+
 		try {
 			await db.insert(schema.resume).values({
 				id,
 				name: input.name,
 				slug: input.slug,
+				kind: input.kind ?? "resume",
 				tags: input.tags,
 				userId: input.userId,
 				data,
@@ -567,11 +619,23 @@ export const resumeService = {
 		skipAutoSnapshot?: boolean;
 	}) => {
 		const [resume] = await db
-			.select({ isLocked: schema.resume.isLocked })
+			.select({ isLocked: schema.resume.isLocked, data: schema.resume.data })
 			.from(schema.resume)
 			.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)));
 
 		if (resume?.isLocked) throw new ORPCError("RESUME_LOCKED");
+
+		// Only a genuine template *switch* is gated -- a plan that has since lost access to a
+		// template a document already uses may keep editing everything else about that document.
+		if (input.data !== undefined && resume && input.data.metadata.template !== resume.data.metadata.template) {
+			const { plan } = await billingService.getMySubscription({ userId: input.userId });
+			if (!isTemplateAllowedForPlan(plan.id, input.data.metadata.template)) {
+				throw new ORPCError("TEMPLATE_LOCKED", {
+					status: 402,
+					message: "This template isn't included in your plan. Upgrade to unlock it.",
+				});
+			}
+		}
 
 		const updateData: Partial<typeof schema.resume.$inferSelect> = {
 			...(input.name !== undefined ? { name: input.name } : {}),
@@ -596,6 +660,7 @@ export const resumeService = {
 					id: schema.resume.id,
 					name: schema.resume.name,
 					slug: schema.resume.slug,
+					kind: schema.resume.kind,
 					tags: schema.resume.tags,
 					data: schema.resume.data,
 					isPublic: schema.resume.isPublic,

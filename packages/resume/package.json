@@ -4,10 +4,12 @@
 	"type": "module",
 	"private": true,
 	"exports": {
+		"./cover-letter-placeholder": "./src/cover-letter-placeholder.ts",
 		"./export-sections": "./src/export-sections.ts",
 		"./icons": "./src/icons.ts",
 		"./markdown": "./src/markdown.ts",
-		"./patch": "./src/patch.ts"
+		"./patch": "./src/patch.ts",
+		"./preset": "./src/preset.ts"
 	},
 	"scripts": {
 		"typecheck": "tsgo --noEmit",

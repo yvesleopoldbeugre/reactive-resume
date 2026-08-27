@@ -3,27 +3,27 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="theme-color" content="#09090B" />
-		<meta name="application-name" content="Reactive Resume" />
+		<meta name="theme-color" content="#0E4377" />
+		<meta name="application-name" content="Essor" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-title" content="Reactive Resume" />
+		<meta name="apple-mobile-web-app-title" content="Essor" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-		<meta name="description" content="Reactive Resume is a free and open-source resume builder that simplifies the process of creating, updating, and sharing your resume.">
+		<meta name="description" content="Essor est un créateur de CV moderne qui vous aide à construire, personnaliser et partager un CV professionnel en quelques minutes.">
 
 		<link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="128x128" />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="256x256 any" />
 		<link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" type="image/png" sizes="180x180 any" />
 		<link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials" />
 
-		<title>Reactive Resume</title>
+		<title>Essor</title>
 	</head>
 	<body>
 		<!-- Keep #app empty: main.tsx only mounts React when rootElement has no children. -->
 		<div id="app"></div>
 		<!-- Branded first paint; hidden once React populates #app (higher-specificity rule below). -->
 		<div id="initial-loader">
-			<img src="/icon/dark.svg" width="48" height="48" alt="Reactive Resume" />
+			<img src="/icon/dark.svg" width="48" height="48" alt="Essor" />
 			<div class="initial-loader__spinner"></div>
 			<span class="initial-loader__sr-only">Loading</span>
 		</div>
@@ -37,7 +37,7 @@
 				align-items: center;
 				justify-content: center;
 				gap: 24px;
-				background: #09090b;
+				background: #060b10;
 			}
 			#app:not(:empty) ~ #initial-loader { display: none; }
 			.initial-loader__spinner {

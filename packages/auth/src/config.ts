@@ -14,6 +14,7 @@ import { genericOAuth } from "better-auth/plugins/generic-oauth";
 import { twoFactor } from "better-auth/plugins/two-factor";
 import { username } from "better-auth/plugins/username";
 import { createElement } from "react";
+import { BRAND } from "@reactive-resume/brand";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { ResetPasswordEmail, VerifyEmail, VerifyEmailChange } from "@reactive-resume/email/templates/auth";
@@ -82,7 +83,7 @@ const getAuthConfig = () => {
 			scopes: env.OAUTH_SCOPES,
 			redirectURI: `${authBaseUrl}/api/auth/oauth2/callback/custom`,
 			mapProfileToUser: createProfileMapper({
-				providerName: "OAuth Provider",
+				providerName: "Asko Etude",
 				getPreferredUsername: (profile, context) => profile.preferred_username ?? context.emailLocalPart,
 				getName: (profile, context) => profile.name ?? profile.preferred_username ?? context.emailLocalPart,
 				getImage: (profile) => profile.image ?? profile.picture ?? profile.avatar_url,
@@ -91,7 +92,7 @@ const getAuthConfig = () => {
 	}
 
 	return betterAuth({
-		appName: "Reactive Resume",
+		appName: BRAND.name,
 		baseURL: authBaseUrl,
 		secret: env.AUTH_SECRET,
 
@@ -102,6 +103,19 @@ const getAuthConfig = () => {
 		rateLimit: {
 			...rateLimitConfig.betterAuth.global,
 			enabled: isRateLimitEnabled,
+		},
+
+		databaseHooks: {
+			user: {
+				create: {
+					before: async (user) => {
+						if (!env.ADMIN_EMAILS) return;
+						if (!env.ADMIN_EMAILS.includes(user.email.toLowerCase())) return;
+
+						return { data: { ...user, role: "admin" } };
+					},
+				},
+			},
 		},
 
 		hooks: {
@@ -234,7 +248,7 @@ const getAuthConfig = () => {
 			admin(),
 			passkey(),
 			genericOAuth({ config: authConfigs }),
-			twoFactor({ issuer: "Reactive Resume" }),
+			twoFactor({ issuer: BRAND.name }),
 			apiKey({
 				enableSessionForAPIKeys: true,
 				rateLimit: {

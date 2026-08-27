@@ -22,7 +22,7 @@ export type ResumePaneProps = {
 	resume: AgentThreadDetail["resume"];
 };
 
-const AGENT_PREVIEW_ZOOM_STORAGE_KEY = "reactive-resume:agent-preview-zoom:v3";
+const AGENT_PREVIEW_ZOOM_STORAGE_KEY = "essor:agent-preview-zoom:v3";
 const MIN_PREVIEW_ZOOM = 0.4;
 const MAX_PREVIEW_ZOOM = 1.5;
 const PREVIEW_ZOOM_STEP = 0.05;

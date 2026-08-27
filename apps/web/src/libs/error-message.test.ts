@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { ORPCError } from "@orpc/client";
-import { getOrpcErrorMessage, getReadableErrorMessage, getResumeErrorMessage } from "./error-message";
+import {
+	getOrpcErrorMessage,
+	getReadableErrorMessage,
+	getResumeErrorMessage,
+	isBillingRestrictedError,
+} from "./error-message";
 
 describe("getReadableErrorMessage", () => {
 	it("returns the string error directly", () => {
@@ -98,5 +103,28 @@ describe("getResumeErrorMessage", () => {
 
 	it("returns fallback for unknown shape", () => {
 		expect(getResumeErrorMessage(null)).toBe("Something went wrong. Please try again.");
+	});
+
+	it("returns mapped message for DOCUMENT_QUOTA_EXCEEDED", () => {
+		const error = new ORPCError("DOCUMENT_QUOTA_EXCEEDED");
+		expect(getResumeErrorMessage(error)).toBe("You've reached your plan's document limit. Upgrade to create more.");
+	});
+
+	it("returns mapped message for TEMPLATE_LOCKED", () => {
+		const error = new ORPCError("TEMPLATE_LOCKED");
+		expect(getResumeErrorMessage(error)).toBe("This template isn't included in your plan. Upgrade to unlock it.");
+	});
+});
+
+describe("isBillingRestrictedError", () => {
+	it("is true for DOCUMENT_QUOTA_EXCEEDED and TEMPLATE_LOCKED", () => {
+		expect(isBillingRestrictedError(new ORPCError("DOCUMENT_QUOTA_EXCEEDED"))).toBe(true);
+		expect(isBillingRestrictedError(new ORPCError("TEMPLATE_LOCKED"))).toBe(true);
+	});
+
+	it("is false for other ORPCErrors and non-ORPCErrors", () => {
+		expect(isBillingRestrictedError(new ORPCError("RESUME_LOCKED"))).toBe(false);
+		expect(isBillingRestrictedError(new Error("boom"))).toBe(false);
+		expect(isBillingRestrictedError(null)).toBe(false);
 	});
 });

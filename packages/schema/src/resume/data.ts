@@ -1,5 +1,6 @@
 import z from "zod";
 import { templateSchema } from "../templates";
+import { skinSchema } from "./skin";
 
 const iconSchema = z
 	.string()
@@ -273,12 +274,58 @@ export const volunteerItemSchema = baseItemSchema.extend({
 		.describe("The description of the volunteer experience. This should be a HTML-formatted string."),
 });
 
+export const coverLetterPartTypeSchema = z.enum([
+	"recipient",
+	"subject",
+	"salutation",
+	"paragraph",
+	"closing",
+	"signature",
+]);
+
+export type CoverLetterPartType = z.infer<typeof coverLetterPartTypeSchema>;
+
 export const coverLetterItemSchema = baseItemSchema.extend({
-	recipient: z.string().describe("The recipient's address block as HTML (name, title, company, address, email)."),
-	content: z.string().describe("The cover letter body as HTML (salutation, paragraphs, closing, signature)."),
+	partType: coverLetterPartTypeSchema.describe("Which structural part of the letter this item represents."),
+	content: z.string().describe("This part's HTML content."),
 });
 
 export type CoverLetterItem = z.infer<typeof coverLetterItemSchema>;
+
+/**
+ * Legacy cover-letter items stored one `{recipient, content}` item per section; the current
+ * schema stores each structural part (recipient block, subject, salutation, paragraph, closing,
+ * signature) as its own item via `partType`. Expands a pre-migration item into its new-shape
+ * equivalent(s) so already-stored documents keep loading without a database migration.
+ */
+function expandLegacyCoverLetterItem(item: unknown): unknown[] {
+	if (typeof item !== "object" || item === null) return [item];
+	const raw = item as Record<string, unknown>;
+	if ("partType" in raw) return [raw];
+	if (!("recipient" in raw) && !("content" in raw)) return [raw];
+
+	const hidden = raw.hidden ?? false;
+	const parts: Record<string, unknown>[] = [];
+	if (typeof raw.recipient === "string" && raw.recipient) {
+		parts.push({ id: raw.id, hidden, partType: "recipient", content: raw.recipient });
+	}
+	if (typeof raw.content === "string" && raw.content) {
+		parts.push({ id: `${String(raw.id)}-body`, hidden, partType: "paragraph", content: raw.content });
+	}
+	return parts.length > 0 ? parts : [raw];
+}
+
+/**
+ * Runs before `customSectionSchema` validation so legacy-shaped cover-letter items are expanded
+ * into the current multi-part shape ahead of time; every other section type passes through
+ * untouched. Idempotent — items that already have `partType` are left as-is.
+ */
+export function normalizeCoverLetterSection(raw: unknown): unknown {
+	if (typeof raw !== "object" || raw === null) return raw;
+	const section = raw as Record<string, unknown>;
+	if (section.type !== "cover-letter" || !Array.isArray(section.items)) return raw;
+	return { ...section, items: section.items.flatMap(expandLegacyCoverLetterItem) };
+}
 
 export const baseSectionSchema = z.object({
 	title: z.string().describe("The title of the section."),
@@ -359,9 +406,10 @@ export const sectionTypeSchema = z.enum([
 export type CustomSectionType = z.infer<typeof sectionTypeSchema>;
 
 const customSectionItemSchema = z.union([
-	// coverLetterItemSchema must come before summaryItemSchema because both have 'content',
-	// but coverLetterItemSchema also requires 'recipient'. If summaryItemSchema is first,
-	// cover letter items will match it and lose the 'recipient' field.
+	// coverLetterItemSchema must come before summaryItemSchema: both share a 'content' field,
+	// and zod's non-strict object parsing silently strips unrecognized keys, so a cover-letter
+	// item's 'partType' field would be dropped (matching summaryItemSchema instead) if
+	// summaryItemSchema were checked first.
 	coverLetterItemSchema,
 	summaryItemSchema,
 	profileItemSchema,
@@ -380,6 +428,10 @@ const customSectionItemSchema = z.union([
 
 export type CustomSectionItem = z.infer<typeof customSectionItemSchema>;
 
+// Kept as a plain (non-preprocessed) object schema — it's used directly as a form validator in
+// the web app's custom-section dialog, where TanStack Form needs its input type to match the
+// form's already-typed values exactly. Legacy cover-letter normalization instead wraps the array
+// below, since a freshly-edited section in the builder is never legacy-shaped to begin with.
 export const customSectionSchema = baseSectionSchema.extend({
 	id: z.string().describe("The unique identifier for the custom section. Usually generated as a UUID."),
 	type: sectionTypeSchema.describe(
@@ -392,7 +444,10 @@ export const customSectionSchema = baseSectionSchema.extend({
 
 export type CustomSection = z.infer<typeof customSectionSchema>;
 
-const customSectionsSchema = z.array(customSectionSchema);
+const customSectionsSchema = z.preprocess((raw) => {
+	if (!Array.isArray(raw)) return raw;
+	return raw.map(normalizeCoverLetterSection);
+}, z.array(customSectionSchema));
 
 const fontWeightSchema = z.enum(["100", "200", "300", "400", "500", "600", "700", "800", "900"]);
 
@@ -638,6 +693,11 @@ export const metadataSchema = z.object({
 	styleRules: styleRulesSchema.describe(
 		"Structured style rules that target semantic resume sections and slots for React PDF rendering.",
 	),
+	skin: skinSchema
+		.optional()
+		.describe(
+			"Structural composition for a 'from scratch' template (template: 'custom'). Absent for the 15 built-in templates.",
+		),
 });
 
 export const resumeDataSchema = z.looseObject({

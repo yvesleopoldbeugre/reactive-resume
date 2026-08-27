@@ -19,7 +19,7 @@ import { CreateVolunteerDialog, UpdateVolunteerDialog } from "./sections/volunte
 import { TemplateGalleryDialog } from "./template/gallery";
 
 export const resumeDialogRenderers: readonly AnyDialogRendererEntry[] = [
-	{ type: "resume.create", render: () => <CreateResumeDialog /> },
+	{ type: "resume.create", render: ({ data }) => <CreateResumeDialog data={data} /> },
 	{ type: "resume.update", render: ({ data }) => <UpdateResumeDialog data={data} /> },
 	{ type: "resume.duplicate", render: ({ data }) => <DuplicateResumeDialog data={data} /> },
 	{ type: "resume.import", render: () => <ImportResumeDialog /> },

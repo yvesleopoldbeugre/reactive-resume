@@ -1,26 +1,11 @@
 # Security Policy
 
-## Supported Versions
-
-Reactive Resume provides security updates for version `5.0.x` and newer.
-Earlier major versions are no longer supported.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| >= 5.0  | :white_check_mark: |
-| 4.x     | :x:                |
-| < 4.0   | :x:                |
-
 ## Reporting a Vulnerability
 
 If you believe you have found a security vulnerability, please report it
 privately instead of opening a public issue.
 
-Preferred reporting channels:
-
-- Use GitHub's private vulnerability reporting for this repository.
-- If that is unavailable, email `hello@amruthpillai.com` with the subject
-  `Security Vulnerability: Reactive Resume`.
+Email `bonjour@essor.cv` with the subject `Security Vulnerability: Essor`.
 
 Please include as much detail as possible, including:
 

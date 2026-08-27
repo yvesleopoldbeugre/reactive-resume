@@ -3,6 +3,7 @@ import type {
 	CustomSectionItem as CustomSectionItemType,
 	CustomSectionType,
 } from "@reactive-resume/schema/resume/data";
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Plural, Trans } from "@lingui/react/macro";
 import {
@@ -34,6 +35,7 @@ import { cn } from "@reactive-resume/utils/style";
 import { useDialogStore } from "@/dialogs/store";
 import { useCurrentBuilderResumeSelector, useUpdateResumeData } from "@/features/resume/builder/draft";
 import { useConfirm } from "@/hooks/use-confirm";
+import { getCoverLetterPartTypeLabel } from "@/libs/resume/cover-letter-part-labels";
 import { getSectionTitle } from "@/libs/resume/section";
 import { SectionBase } from "../shared/section-base";
 import { SectionAddItemButton, SectionItem } from "../shared/section-item";
@@ -89,17 +91,9 @@ function getItemTitle(type: CustomSectionType, item: CustomSectionItemType): str
 		});
 	}
 	if (type === "cover-letter") {
-		if ("recipient" in item) {
-			return (
-				truncateHtml(item.recipient) ||
-				t({
-					comment: "Fallback title for a custom cover letter item in resume builder when recipient is empty",
-					message: "Cover Letter",
-				})
-			);
-		}
+		if ("partType" in item) return i18n._(getCoverLetterPartTypeLabel(item.partType));
 		return t({
-			comment: "Fallback title for a custom cover letter item in resume builder when recipient is unavailable",
+			comment: "Fallback title for a custom cover letter item in resume builder when partType is unavailable",
 			message: "Cover Letter",
 		});
 	}

@@ -3,19 +3,20 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import {
-	BrainIcon,
-	BriefcaseIcon,
-	ChatCircleDotsIcon,
+	CreditCardIcon,
+	EnvelopeSimpleIcon,
 	GearSixIcon,
-	KeyIcon,
 	MagnifyingGlassIcon,
 	ReadCvLogoIcon,
 	ShieldCheckIcon,
+	SlideshowIcon,
 	UserCircleIcon,
+	UserGearIcon,
 	WarningIcon,
 } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, m } from "motion/react";
+import { BRAND } from "@reactive-resume/brand";
 import { Avatar, AvatarFallback, AvatarImage } from "@reactive-resume/ui/components/avatar";
 import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
@@ -38,6 +39,7 @@ import { getInitials } from "@reactive-resume/utils/string";
 import { Copyright } from "@/components/ui/copyright";
 import { useCommandPaletteStore } from "@/features/command-palette/store";
 import { UserDropdownMenu } from "@/features/user/dropdown-menu";
+import { authClient } from "@/libs/auth/client";
 
 type SidebarItem = {
 	icon: React.ReactNode;
@@ -47,20 +49,27 @@ type SidebarItem = {
 
 const appSidebarItems = [
 	{
+		icon: <SlideshowIcon />,
+		label: msg`New Resume`,
+		href: "/dashboard/templates",
+	},
+	{
 		icon: <ReadCvLogoIcon />,
 		label: msg`Resumes`,
 		href: "/dashboard/resumes",
 	},
 	{
-		icon: <BriefcaseIcon />,
-		label: msg`Applications`,
-		href: "/dashboard/applications",
+		icon: <EnvelopeSimpleIcon />,
+		label: msg`New Cover Letter`,
+		href: "/dashboard/cover-letter-templates",
 	},
 	{
-		icon: <ChatCircleDotsIcon />,
-		label: msg`Agents`,
-		href: "/agent",
+		icon: <EnvelopeSimpleIcon />,
+		label: msg`Cover Letters`,
+		href: "/dashboard/cover-letters",
 	},
+	// Applications and Agents are hidden from the menu for now (first-phase minimal nav) —
+	// their routes still exist, just not linked here yet.
 ] as const satisfies SidebarItem[];
 
 const settingsSidebarItems = [
@@ -68,6 +77,11 @@ const settingsSidebarItems = [
 		icon: <UserCircleIcon />,
 		label: msg`Profile`,
 		href: "/dashboard/settings/profile",
+	},
+	{
+		icon: <CreditCardIcon />,
+		label: msg`Billing`,
+		href: "/dashboard/settings/billing",
 	},
 	{
 		icon: <GearSixIcon />,
@@ -80,20 +94,12 @@ const settingsSidebarItems = [
 		href: "/dashboard/settings/authentication",
 	},
 	{
-		icon: <KeyIcon />,
-		label: msg`API Keys`,
-		href: "/dashboard/settings/api-keys",
-	},
-	{
-		icon: <BrainIcon />,
-		label: msg`Integrations`,
-		href: "/dashboard/settings/integrations",
-	},
-	{
 		icon: <WarningIcon />,
 		label: msg`Danger Zone`,
 		href: "/dashboard/settings/danger-zone",
 	},
+	// API Keys and Integrations are hidden from the menu for now (first-phase minimal nav) —
+	// their routes still exist, just not linked here yet.
 ] as const satisfies SidebarItem[];
 
 type SidebarItemListProps = {
@@ -143,9 +149,19 @@ function SidebarSearchButton() {
 	);
 }
 
+const adminSidebarItems = [
+	{
+		icon: <UserGearIcon />,
+		label: msg`Template Presets`,
+		href: "/admin/template-presets",
+	},
+] as const satisfies SidebarItem[];
+
 export function DashboardSidebar() {
 	const { i18n } = useLingui();
 	const { state } = useSidebarState();
+	const { data: session } = authClient.useSession();
+	const isAdmin = session?.user.role === "admin";
 
 	return (
 		<Sidebar variant="floating" collapsible="icon">
@@ -157,7 +173,7 @@ export function DashboardSidebar() {
 							render={
 								<Link to="/">
 									<BrandIcon variant="icon" className="size-6" />
-									<h1 className="sr-only">Reactive Resume</h1>
+									<h1 className="sr-only">{BRAND.name}</h1>
 								</Link>
 							}
 						/>
@@ -187,6 +203,17 @@ export function DashboardSidebar() {
 						<SidebarItemList items={settingsSidebarItems} />
 					</SidebarGroupContent>
 				</SidebarGroup>
+
+				{isAdmin && (
+					<SidebarGroup>
+						<SidebarGroupLabel>
+							<Trans>Admin</Trans>
+						</SidebarGroupLabel>
+						<SidebarGroupContent>
+							<SidebarItemList items={adminSidebarItems} />
+						</SidebarGroupContent>
+					</SidebarGroup>
+				)}
 			</SidebarContent>
 
 			<SidebarSeparator />

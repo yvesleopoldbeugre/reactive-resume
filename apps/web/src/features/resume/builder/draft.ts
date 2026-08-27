@@ -16,6 +16,8 @@ export type Resume = {
 	id: string;
 	name: string;
 	slug: string;
+	// Immutable per-document: never changes after creation, so `mergeResumeMetadata` doesn't need to re-sync it.
+	kind: "resume" | "cover-letter";
 	tags: string[];
 	data: ResumeData;
 	isLocked: boolean;

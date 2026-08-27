@@ -1,26 +1,8 @@
 import type { Icon } from "@phosphor-icons/react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import {
-	CloudArrowUpIcon,
-	CodeSimpleIcon,
-	CurrencyDollarIcon,
-	DatabaseIcon,
-	DotsThreeIcon,
-	FilePdfIcon,
-	FilesIcon,
-	GithubLogoIcon,
-	GlobeIcon,
-	KeyIcon,
-	LayoutIcon,
-	LockSimpleIcon,
-	PaletteIcon,
-	ProhibitIcon,
-	ShieldCheckIcon,
-	TranslateIcon,
-} from "@phosphor-icons/react";
+import { EnvelopeSimpleIcon, FilePdfIcon, FilesIcon, PaletteIcon, TranslateIcon } from "@phosphor-icons/react";
 import { m } from "motion/react";
-import { cn } from "@reactive-resume/utils/style";
 
 type Feature = {
 	id: string;
@@ -29,136 +11,59 @@ type Feature = {
 	description: string;
 };
 
-type FeatureCardProps = Feature;
-
+// Kept deliberately short: only capabilities that work today with zero extra setup
+// (no AI provider, no passkey/HTTPS domain, no storage config) make this list.
 const getFeatures = (): Feature[] => [
-	{
-		id: "free",
-		icon: CurrencyDollarIcon,
-		title: t`Free`,
-		description: t`Completely free, forever, no hidden costs.`,
-	},
-	{
-		id: "open-source",
-		icon: GithubLogoIcon,
-		title: t`Open Source`,
-		description: t`By the community, for the community.`,
-	},
-	{
-		id: "no-ads",
-		icon: ProhibitIcon,
-		title: t`No Advertising, No Tracking`,
-		description: t`For a secure and distraction-free experience.`,
-	},
 	{
 		id: "instant-generation",
 		icon: FilePdfIcon,
-		title: t`Instant Generation`,
-		description: t`Export your resume to PDF instantly, without any waiting or delays.`,
+		title: t`Instant PDF Export`,
+		description: t`Export your resume to PDF instantly, with pixel-perfect formatting.`,
 	},
 	{
-		id: "data-security",
-		icon: DatabaseIcon,
-		title: t`Data Security`,
-		description: t`Your data is secure, and never shared or sold to anyone.`,
+		id: "design",
+		icon: PaletteIcon,
+		title: t`Full Customization`,
+		description: t`Personalize colors, fonts, and layout to make every resume your own.`,
 	},
 	{
-		id: "self-host",
-		icon: CloudArrowUpIcon,
-		title: t`Self-Host with Docker`,
-		description: t`You also have the option to deploy on your own servers using the Docker image.`,
+		id: "multiple-resumes",
+		icon: FilesIcon,
+		title: t`Multiple Resumes`,
+		description: t`Create resumes tailored to every role you apply for — free to start, unlimited on Pro.`,
+	},
+	{
+		id: "cover-letters",
+		icon: EnvelopeSimpleIcon,
+		title: t`Cover Letters`,
+		description: t`Write standalone cover letters with the same templates, styling, and export options as your resumes.`,
 	},
 	{
 		id: "languages",
 		icon: TranslateIcon,
 		title: t`Multilingual`,
-		description: t`Available in multiple languages. If you would like to contribute, check out Crowdin.`,
-	},
-	{
-		id: "auth",
-		icon: KeyIcon,
-		title: t`One-Click Sign-In`,
-		description: t`Sign in with GitHub, Google or a custom OAuth provider.`,
-	},
-	{
-		id: "2fa",
-		icon: ShieldCheckIcon,
-		title: t`Passkeys & 2FA`,
-		description: t`Enhance the security of your account with additional layers of protection.`,
-	},
-	{
-		id: "unlimited-resumes",
-		icon: FilesIcon,
-		title: t`Unlimited Resumes`,
-		description: t`Create as many resumes as you want, without limits.`,
-	},
-	{
-		id: "design",
-		icon: PaletteIcon,
-		title: t`Flexibility`,
-		description: t`Personalize your resume with any colors, fonts or designs, and make it your own.`,
-	},
-	{
-		id: "templates",
-		icon: LayoutIcon,
-		title: t`12+ Templates`,
-		description: t`Beautiful templates to choose from, with more on the way.`,
-	},
-	{
-		id: "public",
-		icon: GlobeIcon,
-		title: t`Shareable Links`,
-		description: t`Share your resume with a public URL, and let others view it.`,
-	},
-	{
-		id: "password-protection",
-		icon: LockSimpleIcon,
-		title: t`Password Protection`,
-		description: t`Protect your resume with a password, and let only people with the password view it.`,
-	},
-	{
-		id: "api-access",
-		icon: CodeSimpleIcon,
-		title: t`API Access`,
-		description: t`Access your resumes and data programmatically using the API.`,
-	},
-	{
-		id: "more",
-		icon: DotsThreeIcon,
-		title: t`And many more...`,
-		description: t`New features are constantly being added and improved, so be sure to check back often.`,
+		description: t`Available in multiple languages, with more on the way.`,
 	},
 ];
 
-function FeatureCard({ icon: Icon, title, description }: FeatureCardProps) {
+function FeatureRow({ icon: Icon, title, description }: Feature) {
 	return (
 		<m.div
-			className={cn(
-				"group relative flex min-h-48 flex-col gap-4 overflow-hidden border-b bg-background p-6 transition-[background-color] duration-300 will-change-[transform,opacity]",
-				"not-nth-[2n]:border-r xl:not-nth-[4n]:border-r",
-				"hover:bg-secondary/30",
-			)}
-			initial={{ opacity: 0, y: 16 }}
+			className="group flex items-start gap-4 py-5"
+			initial={{ opacity: 0, y: 12 }}
 			whileInView={{ opacity: 1, y: 0 }}
-			viewport={{ once: true, amount: 0.1 }}
-			transition={{ duration: 0.35, ease: "easeOut" }}
+			viewport={{ once: true, amount: 0.3 }}
+			transition={{ duration: 0.3, ease: "easeOut" }}
 		>
-			{/* Hover gradient overlay */}
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-			/>
-
-			{/* Icon */}
-			<div aria-hidden="true" className="relative">
-				<div className="inline-flex rounded-md bg-primary/5 p-2.5 text-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
-					<Icon size={24} weight="thin" />
-				</div>
+				className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/5 text-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary"
+			>
+				<Icon size={20} weight="thin" />
 			</div>
 
-			{/* Content */}
-			<div className="relative flex flex-col gap-y-1.5">
-				<h3 className="font-semibold text-base tracking-tight transition-colors group-hover:text-primary">{title}</h3>
+			<div className="flex flex-col gap-y-1 pt-1">
+				<h3 className="font-semibold text-base tracking-tight">{title}</h3>
 				<p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
 			</div>
 		</m.div>
@@ -169,10 +74,9 @@ export function Features() {
 	const features = getFeatures();
 
 	return (
-		<section id="features">
-			{/* Header */}
+		<section id="features" className="p-4 md:p-8 xl:py-16">
 			<m.div
-				className="space-y-4 p-4 will-change-[transform,opacity] md:p-8 xl:py-16"
+				className="max-w-2xl space-y-4"
 				initial={{ opacity: 0, y: 20 }}
 				whileInView={{ opacity: 1, y: 0 }}
 				viewport={{ once: true }}
@@ -182,18 +86,17 @@ export function Features() {
 					<Trans>Features</Trans>
 				</h2>
 
-				<p className="max-w-2xl text-muted-foreground leading-relaxed">
+				<p className="text-muted-foreground leading-relaxed">
 					<Trans>
-						Everything you need to create, customize, and share professional resumes. Built with privacy in mind,
-						powered by open source, and completely free forever.
+						Everything you need to create, customize, and share professional resumes and cover letters, built with
+						privacy in mind.
 					</Trans>
 				</p>
 			</m.div>
 
-			{/* Features Grid */}
-			<div className="grid grid-cols-1 xs:grid-cols-2 border-t xl:grid-cols-4">
+			<div className="mt-8 grid grid-cols-1 gap-x-10 divide-y md:grid-cols-2 md:gap-x-14 md:divide-y-0">
 				{features.map((feature) => (
-					<FeatureCard key={feature.id} {...feature} />
+					<FeatureRow key={feature.id} {...feature} />
 				))}
 			</div>
 		</section>

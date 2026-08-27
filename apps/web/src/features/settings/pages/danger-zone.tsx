@@ -28,7 +28,7 @@ export function DangerZoneSettingsPage() {
 		orpc.auth.exportData.mutationOptions({
 			onSuccess: (data) => {
 				const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-				downloadWithAnchor(blob, generateFilename("reactive-resume-export", "json"));
+				downloadWithAnchor(blob, generateFilename("essor-export", "json"));
 				toast.success(t`Your data has been exported successfully.`);
 			},
 			onError: (error) => {

@@ -81,6 +81,7 @@ function makeResume(id: string): Resume {
 		id,
 		name: "Resume",
 		slug: id,
+		kind: "resume",
 		tags: [],
 		data: cloneResumeData(defaultResumeData),
 		isLocked: false,

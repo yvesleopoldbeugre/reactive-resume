@@ -15,6 +15,11 @@ export const resume = pg.pgTable(
 			.$defaultFn(() => generateId()),
 		name: pg.text("name").notNull(),
 		slug: pg.text("slug").notNull(),
+		// Which kind of document this row is. Both kinds share the same `ResumeData` shape and
+		// infrastructure (versions, statistics, sharing, templates, export); "cover-letter" rows are
+		// constructed with exactly one `customSections[].type === "cover-letter"` entry and a
+		// single-page full-width layout (see `buildInitialResumeData`).
+		kind: pg.text("kind").notNull().default("resume").$type<"resume" | "cover-letter">(),
 		tags: pg.text("tags").array().notNull().default([]),
 		isPublic: pg.boolean("is_public").notNull().default(false),
 		isLocked: pg.boolean("is_locked").notNull().default(false),

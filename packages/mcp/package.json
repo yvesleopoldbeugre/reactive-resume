@@ -23,6 +23,7 @@
 		"@orpc/server": "^1.14.7",
 		"@reactive-resume/ai": "workspace:*",
 		"@reactive-resume/api": "workspace:*",
+		"@reactive-resume/brand": "workspace:*",
 		"@reactive-resume/env": "workspace:*",
 		"@reactive-resume/schema": "workspace:*",
 		"zod": "^4.4.3"

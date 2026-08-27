@@ -44,6 +44,20 @@ import { useCurrentResume, useUpdateResumeData } from "@/features/resume/builder
 import { resolveLayoutSectionTitle } from "./title";
 import { filterVisibleLayoutSectionIds } from "./visibility";
 
+/**
+ * The `custom` template has no fixed sidebar position in the static `templates` catalog — it
+ * depends on the resume's own `metadata.skin`, since each admin-authored preset can configure
+ * a different structure. Every other template's position comes straight from the catalog.
+ */
+const resolveSidebarPosition = (resumeData: ResumeData): "left" | "right" | "none" => {
+	const { template, skin } = resumeData.metadata;
+
+	if (template !== "custom") return templates[template].sidebarPosition;
+	if (!skin || skin.skeleton === "stacked") return "none";
+
+	return skin.sidebar.position === "before" ? "left" : "right";
+};
+
 type ColumnId = "main" | "sidebar";
 
 const getColumnLabel = (columnId: ColumnId): string => {
@@ -95,8 +109,7 @@ export function LayoutPages() {
 	const [activeId, setActiveId] = useState<string | null>(null);
 
 	const resume = useCurrentResume();
-	const template = resume.data.metadata.template;
-	const templateSidebarPosition = templates[template].sidebarPosition;
+	const templateSidebarPosition = resolveSidebarPosition(resume.data);
 
 	const layout = resume.data.metadata.layout;
 	const updateResumeData = useUpdateResumeData();
@@ -447,7 +460,7 @@ function MoveToSubmenu({ id, pageIndex, columnId }: MoveToSubmenuProps) {
 
 	const pages = resume.data.metadata.layout.pages;
 	// When the template collapses the sidebar, no page has a usable sidebar column.
-	const sidebarCollapsed = templates[resume.data.metadata.template].sidebarPosition === "none";
+	const sidebarCollapsed = resolveSidebarPosition(resume.data) === "none";
 
 	const moveTo = (targetPageIndex: number, targetColumnId: ColumnId) => {
 		updateResumeData((draft) => {

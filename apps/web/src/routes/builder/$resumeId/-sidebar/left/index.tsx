@@ -16,7 +16,7 @@ import { useCurrentResume, useIsResumeLocked, usePatchResume } from "@/features/
 import { UserDropdownMenu } from "@/features/user/dropdown-menu";
 import { getResumeErrorMessage } from "@/libs/error-message";
 import { orpc } from "@/libs/orpc/client";
-import { getSectionIcon, getSectionTitle, leftSidebarSections } from "@/libs/resume/section";
+import { getSectionIcon, getSectionTitle, getVisibleLeftSidebarSections } from "@/libs/resume/section";
 import { BuilderSidebarEdge } from "../../-components/edge";
 import { useBuilderSidebar } from "../../-store/sidebar";
 import { AwardsSectionBuilder } from "./sections/awards";
@@ -60,6 +60,8 @@ function getSectionComponent(type: LeftSidebarSection) {
 export function BuilderSidebarLeft() {
 	const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 	const isLocked = useIsResumeLocked();
+	const kind = useCurrentResume().kind;
+	const visibleSections = getVisibleLeftSidebarSections(kind);
 
 	return (
 		<>
@@ -70,7 +72,7 @@ export function BuilderSidebarLeft() {
 					{isLocked && <LockBanner />}
 
 					<fieldset disabled={isLocked} className="m-0 min-w-0 space-y-4 border-0 p-0">
-						{leftSidebarSections.map((section) => (
+						{visibleSections.map((section) => (
 							<Fragment key={section}>
 								{getSectionComponent(section)}
 								<Separator />
@@ -124,6 +126,8 @@ function LockBanner() {
 
 function SidebarEdge() {
 	const { toggleSidebar } = useBuilderSidebar();
+	const kind = useCurrentResume().kind;
+	const visibleSections = getVisibleLeftSidebarSections(kind);
 
 	const scrollToSection = useCallback(
 		(section: LeftSidebarSection) => {
@@ -142,7 +146,7 @@ function SidebarEdge() {
 			<div className="flex min-h-0 w-full flex-1 flex-col items-center gap-y-2 overflow-hidden">
 				<div className="no-scrollbar min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden">
 					<div className="flex min-h-full flex-col items-center justify-center gap-y-2">
-						{leftSidebarSections.map((section) => (
+						{visibleSections.map((section) => (
 							<Tooltip key={section}>
 								<TooltipTrigger
 									render={

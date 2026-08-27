@@ -10,10 +10,10 @@ describe("buildMcpServerCard", () => {
 		expect(card.serverInfo.version).toBe("1.2.3");
 	});
 
-	it("identifies the server as reactive-resume", () => {
-		expect(card.serverInfo.name).toBe("reactive-resume");
-		expect(card.serverInfo.title).toBe("Reactive Resume");
-		expect(card.serverInfo.websiteUrl).toBe("https://rxresu.me");
+	it("identifies the server as essor", () => {
+		expect(card.serverInfo.name).toBe("essor");
+		expect(card.serverInfo.title).toBe("Essor");
+		expect(card.serverInfo.websiteUrl).toBe("https://essor.cv");
 	});
 
 	it("exposes light + dark theme icons", () => {

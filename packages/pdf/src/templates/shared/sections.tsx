@@ -23,6 +23,7 @@ import type { ReactNode } from "react";
 import type { StyleInput, TemplatePlacement } from "./styles";
 import type { CustomItemSection, ItemSection } from "./types";
 import { Children, createContext, isValidElement, use } from "react";
+import { stripHtml } from "@reactive-resume/utils/string";
 import { View } from "#react-pdf-renderer";
 import { useRender } from "../../context";
 import { getResumeSectionIcon } from "../../section-icon";
@@ -906,18 +907,33 @@ const ReferencesSection = ({ sectionId = "references", sectionData }: ItemSectio
 
 const CoverLetterSection = ({ section }: CoverLetterSectionProps) => {
 	const items = getVisibleItems(section);
+	const data = useRender();
+	const metrics = getTemplateMetrics(data.metadata.page);
 
 	if (items.length === 0) return null;
 
 	return (
 		<SectionShell sectionId={section.id} title={section.title} showHeading={false}>
-			<SectionItems>
-				{items.map((item) => (
-					<SectionItem key={item.id}>
-						<RichText>{item.recipient}</RichText>
-						<RichText>{item.content}</RichText>
-					</SectionItem>
-				))}
+			{/* A letter is a single flowing text, never a grid — ignore `section.columns` here. */}
+			<SectionItems columns={1}>
+				{items.map((item) => {
+					// The closing/signature lines get extra breathing room before them, like a real
+					// letter's sign-off block — everything else keeps the section's uniform item gap.
+					const extraSpaceBefore = item.partType === "closing" || item.partType === "signature";
+
+					return (
+						<SectionItem key={item.id} style={extraSpaceBefore ? { marginTop: metrics.gapY(1) } : undefined}>
+							{item.partType === "subject" ? (
+								// Colored with the template's accent, since a cover letter never shows the
+								// header/sidebar bands other templates use for their accent color — this is
+								// the one place a preset's color choice is otherwise visible on the page.
+								<Bold style={{ color: data.metadata.design.colors.primary }}>{stripHtml(item.content)}</Bold>
+							) : (
+								<RichText>{item.content}</RichText>
+							)}
+						</SectionItem>
+					);
+				})}
 			</SectionItems>
 		</SectionShell>
 	);

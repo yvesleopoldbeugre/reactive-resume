@@ -48,6 +48,10 @@ describe("web app fallback classification", () => {
 		"/agent",
 		"/templates",
 		"/templates/azurill.pdf",
+		"/admin",
+		"/admin/template-presets",
+		"/admin/template-presets/new",
+		"/admin/template-presets/preset-1",
 	])("serves noindex shell for known app prefix %s", async (pathname) => {
 		const response = await handleWebApp(new Request(`https://example.com${pathname}`));
 
@@ -79,7 +83,7 @@ describe("web app fallback classification", () => {
 		"/api/foo",
 		"/mcp/foo",
 		"/uploads/foo",
-	])("does not treat reserved two-segment path %s as a public resume", async (pathname) => {
+	])("returns plain 404 for reserved two-segment path %s with no noindex shell prefix", async (pathname) => {
 		const response = await handleWebApp(new Request(`https://example.com${pathname}`));
 
 		expect(response.status).toBe(404);

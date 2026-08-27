@@ -1,17 +1,12 @@
 {
-	"name": "reactive-resume",
-	"description": "Reactive Resume is a free and open-source resume builder that simplifies the process of creating, updating, and sharing your resume.",
+	"name": "essor",
+	"description": "Essor est un créateur de CV moderne qui vous aide à construire, personnaliser et partager un CV professionnel en quelques minutes.",
 	"version": "5.2.3",
 	"private": true,
 	"license": "MIT",
 	"author": {
-		"name": "Amruth Pillai",
-		"email": "hello@amruthpillai.com",
-		"url": "https://amruthpillai.com"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/amruthpillai/reactive-resume.git"
+		"name": "Essor",
+		"email": "bonjour@essor.cv"
 	},
 	"packageManager": "pnpm@11.10.0",
 	"workspaces": [

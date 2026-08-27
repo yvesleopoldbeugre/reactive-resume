@@ -287,8 +287,11 @@ function renderCustomSection(section: CustomSection): string[] {
 	if (sectionType === "cover-letter") {
 		const blocks: string[] = [];
 		for (const item of items) {
-			if ("recipient" in item && item.recipient) blocks.push(htmlToMarkdown(item.recipient));
-			if ("content" in item && item.content) blocks.push(htmlToMarkdown(item.content));
+			if (!("content" in item) || !item.content) continue;
+			const rendered = htmlToMarkdown(item.content);
+			const partType = "partType" in item ? item.partType : undefined;
+			// Always bold regardless of the source HTML, matching the PDF/DOCX subject treatment.
+			blocks.push(partType === "subject" ? `**${rendered}**` : rendered);
 		}
 		return blocks.filter(Boolean);
 	}

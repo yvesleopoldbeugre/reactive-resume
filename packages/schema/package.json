@@ -5,6 +5,7 @@
 	"private": true,
 	"exports": {
 		"./applications/*": "./src/applications/*.ts",
+		"./billing/plans": "./src/billing/plans.ts",
 		"./icons": "./src/icons.ts",
 		"./resume/*": "./src/resume/*.ts",
 		"./schema.json": "./schema.json",
@@ -18,6 +19,7 @@
 		"test:agent": "vitest run --reporter=agent --reporter=json --outputFile.json=reports/vitest-results.json --passWithNoTests"
 	},
 	"dependencies": {
+		"@reactive-resume/utils": "workspace:*",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {

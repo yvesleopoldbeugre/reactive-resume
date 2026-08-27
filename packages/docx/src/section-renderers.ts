@@ -1,6 +1,7 @@
 import type { CustomSection, CustomSectionType, ResumeData, SectionType } from "@reactive-resume/schema/resume/data";
 import type { HtmlStyleConfig } from "./html-to-docx";
 import { BorderStyle, ExternalHyperlink, HeadingLevel, Paragraph, TabStopPosition, TabStopType, TextRun } from "docx";
+import { stripHtml } from "@reactive-resume/utils/string";
 import { htmlToParagraphs } from "./html-to-docx";
 import { toSafeDocxLink } from "./link-utils";
 
@@ -504,14 +505,37 @@ export function renderCustomSection(section: CustomSection, colorHex: string): P
 		return paragraphs;
 	}
 
-	// Cover letter type — render recipient + content
+	// Cover letter type — render each structural part's content in order
 	if (sectionType === "cover-letter") {
 		const paragraphs: Paragraph[] = [];
 		for (const item of visibleItems) {
-			if ("recipient" in item && item.recipient) {
-				paragraphs.push(...htmlToParagraphs(item.recipient, getHtmlStyle()));
+			if (!("content" in item) || !item.content) continue;
+			const partType = "partType" in item ? item.partType : undefined;
+
+			// Extra space before the sign-off block, like a real letter, since htmlToParagraphs
+			// (shared by every section) has no spacing-before option of its own.
+			if (partType === "closing" || partType === "signature") {
+				paragraphs.push(new Paragraph({ text: "", spacing: { before: 240 } }));
 			}
-			if ("content" in item && item.content) {
+
+			if (partType === "subject") {
+				// Always bold and colored with the template's accent, regardless of the source HTML —
+				// unlike htmlToParagraphs, which only bolds <strong>/<b> if the user typed it that way.
+				// A cover letter never shows the header/sidebar bands other templates use for their
+				// accent color, so this is the one place a preset's color choice is otherwise visible.
+				paragraphs.push(
+					new Paragraph({
+						children: [
+							new TextRun({
+								text: stripHtml(item.content),
+								bold: true,
+								...getBaseRun(),
+								color: colorHex.replace("#", ""),
+							}),
+						],
+					}),
+				);
+			} else {
 				paragraphs.push(...htmlToParagraphs(item.content, getHtmlStyle()));
 			}
 		}

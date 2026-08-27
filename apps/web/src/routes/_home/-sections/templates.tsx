@@ -2,7 +2,12 @@ import type { TemplateMetadata } from "@/dialogs/resume/template/data";
 import { Trans } from "@lingui/react/macro";
 import { m } from "motion/react";
 import { useMemo } from "react";
+import { BRAND } from "@reactive-resume/brand";
 import { templates } from "@/dialogs/resume/template/data";
+
+// "custom" is an admin-only structural starting point (no fixed look of its own), never shown to visitors here.
+const publicTemplateEntries = Object.entries(templates).filter(([id]) => id !== "custom");
+const templateCount = publicTemplateEntries.length;
 
 type TemplateItemProps = {
 	metadata: TemplateMetadata;
@@ -78,10 +83,9 @@ const createMarqueeItems = (entries: Array<[string, TemplateMetadata]>, rowId: s
 export function Templates() {
 	// Split templates into two rows and duplicate for seamless infinite scroll
 	const { row1, row2 } = useMemo(() => {
-		const entries = Object.entries(templates);
-		const half = Math.ceil(entries.length / 2);
-		const firstHalf = entries.slice(0, half);
-		const secondHalf = entries.slice(half);
+		const half = Math.ceil(publicTemplateEntries.length / 2);
+		const firstHalf = publicTemplateEntries.slice(0, half);
+		const secondHalf = publicTemplateEntries.slice(half);
 
 		// Duplicate each row for seamless scrolling
 		return {
@@ -106,7 +110,7 @@ export function Templates() {
 				<p className="max-w-2xl text-muted-foreground leading-relaxed">
 					<Trans>
 						Explore our diverse selection of templates, each designed to fit different styles, professions, and
-						personalities. Reactive Resume currently offers 12 templates, with more on the way.
+						personalities. {BRAND.name} currently offers {templateCount} templates, with more on the way.
 					</Trans>
 				</p>
 			</m.div>

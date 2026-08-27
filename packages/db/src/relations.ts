@@ -8,6 +8,7 @@ export const relations = defineRelations(schema, (r) => ({
 		twoFactors: r.many.twoFactor(),
 		passkeys: r.many.passkey(),
 		resumes: r.many.resume(),
+		templatePresets: r.many.templatePreset(),
 		aiProviders: r.many.aiProvider(),
 		agentThreads: r.many.agentThread(),
 		agentMessages: r.many.agentMessage(),
@@ -215,6 +216,12 @@ export const relations = defineRelations(schema, (r) => ({
 	oauthConsent: {
 		user: r.one.user({
 			from: r.oauthConsent.userId,
+			to: r.user.id,
+		}),
+	},
+	templatePreset: {
+		createdByUser: r.one.user({
+			from: r.templatePreset.createdBy,
 			to: r.user.id,
 		}),
 	},

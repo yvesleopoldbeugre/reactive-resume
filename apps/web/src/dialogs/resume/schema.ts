@@ -18,7 +18,10 @@ import {
 } from "@reactive-resume/schema/resume/data";
 
 export const resumeDialogSchemas = [
-	z.object({ type: z.literal("resume.create"), data: z.undefined() }),
+	z.object({
+		type: z.literal("resume.create"),
+		data: z.object({ kind: z.enum(["resume", "cover-letter"]).optional() }).optional(),
+	}),
 	z.object({
 		type: z.literal("resume.update"),
 		data: z.object({ id: z.string(), name: z.string(), slug: z.string(), tags: z.array(z.string()) }),

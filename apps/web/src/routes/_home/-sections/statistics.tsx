@@ -1,6 +1,6 @@
 import type { Icon } from "@phosphor-icons/react";
 import { t } from "@lingui/core/macro";
-import { FileTextIcon, UsersIcon } from "@phosphor-icons/react";
+import { EnvelopeSimpleIcon, FileTextIcon, UsersIcon } from "@phosphor-icons/react";
 import { useQueries } from "@tanstack/react-query";
 import { m } from "motion/react";
 import { CountUp } from "@/components/animation/count-up";
@@ -13,7 +13,7 @@ type Statistic = {
 	icon: Icon;
 };
 
-const getStatistics = (userCount: number, resumeCount: number): Statistic[] => [
+const getStatistics = (userCount: number, resumeCount: number, coverLetterCount: number): Statistic[] => [
 	{
 		id: "users",
 		label: t`Users`,
@@ -25,6 +25,12 @@ const getStatistics = (userCount: number, resumeCount: number): Statistic[] => [
 		label: t`Resumes`,
 		value: resumeCount,
 		icon: FileTextIcon,
+	},
+	{
+		id: "cover-letters",
+		label: t`Cover Letters`,
+		value: coverLetterCount,
+		icon: EnvelopeSimpleIcon,
 	},
 ];
 
@@ -83,11 +89,15 @@ function StatisticCard({ statistic, index }: StatisticCardProps) {
 }
 
 export function Statistics() {
-	const [userCountResult, resumeCountResult] = useQueries({
-		queries: [orpc.statistics.user.getCount.queryOptions(), orpc.statistics.resume.getCount.queryOptions()],
+	const [userCountResult, resumeCountResult, coverLetterCountResult] = useQueries({
+		queries: [
+			orpc.statistics.user.getCount.queryOptions(),
+			orpc.statistics.resume.getCount.queryOptions(),
+			orpc.statistics.coverLetter.getCount.queryOptions(),
+		],
 	});
 
-	if (!userCountResult.data || !resumeCountResult.data) return null;
+	if (!userCountResult.data || !resumeCountResult.data || !coverLetterCountResult.data) return null;
 
 	return (
 		<section id="statistics" aria-labelledby="stats-heading">
@@ -95,10 +105,12 @@ export function Statistics() {
 				{t`Application Statistics`}
 			</h2>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2">
-				{getStatistics(userCountResult.data, resumeCountResult.data).map((statistic, index) => (
-					<StatisticCard key={statistic.id} statistic={statistic} index={index} />
-				))}
+			<div className="grid grid-cols-1 sm:grid-cols-3">
+				{getStatistics(userCountResult.data, resumeCountResult.data, coverLetterCountResult.data).map(
+					(statistic, index) => (
+						<StatisticCard key={statistic.id} statistic={statistic} index={index} />
+					),
+				)}
 			</div>
 		</section>
 	);

@@ -28,6 +28,13 @@ export const env = createEnv({
 		AUTH_SECRET: z.string().min(1),
 		BETTER_AUTH_API_KEY: z.string().min(1).optional(),
 
+		// Admin bootstrap: emails in this list are granted the "admin" role on account creation.
+		ADMIN_EMAILS: z
+			.string()
+			.min(1)
+			.transform((value) => value.split(",").map((email) => email.trim().toLowerCase()))
+			.optional(),
+
 		// Social Auth (Google)
 		GOOGLE_CLIENT_ID: z.string().min(1).optional(),
 		GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
@@ -71,6 +78,14 @@ export const env = createEnv({
 		S3_BUCKET: z.string().min(1).optional(),
 		S3_FORCE_PATH_STYLE: z.stringbool().default(false),
 
+		// CinetPay (Optional until subscription checkout is used)
+		CINETPAY_API_KEY: z.string().min(1).optional(),
+		CINETPAY_SITE_ID: z.string().min(1).optional(),
+		// Not consumed by any code path yet -- CinetPay's Checkout v2 flow is secured by always
+		// re-verifying a transaction server-side (see cinetpay-client.ts), not by a webhook
+		// signature. Kept available for a future signature-verification layer.
+		CINETPAY_SECRET_KEY: z.string().min(1).optional(),
+
 		// AI Agent Workspace (optional until the agent feature is used)
 		REDIS_URL: z.url({ protocol: /redis(s)?/ }).optional(),
 		ENCRYPTION_SECRET: z.string().min(32, "ENCRYPTION_SECRET must be at least 32 characters").optional(),
@@ -80,7 +95,6 @@ export const env = createEnv({
 		FLAG_DISABLE_EMAIL_AUTH: z.stringbool().default(false),
 		FLAG_DISABLE_IMAGE_PROCESSING: z.stringbool().default(false),
 		FLAG_DISABLE_API_RATE_LIMIT: z.stringbool().default(false),
-		FLAG_SHOW_SPONSORS: z.stringbool().default(false),
 		FLAG_ALLOW_UNSAFE_AI_BASE_URL: z.stringbool().default(false),
 		FLAG_ALLOW_UNSAFE_OAUTH_REDIRECT_URI: z.stringbool().default(false),
 	},

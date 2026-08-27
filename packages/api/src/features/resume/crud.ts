@@ -1,8 +1,9 @@
-import { createSampleResumeData } from "@reactive-resume/schema/resume/sample";
 import { generateRandomName, slugify } from "@reactive-resume/utils/string";
 import { protectedProcedure } from "../../context";
 import { resumeDto } from "../../dto/resume";
 import { resumeMutationRateLimit } from "../../middleware/rate-limit";
+import { templatePresetService } from "../template-presets/service";
+import { buildInitialResumeData } from "./build-initial-data";
 import { resumeService } from "./service";
 
 export const crudRouter = {
@@ -24,6 +25,9 @@ export const crudRouter = {
 				userId: context.user.id,
 				tags: input.tags,
 				sort: input.sort,
+				// Omitted kind defaults to "resume" (not "all") so every caller gets a predictable,
+				// non-mixed list unless it explicitly opts into cover letters.
+				kind: input.kind ?? "resume",
 			});
 		}),
 
@@ -52,7 +56,7 @@ export const crudRouter = {
 			operationId: "createResume",
 			summary: "Create a new resume",
 			description:
-				"Creates a new resume with the given name, slug, and tags. Optionally initializes the resume with sample data by setting withSampleData to true. The slug must be unique across the user's resumes. Returns the ID of the newly created resume. Requires authentication.",
+				"Creates a new resume with the given name, slug, and tags. Optionally initializes the resume with sample data by setting withSampleData to true, and/or a chosen template. The slug must be unique across the user's resumes. Returns the ID of the newly created resume. Requires authentication.",
 			successDescription: "The ID of the newly created resume.",
 		})
 		.input(resumeDto.create.input)
@@ -63,15 +67,37 @@ export const crudRouter = {
 				message: "A resume with this slug already exists.",
 				status: 400,
 			},
+			DOCUMENT_QUOTA_EXCEEDED: {
+				message: "Your plan's document limit has been reached. Upgrade to create more.",
+				status: 402,
+			},
+			TEMPLATE_LOCKED: {
+				message: "This template isn't included in your plan. Upgrade to unlock it.",
+				status: 402,
+			},
 		})
 		.handler(async ({ context, input }) => {
+			const preset = input.templatePresetId
+				? await templatePresetService.getPublishedById({ id: input.templatePresetId })
+				: undefined;
+
+			const data = buildInitialResumeData({
+				kind: input.kind,
+				withSampleData: input.withSampleData,
+				template: input.template,
+				...(preset ? { preset: { baseTemplate: preset.baseTemplate, config: preset.config } } : {}),
+				profile: { name: context.user.name, email: context.user.email },
+				locale: context.locale,
+			});
+
 			return resumeService.create({
 				name: input.name,
 				slug: input.slug,
+				kind: input.kind,
 				tags: input.tags,
 				locale: context.locale,
 				userId: context.user.id,
-				...(input.withSampleData ? { data: createSampleResumeData(input.name) } : {}),
+				...(data ? { data } : {}),
 			});
 		}),
 
@@ -93,6 +119,14 @@ export const crudRouter = {
 			RESUME_SLUG_ALREADY_EXISTS: {
 				message: "A resume with this slug already exists.",
 				status: 400,
+			},
+			DOCUMENT_QUOTA_EXCEEDED: {
+				message: "Your plan's document limit has been reached. Upgrade to create more.",
+				status: 402,
+			},
+			TEMPLATE_LOCKED: {
+				message: "This template isn't included in your plan. Upgrade to unlock it.",
+				status: 402,
 			},
 		})
 		.handler(async ({ context, input }) => {
@@ -137,6 +171,10 @@ export const crudRouter = {
 			RESUME_SLUG_ALREADY_EXISTS: {
 				message: "A resume with this slug already exists.",
 				status: 400,
+			},
+			TEMPLATE_LOCKED: {
+				message: "This template isn't included in your plan. Upgrade to unlock it.",
+				status: 402,
 			},
 		})
 		.handler(async ({ context, input }) => {
@@ -220,6 +258,16 @@ export const crudRouter = {
 		.input(resumeDto.duplicate.input)
 		.use(resumeMutationRateLimit)
 		.output(resumeDto.duplicate.output)
+		.errors({
+			DOCUMENT_QUOTA_EXCEEDED: {
+				message: "Your plan's document limit has been reached. Upgrade to create more.",
+				status: 402,
+			},
+			TEMPLATE_LOCKED: {
+				message: "This template isn't included in your plan. Upgrade to unlock it.",
+				status: 402,
+			},
+		})
 		.handler(async ({ context, input }) => {
 			const original = await resumeService.getById({ id: input.id, userId: context.user.id });
 
@@ -227,6 +275,7 @@ export const crudRouter = {
 				userId: context.user.id,
 				name: input.name ?? original.name,
 				slug: input.slug ?? original.slug,
+				kind: original.kind,
 				tags: input.tags ?? original.tags,
 				locale: context.locale,
 				data: original.data,

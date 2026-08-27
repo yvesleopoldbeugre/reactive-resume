@@ -37,4 +37,14 @@ describe("shouldShowResumeHeader", () => {
 		expect(shouldShowResumeHeader(sampleResumeData, 0)).toBe(true);
 		expect(shouldShowResumeHeader(sampleResumeData, 1)).toBe(false);
 	});
+
+	it("always shows the header for a dedicated cover-letter template, even with no render options set", () => {
+		const data = {
+			...createCoverLetterOnlyData(),
+			metadata: { ...createCoverLetterOnlyData().metadata, template: "eevee" as const },
+		};
+
+		expect(shouldShowResumeHeader(data, 0)).toBe(true);
+		expect(shouldShowResumeHeader(data, 1)).toBe(false);
+	});
 });

@@ -6,6 +6,7 @@ import { rgbaStringToHex } from "@reactive-resume/utils/color";
 import { Image, Page, StyleSheet, View } from "#react-pdf-renderer";
 import { useRender } from "../../context";
 import { createBaseTemplateStyles } from "../shared/base-template-styles";
+import { interleaveStackedSections } from "../shared/columns";
 import {
 	CustomFieldContactItem,
 	EmailContactItem,
@@ -45,31 +46,6 @@ type BronzorHeaderProps = {
 	styles: BronzorStyles;
 };
 
-const getBronzorSections = ({
-	mainSections,
-	sidebarSections,
-	fullWidth,
-}: {
-	mainSections: string[];
-	sidebarSections: string[];
-	fullWidth: boolean;
-}) => {
-	if (fullWidth) return mainSections;
-
-	const sections: string[] = [];
-	const sectionCount = Math.max(mainSections.length, sidebarSections.length);
-
-	for (let index = 0; index < sectionCount; index += 1) {
-		const sidebarSection = sidebarSections[index];
-		const mainSection = mainSections[index];
-
-		if (sidebarSection) sections.push(sidebarSection);
-		if (mainSection) sections.push(mainSection);
-	}
-
-	return sections;
-};
-
 export const BronzorPage = ({ page, pageIndex }: TemplatePageProps) => {
 	const data = useRender();
 	const { metadata } = data;
@@ -80,7 +56,7 @@ export const BronzorPage = ({ page, pageIndex }: TemplatePageProps) => {
 	const showHeader = shouldShowResumeHeader(data, pageIndex);
 	const sidebarSections = filterSections(page.sidebar, data);
 	const mainSections = filterSections(page.main, data);
-	const sections = getBronzorSections({ mainSections, sidebarSections, fullWidth: page.fullWidth });
+	const sections = interleaveStackedSections({ mainSections, sidebarSections, fullWidth: page.fullWidth });
 
 	return (
 		<Page size={pageSize} style={composeStyles(styles.page, pageMinHeightStyle)}>

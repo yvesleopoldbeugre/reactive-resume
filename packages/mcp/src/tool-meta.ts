@@ -81,12 +81,16 @@ export const TOOL_META = {
 			"use this tool (not `resources/list`) to enumerate IDs.",
 			"",
 			"Returns an array of resume objects (without full resume data) containing:",
-			"id, name, slug, tags, isPublic, isLocked, createdAt, updatedAt.",
+			"id, name, slug, kind, tags, isPublic, isLocked, createdAt, updatedAt.",
 			"",
 			`Call this before \`${T.getResume}\`, \`${T.patchResume}\`, prompts, or \`resources/read\` with \`resume://{id}\`.`,
-			"Results can be filtered by tags and sorted by last updated date, creation date, or name.",
+			"Results can be filtered by tags and kind, and sorted by last updated date, creation date, or name.",
 		].join("\n"),
 		inputSchema: z.object({
+			kind: z
+				.enum(["resume", "cover-letter"])
+				.optional()
+				.describe("Filter by document kind. Omit to list resumes only (cover letters are excluded by default)."),
 			tags: z
 				.array(z.string())
 				.optional()
@@ -128,7 +132,7 @@ export const TOOL_META = {
 		title: "Get Resume Analysis",
 		description: [
 			"Returns the latest saved AI analysis for a resume (scorecard, strengths, suggestions), if any.",
-			"Analyses are created from the Reactive Resume web app AI flow, not from MCP.",
+			"Analyses are created from the Essor web app AI flow, not from MCP.",
 			`Returns JSON or a short message if none exists. Use \`${T.listResumes}\` to find resume IDs.`,
 		].join("\n"),
 		inputSchema: z.object({ id: resumeIdSchema }),
@@ -148,10 +152,14 @@ export const TOOL_META = {
 	[T.createResume]: {
 		title: "Create Resume",
 		description: [
-			"Create a new, empty resume with a name and URL-friendly slug.",
+			"Create a new, empty resume (or standalone cover letter) with a name and URL-friendly slug.",
 			"",
-			"Returns the ID of the newly created resume.",
+			"Returns the ID of the newly created document.",
 			"Set `withSampleData` to true to pre-fill with example content (useful for testing).",
+			"Set `kind` to 'cover-letter' to create a standalone cover letter instead of a resume — it gets",
+			"its own letter section seeded automatically, with one item per structural part (recipient,",
+			"subject, salutation, body paragraphs, closing, signature), and uses the same",
+			"templates/export/sharing mechanisms as a resume.",
 			`After creating, use \`${T.getResume}\` to view or \`${T.patchResume}\` to populate it.`,
 		].join("\n"),
 		inputSchema: z.object({
@@ -161,6 +169,7 @@ export const TOOL_META = {
 				.min(1)
 				.max(64)
 				.describe("URL-friendly slug, must be unique across your resumes (e.g. 'software-engineer-2026')"),
+			kind: z.enum(["resume", "cover-letter"]).optional().describe("Document kind to create. Default: 'resume'."),
 			tags: z
 				.array(z.string())
 				.optional()
@@ -173,7 +182,7 @@ export const TOOL_META = {
 	[T.importResume]: {
 		title: "Import Resume",
 		description: [
-			"Create a new resume from a full ResumeData JSON object (e.g. an exported file from Reactive Resume).",
+			"Create a new resume from a full ResumeData JSON object (e.g. an exported file from Essor).",
 			"A random name and slug are assigned automatically, like the web importer.",
 			`For small edits to an existing resume, prefer \`${T.patchResume}\` instead of re-importing.`,
 			"Large payloads may exceed MCP client message limits — in that case, use the web UI or the HTTP API.",

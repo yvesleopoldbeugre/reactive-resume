@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 
 // Characterization tests for the resume service. The goal is to pin down CURRENT behavior
 // (CRUD / lock / password / statistics branching) so later changes are deliberate. The DB
@@ -17,6 +18,8 @@ const publishResumeUpdatedMock = vi.hoisted(() => vi.fn());
 const grantResumeAccessMock = vi.hoisted(() => vi.fn());
 const hasResumeAccessMock = vi.hoisted(() => vi.fn());
 const storageDeleteMock = vi.hoisted(() => vi.fn());
+const getMySubscriptionMock = vi.hoisted(() => vi.fn());
+const countDocumentsMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@reactive-resume/db/client", () => ({ db: dbMock }));
 vi.mock("@reactive-resume/db/schema", () => ({
@@ -79,6 +82,12 @@ vi.mock("./access", () => ({
 vi.mock("../storage/service", () => ({
 	getStorageService: () => ({ delete: storageDeleteMock }),
 }));
+vi.mock("../billing/service", () => ({
+	billingService: {
+		getMySubscription: getMySubscriptionMock,
+		countDocuments: countDocumentsMock,
+	},
+}));
 
 const { resumeService } = await import("./service");
 
@@ -107,13 +116,76 @@ beforeEach(() => {
 	grantResumeAccessMock.mockReset();
 	hasResumeAccessMock.mockReset();
 	storageDeleteMock.mockReset();
+	getMySubscriptionMock.mockReset();
+	countDocumentsMock.mockReset();
 	hashMock.mockResolvedValue("hashed-password");
 	publishResumeUpdatedMock.mockResolvedValue(undefined);
 	storageDeleteMock.mockResolvedValue(true);
+	// Unlimited plan, every template allowed -- billing's own guard logic is exercised by the
+	// "create" and "update" tests below that explicitly override this per case.
+	getMySubscriptionMock.mockResolvedValue({ plan: { id: "pro-monthly" }, currentPeriodEnd: null });
+	countDocumentsMock.mockResolvedValue(0);
 });
 
 it("imports", () => {
 	expect(resumeService).toBeDefined();
+});
+
+describe("create", () => {
+	it("throws DOCUMENT_QUOTA_EXCEEDED when the plan's document limit is already reached", async () => {
+		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: 3 }, currentPeriodEnd: null });
+		countDocumentsMock.mockResolvedValue(3);
+
+		await expect(
+			resumeService.create({ userId: "u1", name: "New", slug: "new", tags: [], locale: "en-US" }),
+		).rejects.toMatchObject({ code: "DOCUMENT_QUOTA_EXCEEDED" });
+		expect(dbMock.insert).not.toHaveBeenCalled();
+	});
+
+	it("allows creation right up to the document limit, and blocks the one after", async () => {
+		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: 3 }, currentPeriodEnd: null });
+		countDocumentsMock.mockResolvedValue(2);
+		dbMock.insert.mockReturnValueOnce({ values: vi.fn(() => Promise.resolve()) });
+
+		await expect(
+			resumeService.create({ userId: "u1", name: "New", slug: "new", tags: [], locale: "en-US" }),
+		).resolves.toEqual(expect.any(String));
+	});
+
+	it("never checks the document count when the plan is unlimited (documentLimit: null)", async () => {
+		getMySubscriptionMock.mockResolvedValue({
+			plan: { id: "pro-monthly", documentLimit: null },
+			currentPeriodEnd: null,
+		});
+		dbMock.insert.mockReturnValueOnce({ values: vi.fn(() => Promise.resolve()) });
+
+		await resumeService.create({ userId: "u1", name: "New", slug: "new", tags: [], locale: "en-US" });
+
+		expect(countDocumentsMock).not.toHaveBeenCalled();
+	});
+
+	it("throws TEMPLATE_LOCKED when the requested template isn't in the free plan's real allowed list", async () => {
+		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: null }, currentPeriodEnd: null });
+		// "gengar" is a real CV template but not one of the free plan's unlocked templates.
+		const data = structuredClone(defaultResumeData);
+		data.metadata.template = "gengar";
+
+		await expect(
+			resumeService.create({ userId: "u1", name: "New", slug: "new", tags: [], locale: "en-US", data }),
+		).rejects.toMatchObject({ code: "TEMPLATE_LOCKED" });
+		expect(dbMock.insert).not.toHaveBeenCalled();
+	});
+
+	it("allows creation with a template that is in the free plan's allowed list", async () => {
+		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: null }, currentPeriodEnd: null });
+		dbMock.insert.mockReturnValueOnce({ values: vi.fn(() => Promise.resolve()) });
+		const data = structuredClone(defaultResumeData);
+		data.metadata.template = "azurill";
+
+		await expect(
+			resumeService.create({ userId: "u1", name: "New", slug: "new", tags: [], locale: "en-US", data }),
+		).resolves.toEqual(expect.any(String));
+	});
 });
 
 describe("update", () => {
@@ -172,6 +244,35 @@ describe("update", () => {
 		await expect(resumeService.update({ id: "r1", userId: "u1", slug: "taken" })).rejects.toMatchObject({
 			code: "RESUME_SLUG_ALREADY_EXISTS",
 		});
+	});
+
+	it("throws TEMPLATE_LOCKED when switching to a template outside the plan, without writing", async () => {
+		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: null }, currentPeriodEnd: null });
+		const existing = structuredClone(defaultResumeData);
+		existing.metadata.template = "azurill";
+		dbMock.select.mockReturnValueOnce(createSelectChain([{ isLocked: false, data: existing }]));
+		const next = structuredClone(defaultResumeData);
+		next.metadata.template = "gengar";
+
+		await expect(resumeService.update({ id: "r1", userId: "u1", data: next })).rejects.toMatchObject({
+			code: "TEMPLATE_LOCKED",
+		});
+		expect(dbMock.update).not.toHaveBeenCalled();
+	});
+
+	it("does not re-check the template when a document already on a now-locked template is edited without switching", async () => {
+		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: null }, currentPeriodEnd: null });
+		// The document is already on "gengar" (e.g. from before a downgrade) -- editing it without
+		// changing the template must not be blocked, per the "never lock existing documents" design.
+		const existing = structuredClone(defaultResumeData);
+		existing.metadata.template = "gengar";
+		dbMock.select.mockReturnValueOnce(createSelectChain([{ isLocked: false, data: existing }]));
+		const next = structuredClone(existing);
+		next.basics = { ...next.basics, headline: "Updated" };
+		const row = { ...existing, id: "r1", updatedAt: new Date("2026-01-01T00:00:00Z"), hasPassword: false };
+		dbMock.update.mockReturnValueOnce(createUpdateChain([row]).chain);
+
+		await expect(resumeService.update({ id: "r1", userId: "u1", data: next })).resolves.toEqual(row);
 	});
 });
 

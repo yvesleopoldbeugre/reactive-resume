@@ -112,8 +112,16 @@ export function registerTools(server: McpServer, client: RouterClient<typeof rou
 		TOOL_META[T.listResumes],
 		withErrorHandling(
 			"listing resumes",
-			async ({ tags, sort }: { tags: string[]; sort: "lastUpdatedAt" | "createdAt" | "name" }) => {
-				const resumes = await client.resume.list({ tags, sort });
+			async ({
+				kind,
+				tags,
+				sort,
+			}: {
+				kind?: "resume" | "cover-letter" | undefined;
+				tags: string[];
+				sort: "lastUpdatedAt" | "createdAt" | "name";
+			}) => {
+				const resumes = await client.resume.list({ ...(kind ? { kind } : {}), tags, sort });
 
 				if (resumes.length === 0) return text(`No resumes found. Use \`${T.createResume}\` to create one.`);
 
@@ -196,18 +204,20 @@ export function registerTools(server: McpServer, client: RouterClient<typeof rou
 			async ({
 				name,
 				slug,
+				kind,
 				tags,
 				withSampleData,
 			}: {
 				name: string;
 				slug: string;
+				kind?: "resume" | "cover-letter" | undefined;
 				tags: string[];
 				withSampleData: boolean;
 			}) => {
-				const id = await client.resume.create({ name, slug, tags, withSampleData });
+				const id = await client.resume.create({ name, slug, ...(kind ? { kind } : {}), tags, withSampleData });
 
 				return text(
-					`Created resume "${name}" (ID: ${id}) with slug "${slug}".${withSampleData ? " Pre-filled with sample data." : ""}\n\nNext steps: Use \`${T.getResume}\` to view it, or \`${T.patchResume}\` to start editing.`,
+					`Created ${kind === "cover-letter" ? "cover letter" : "resume"} "${name}" (ID: ${id}) with slug "${slug}".${withSampleData ? " Pre-filled with sample data." : ""}\n\nNext steps: Use \`${T.getResume}\` to view it, or \`${T.patchResume}\` to start editing.`,
 				);
 			},
 		),

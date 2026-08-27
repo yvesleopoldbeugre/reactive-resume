@@ -77,3 +77,36 @@ export const getSectionItemRows = <T>(items: T[], columns: unknown): T[][] => {
 export const shouldUseSectionTimeline = ({ sectionTimeline, placement, columns }: SectionTimelineInput): boolean => {
 	return sectionTimeline && placement === "main" && normalizeSectionColumns(columns) === 1;
 };
+
+type InterleaveStackedSectionsInput = {
+	mainSections: string[];
+	sidebarSections: string[];
+	fullWidth: boolean;
+};
+
+/**
+ * Merges main and sidebar section IDs into a single flat, vertically-stacked order for
+ * single-column layouts that have no real sidebar column (e.g. Bronzor, the "stacked" skin
+ * skeleton). Alternates sidebar/main pairs by index so both groups stay interleaved rather
+ * than one running entirely before the other.
+ */
+export const interleaveStackedSections = ({
+	mainSections,
+	sidebarSections,
+	fullWidth,
+}: InterleaveStackedSectionsInput): string[] => {
+	if (fullWidth) return mainSections;
+
+	const sections: string[] = [];
+	const sectionCount = Math.max(mainSections.length, sidebarSections.length);
+
+	for (let index = 0; index < sectionCount; index += 1) {
+		const sidebarSection = sidebarSections[index];
+		const mainSection = mainSections[index];
+
+		if (sidebarSection) sections.push(sidebarSection);
+		if (mainSection) sections.push(mainSection);
+	}
+
+	return sections;
+};

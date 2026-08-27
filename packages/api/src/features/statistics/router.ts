@@ -11,7 +11,7 @@ const userRouter = {
 			operationId: "getUserCount",
 			summary: "Get total number of users",
 			description:
-				"Returns the total number of registered users on this Reactive Resume instance. The count is cached for up to 6 hours for performance. No authentication required.",
+				"Returns the total number of registered users on this Essor instance. The count is cached for up to 6 hours for performance. No authentication required.",
 			successDescription: "The total number of registered users.",
 		})
 		.output(z.number().describe("The total number of registered users."))
@@ -29,7 +29,7 @@ const resumeRouter = {
 			operationId: "getResumeCount",
 			summary: "Get total number of resumes",
 			description:
-				"Returns the total number of resumes created on this Reactive Resume instance. The count is cached for up to 6 hours for performance. No authentication required.",
+				"Returns the total number of resumes (kind: resume, not cover letters) created on this Essor instance. The count is cached for up to 6 hours for performance. No authentication required.",
 			successDescription: "The total number of resumes created.",
 		})
 		.output(z.number().describe("The total number of resumes created."))
@@ -38,26 +38,26 @@ const resumeRouter = {
 		}),
 };
 
-const githubRouter = {
-	getStarCount: publicProcedure
+const coverLetterRouter = {
+	getCount: publicProcedure
 		.route({
 			method: "GET",
-			path: "/statistics/github/stars",
+			path: "/statistics/cover-letters",
 			tags: ["Platform Statistics"],
-			operationId: "getGitHubStarCount",
-			summary: "Get GitHub star count",
+			operationId: "getCoverLetterCount",
+			summary: "Get total number of cover letters",
 			description:
-				"Returns the number of GitHub stars for the Reactive Resume repository. The count is cached for up to 6 hours and falls back to a last-known value if the GitHub API is unavailable. No authentication required.",
-			successDescription: "The number of GitHub stars for the Reactive Resume repository.",
+				"Returns the total number of standalone cover letters created on this Essor instance. The count is cached for up to 6 hours for performance. No authentication required.",
+			successDescription: "The total number of cover letters created.",
 		})
-		.output(z.number().describe("The number of GitHub stars."))
+		.output(z.number().describe("The total number of cover letters created."))
 		.handler(async (): Promise<number> => {
-			return await statisticsService.github.getStarCount();
+			return await statisticsService.coverLetter.getCount();
 		}),
 };
 
 export const statisticsRouter = {
 	user: userRouter,
 	resume: resumeRouter,
-	github: githubRouter,
+	coverLetter: coverLetterRouter,
 };

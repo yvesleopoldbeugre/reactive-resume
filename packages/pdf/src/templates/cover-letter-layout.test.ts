@@ -7,8 +7,11 @@ const pageFiles = [
 	"azurill/AzurillPage.tsx",
 	"bronzor/BronzorPage.tsx",
 	"chikorita/ChikoritaPage.tsx",
+	"custom/CustomPage.tsx",
 	"ditgar/DitgarPage.tsx",
 	"ditto/DittoPage.tsx",
+	"eevee/EeveePage.tsx",
+	"espeon/EspeonPage.tsx",
 	"gengar/GengarPage.tsx",
 	"glalie/GlaliePage.tsx",
 	"kakuna/KakunaPage.tsx",
@@ -19,6 +22,9 @@ const pageFiles = [
 	"pikachu/PikachuPage.tsx",
 	"rhyhorn/RhyhornPage.tsx",
 	"scizor/ScizorPage.tsx",
+	"snorlax/SnorlaxPage.tsx",
+	"togepi/TogepiPage.tsx",
+	"vulpix/VulpixPage.tsx",
 ];
 
 const readTemplate = (file: string) => {

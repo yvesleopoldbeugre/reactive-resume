@@ -14,26 +14,32 @@ type Resume = RouterOutput["resume"]["list"][number];
 type ListViewProps = {
 	resumes: Resume[];
 	hasResumes: boolean;
+	kind?: "resume" | "cover-letter";
 };
 
 type ResumeListItemProps = {
 	resume: Resume;
 };
 
-export function ListView({ resumes, hasResumes }: ListViewProps) {
+export function ListView({ resumes, hasResumes, kind = "resume" }: ListViewProps) {
 	const { openDialog } = useDialogStore();
+	const isCoverLetter = kind === "cover-letter";
 
 	if (resumes.length === 0 && hasResumes) {
 		return (
 			<p className="py-8 text-center text-muted-foreground text-sm">
-				<Trans>No resumes match your search.</Trans>
+				{isCoverLetter ? (
+					<Trans>No cover letters match your search.</Trans>
+				) : (
+					<Trans>No resumes match your search.</Trans>
+				)}
 			</p>
 		);
 	}
 
 	if (resumes.length === 0) {
 		const handleCreateResume = () => {
-			openDialog("resume.create", undefined);
+			openDialog("resume.create", { kind });
 		};
 
 		const handleImportResume = () => {
@@ -57,39 +63,45 @@ export function ListView({ resumes, hasResumes }: ListViewProps) {
 					>
 						<PlusIcon />
 						<div className="min-w-0 flex-1 truncate">
-							<Trans>Create a new resume</Trans>
+							{isCoverLetter ? <Trans>Create a new cover letter</Trans> : <Trans>Create a new resume</Trans>}
 						</div>
 
 						<p className="hidden text-xs opacity-60 sm:block">
-							<Trans>Start building your resume from scratch</Trans>
+							{isCoverLetter ? (
+								<Trans>Start writing your cover letter from scratch</Trans>
+							) : (
+								<Trans>Start building your resume from scratch</Trans>
+							)}
 						</p>
 					</Button>
 				</m.div>
 
-				<m.div
-					className="will-change-[transform,opacity]"
-					initial={{ opacity: 0, y: -20 }}
-					animate={{ opacity: 1, y: 0 }}
-					exit={{ opacity: 0, y: -20 }}
-					transition={{ duration: 0.2, delay: 0.03, ease: "easeOut" }}
-				>
-					<Button
-						size="lg"
-						variant="ghost"
-						className="h-12 w-full justify-start gap-x-4 text-start"
-						onClick={handleImportResume}
+				{!isCoverLetter && (
+					<m.div
+						className="will-change-[transform,opacity]"
+						initial={{ opacity: 0, y: -20 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -20 }}
+						transition={{ duration: 0.2, delay: 0.03, ease: "easeOut" }}
 					>
-						<DownloadSimpleIcon />
+						<Button
+							size="lg"
+							variant="ghost"
+							className="h-12 w-full justify-start gap-x-4 text-start"
+							onClick={handleImportResume}
+						>
+							<DownloadSimpleIcon />
 
-						<div className="min-w-0 flex-1 truncate">
-							<Trans>Import an existing resume</Trans>
-						</div>
+							<div className="min-w-0 flex-1 truncate">
+								<Trans>Import an existing resume</Trans>
+							</div>
 
-						<p className="hidden text-xs opacity-60 sm:block">
-							<Trans>Continue where you left off</Trans>
-						</p>
-					</Button>
-				</m.div>
+							<p className="hidden text-xs opacity-60 sm:block">
+								<Trans>Continue where you left off</Trans>
+							</p>
+						</Button>
+					</m.div>
+				)}
 			</div>
 		);
 	}

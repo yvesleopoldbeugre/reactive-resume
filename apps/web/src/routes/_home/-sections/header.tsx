@@ -3,9 +3,9 @@ import { ArrowRightIcon, TranslateIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { m, useMotionValue, useSpring } from "motion/react";
 import { useEffect, useRef } from "react";
+import { BRAND } from "@reactive-resume/brand";
 import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { Button } from "@reactive-resume/ui/components/button";
-import { GithubStarsButton } from "@/components/input/github-stars-button";
 import { LocaleCombobox } from "@/features/locale/combobox";
 import { ThemeToggleButton } from "@/features/theme/toggle-button";
 
@@ -49,8 +49,13 @@ export function Header() {
 			transition={{ duration: 0.35, ease: "easeOut" }}
 		>
 			<nav aria-label={t`Main navigation`} className="container mx-auto flex items-center gap-x-4 p-3 lg:px-12">
-				<Link to="/" className="transition-opacity hover:opacity-80" aria-label={t`Reactive Resume - Go to homepage`}>
-					<BrandIcon className="size-10" />
+				<Link
+					to="/"
+					className="flex items-center gap-2 transition-opacity hover:opacity-80"
+					aria-label={t`${BRAND.name} - Go to homepage`}
+				>
+					<BrandIcon variant="icon" className="size-8" />
+					<span className="font-semibold text-lg tracking-tight">{BRAND.name}</span>
 				</Link>
 
 				<div className="ml-auto flex items-center gap-x-2">
@@ -65,8 +70,6 @@ export function Header() {
 					<ThemeToggleButton />
 
 					<div className="hidden items-center gap-x-4 sm:flex">
-						<GithubStarsButton />
-
 						<Button
 							size="icon"
 							nativeButton={false}

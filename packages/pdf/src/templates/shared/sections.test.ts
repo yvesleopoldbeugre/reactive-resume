@@ -14,6 +14,40 @@ describe("ExperienceSection", () => {
 	});
 });
 
+describe("CoverLetterSection", () => {
+	it("always renders as a single flowing column, ignoring section.columns", () => {
+		const block = source.match(
+			/const CoverLetterSection = \({ section }: CoverLetterSectionProps\) => {(?<body>[\s\S]*?)\n};/,
+		);
+		expect(block?.groups?.body).toContain("<SectionItems columns={1}>");
+	});
+
+	it("renders each part's content as its own item, not a fixed recipient/content pair", () => {
+		const block = source.match(
+			/const CoverLetterSection = \({ section }: CoverLetterSectionProps\) => {(?<body>[\s\S]*?)\n};/,
+		);
+		expect(block?.groups?.body).toContain("<RichText>{item.content}</RichText>");
+		expect(block?.groups?.body).not.toContain("item.recipient");
+	});
+
+	it("always renders the subject part in bold with the template's accent color, regardless of its source HTML", () => {
+		const block = source.match(
+			/const CoverLetterSection = \({ section }: CoverLetterSectionProps\) => {(?<body>[\s\S]*?)\n};/,
+		);
+		expect(block?.groups?.body).toContain('item.partType === "subject"');
+		expect(block?.groups?.body).toContain("<Bold style={{ color: data.metadata.design.colors.primary }}>");
+		expect(block?.groups?.body).toContain("{stripHtml(item.content)}</Bold>");
+	});
+
+	it("gives the closing and signature parts extra space before them", () => {
+		const block = source.match(
+			/const CoverLetterSection = \({ section }: CoverLetterSectionProps\) => {(?<body>[\s\S]*?)\n};/,
+		);
+		expect(block?.groups?.body).toContain('item.partType === "closing" || item.partType === "signature"');
+		expect(block?.groups?.body).toContain("metrics.gapY(1)");
+	});
+});
+
 describe("SectionShell", () => {
 	it("keeps section and heading style rules when section heading icons are hidden", () => {
 		expect(source).toContain("<View style={composeStyles(sectionStyle, sectionRuleStyle)} {...breakProps}>");

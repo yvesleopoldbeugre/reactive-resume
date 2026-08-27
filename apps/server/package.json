@@ -47,6 +47,7 @@
 		"@react-pdf/renderer": "^4.5.1",
 		"@reactive-resume/api": "workspace:*",
 		"@reactive-resume/auth": "workspace:*",
+		"@reactive-resume/brand": "workspace:*",
 		"@reactive-resume/db": "workspace:*",
 		"@reactive-resume/env": "workspace:*",
 		"@reactive-resume/mcp": "workspace:*",

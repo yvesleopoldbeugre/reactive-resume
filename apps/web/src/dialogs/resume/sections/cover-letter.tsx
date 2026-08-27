@@ -1,14 +1,17 @@
 import type z from "zod";
 import type { DialogProps } from "@/dialogs/store";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { PencilSimpleLineIcon, PlusIcon } from "@phosphor-icons/react";
 import { useStore } from "@tanstack/react-form";
 import { coverLetterItemSchema } from "@reactive-resume/schema/resume/data";
 import { FormControl, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
 import { RichInput } from "@/components/input/rich-input";
+import { Combobox } from "@/components/ui/combobox";
 import { useDialogStore } from "@/dialogs/store";
 import { useUpdateResumeData } from "@/features/resume/builder/draft";
 import { useFormBlocker } from "@/hooks/use-form-blocker";
+import { COVER_LETTER_PART_TYPE_OPTIONS, isCoverLetterPartType } from "@/libs/resume/cover-letter-part-labels";
 import { makeSectionItem } from "@/libs/resume/make-section-item";
 import { useAppForm, withForm } from "@/libs/tanstack-form";
 import { SectionItemDialog } from "./section-item-dialog";
@@ -20,7 +23,7 @@ type FormValues = z.infer<typeof formSchema>;
 const defaultValues: FormValues = {
 	id: "",
 	hidden: false,
-	recipient: "",
+	partType: "paragraph",
 	content: "",
 };
 
@@ -47,7 +50,7 @@ export function CreateCoverLetterDialog({ data }: DialogProps<"resume.sections.c
 
 	return (
 		<SectionItemDialog
-			title={<Trans>Create a new cover letter</Trans>}
+			title={<Trans>Create a new cover letter part</Trans>}
 			icon={<PlusIcon />}
 			onSubmit={() => void form.handleSubmit()}
 			onCancel={requestClose}
@@ -85,7 +88,7 @@ export function UpdateCoverLetterDialog({ data }: DialogProps<"resume.sections.c
 
 	return (
 		<SectionItemDialog
-			title={<Trans>Update an existing cover letter</Trans>}
+			title={<Trans>Update an existing cover letter part</Trans>}
 			icon={<PencilSimpleLineIcon />}
 			onSubmit={() => void form.handleSubmit()}
 			onCancel={requestClose}
@@ -101,15 +104,32 @@ export function UpdateCoverLetterDialog({ data }: DialogProps<"resume.sections.c
 const CoverLetterForm = withForm({
 	defaultValues,
 	render: ({ form }) => {
+		const { i18n } = useLingui();
+
 		return (
 			<>
-				<form.Field name="recipient">
+				<form.Field name="partType">
 					{(field) => (
 						<FormItem hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
 							<FormLabel>
-								<Trans>Recipient</Trans>
+								<Trans>Part</Trans>
 							</FormLabel>
-							<FormControl render={<RichInput value={field.state.value} onChange={(v) => field.handleChange(v)} />} />
+							<FormControl
+								render={
+									<Combobox
+										name={field.name}
+										value={field.state.value}
+										disabled={false}
+										onValueChange={(v) => {
+											if (isCoverLetterPartType(v)) field.handleChange(v);
+										}}
+										options={COVER_LETTER_PART_TYPE_OPTIONS.map((option) => ({
+											value: option.value,
+											label: i18n.t(option.label),
+										}))}
+									/>
+								}
+							/>
 							<FormMessage errors={field.state.meta.errors} />
 						</FormItem>
 					)}

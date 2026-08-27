@@ -5,6 +5,7 @@
 	"private": true,
 	"exports": {
 		"./context": "./src/context.ts",
+		"./features/billing": "./src/features/billing/index.ts",
 		"./features/flags": "./src/features/flags/index.ts",
 		"./features/resume/export": "./src/features/resume/export.ts",
 		"./features/storage": "./src/features/storage/index.ts",

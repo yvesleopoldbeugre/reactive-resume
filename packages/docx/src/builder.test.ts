@@ -70,4 +70,25 @@ describe("buildDocument", () => {
 		data.metadata.typography.heading.fontFamily = "";
 		expect(() => buildDocument(data)).not.toThrow();
 	});
+
+	it("derives the layout of a 'custom' template from metadata.skin instead of a static table", () => {
+		const data = structuredClone(defaultResumeData);
+		data.metadata.template = "custom";
+		data.metadata.skin = {
+			skeleton: "columns",
+			header: { placement: "sidebar", align: "start", picturePlacement: "block-start" },
+			sidebar: { position: "after", fill: "tint", tintOpacity: 0.3, foreground: "default" },
+			heading: { decoration: "underline" },
+			divider: "left-border",
+		};
+
+		expect(() => buildDocument(data)).not.toThrow();
+	});
+
+	it("falls back to the default layout for a 'custom' template with no skin configured", () => {
+		const data = structuredClone(defaultResumeData);
+		data.metadata.template = "custom";
+
+		expect(() => buildDocument(data)).not.toThrow();
+	});
 });

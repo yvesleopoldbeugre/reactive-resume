@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { match } from "ts-pattern";
 import { useToggle } from "usehooks-ts";
 import z from "zod";
+import { BRAND } from "@reactive-resume/brand";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DialogContent,
@@ -62,7 +63,7 @@ export function EnableTwoFactorDialog(_: DialogProps<"auth.two-factor.enable">) 
 
 			const { data, error } = await authClient.twoFactor.enable({
 				password: value.password,
-				issuer: "Reactive Resume",
+				issuer: BRAND.name,
 			});
 
 			if (error) {
@@ -166,7 +167,7 @@ export function EnableTwoFactorDialog(_: DialogProps<"auth.two-factor.enable">) 
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement("a");
 		a.href = url;
-		a.download = "reactive-resume_backup-codes.txt";
+		a.download = "essor_backup-codes.txt";
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);

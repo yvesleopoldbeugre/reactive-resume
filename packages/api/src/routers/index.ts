@@ -3,10 +3,12 @@ import { aiRouter } from "../features/ai/router";
 import { aiProvidersRouter } from "../features/ai-providers/router";
 import { applicationsRouter } from "../features/applications/router";
 import { authRouter } from "../features/auth/router";
+import { billingRouter } from "../features/billing/router";
 import { flagsRouter } from "../features/flags/router";
 import { resumeRouter } from "../features/resume/router";
 import { statisticsRouter } from "../features/statistics/router";
 import { storageRouter } from "../features/storage/router";
+import { templatePresetsRouter } from "../features/template-presets/router";
 
 export default {
 	ai: aiRouter,
@@ -14,8 +16,10 @@ export default {
 	agent: agentRouter,
 	applications: applicationsRouter,
 	auth: authRouter,
+	billing: billingRouter,
 	flags: flagsRouter,
 	resume: resumeRouter,
 	statistics: statisticsRouter,
 	storage: storageRouter,
+	templatePresets: templatePresetsRouter,
 };

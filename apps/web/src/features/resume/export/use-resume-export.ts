@@ -26,6 +26,7 @@ const createSectionTitleResolver = async (data: ResumeData) => {
 type ExportableResume = {
 	name: string;
 	slug: string;
+	kind: "resume" | "cover-letter";
 	data: ResumeData;
 };
 

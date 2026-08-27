@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
 	handleUpload: vi.fn(),
 	handleMcp: vi.fn(),
 	handleResumePdfDownload: vi.fn(),
+	handleCinetpayWebhook: vi.fn(),
 	handleMcpServerCard: vi.fn(),
 	handleOAuthAuthorizationServer: vi.fn(),
 	handleOAuthProtectedResource: vi.fn(),
@@ -69,6 +70,10 @@ vi.mock("./resume-pdf", () => ({
 	handleResumePdfDownload: mocks.handleResumePdfDownload,
 }));
 
+vi.mock("./cinetpay-webhook", () => ({
+	handleCinetpayWebhook: mocks.handleCinetpayWebhook,
+}));
+
 beforeEach(() => {
 	vi.clearAllMocks();
 	mocks.handleAuth.mockResolvedValue(new Response("auth"));
@@ -79,6 +84,7 @@ beforeEach(() => {
 	mocks.handleUpload.mockResolvedValue(new Response("upload"));
 	mocks.handleMcp.mockResolvedValue(new Response("mcp"));
 	mocks.handleResumePdfDownload.mockResolvedValue(new Response("pdf"));
+	mocks.handleCinetpayWebhook.mockResolvedValue(new Response(null, { status: 200 }));
 	mocks.handleMcpServerCard.mockReturnValue(new Response("server-card"));
 	mocks.handleOAuthAuthorizationServer.mockReturnValue(new Response("oauth-authorization-server"));
 	mocks.handleOAuthProtectedResource.mockReturnValue(new Response("oauth-protected-resource"));
@@ -102,6 +108,20 @@ describe("createApp", () => {
 		await expect(response.text()).resolves.toBe("oauth");
 		expect(mocks.handleOAuth).toHaveBeenCalledWith(request);
 		expect(mocks.handleAuth).not.toHaveBeenCalled();
+	});
+
+	it("routes POST /api/webhooks/cinetpay to the CinetPay webhook handler", async () => {
+		const { createApp } = await import("./app");
+		const app = createApp();
+		const request = new Request("http://localhost:3001/api/webhooks/cinetpay", {
+			method: "POST",
+			body: "cpm_trans_id=t1",
+		});
+
+		const response = await app.fetch(request);
+
+		expect(response.status).toBe(200);
+		expect(mocks.handleCinetpayWebhook).toHaveBeenCalledWith(request);
 	});
 
 	it("routes signed resume PDF downloads before the web fallback", async () => {

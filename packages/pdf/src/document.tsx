@@ -5,6 +5,7 @@ import type { ComponentType } from "react";
 import type { ResumeRenderOptions } from "./context";
 import type { SectionTitleResolver } from "./section-title";
 import { useMemo } from "react";
+import { BRAND } from "@reactive-resume/brand";
 import { Document } from "#react-pdf-renderer";
 import { RenderProvider } from "./context";
 import { registerFonts, resumeContentContainsCJK, resumeContentScripts } from "./hooks/use-register-fonts";
@@ -41,15 +42,22 @@ export const ResumeDocument = ({ data, template, renderOptions, resolveSectionTi
 
 	// `registerFonts` widens `fontFamily` to `string | string[]` for CJK
 	// fallback (#2986); the cast carries that wider runtime value through
-	// `ResumeData` without changing the public schema.
-	const resumeData = useMemo(() => ({ ...data, metadata: { ...data.metadata, typography } }), [data, typography]);
+	// `ResumeData` without changing the public schema. Also sync `template` into
+	// `metadata.template` — a template gallery/preview tile renders `data` through a
+	// *different* template than the one it's saved with, and template components that read
+	// `data.metadata.template` (e.g. `shouldShowResumeHeader`) need to see the template
+	// actually being rendered, not the document's stored preference.
+	const resumeData = useMemo(
+		() => ({ ...data, metadata: { ...data.metadata, template, typography } }),
+		[data, template, typography],
+	);
 
 	return (
 		<RenderProvider data={resumeData} resolveSectionTitle={resolveSectionTitle} renderOptions={renderOptions}>
 			<Document
 				pageMode="useNone"
 				creationDate={creationDate}
-				producer="Reactive Resume"
+				producer={BRAND.name}
 				title={resumeData.basics.name}
 				author={resumeData.basics.name}
 				creator={resumeData.basics.name}

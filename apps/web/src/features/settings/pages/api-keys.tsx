@@ -4,6 +4,7 @@ import { BookOpenIcon, KeyIcon, LinkSimpleIcon, PlusIcon, TrashSimpleIcon } from
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, m } from "motion/react";
 import { toast } from "sonner";
+import { BRAND } from "@reactive-resume/brand";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Separator } from "@reactive-resume/ui/components/separator";
 import { useDialogStore } from "@/dialogs/store";
@@ -84,7 +85,7 @@ export function ApiKeysSettingsPage() {
 
 					<p className="text-muted-foreground leading-relaxed">
 						<Trans>
-							Explore the API documentation to learn how to integrate Reactive Resume with your applications. Find
+							Explore the OpenAPI specification to learn how to integrate {BRAND.name} with your applications. Find
 							detailed endpoints, request examples, and authentication methods.
 						</Trans>
 					</p>
@@ -93,7 +94,7 @@ export function ApiKeysSettingsPage() {
 						variant="link"
 						nativeButton={false}
 						render={
-							<a href="https://docs.rxresu.me/api-reference" target="_blank" rel="noopener noreferrer">
+							<a href="/api/openapi/spec.json" target="_blank" rel="noopener noreferrer">
 								<LinkSimpleIcon />
 								<Trans>API Reference</Trans>
 							</a>

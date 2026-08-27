@@ -11,9 +11,17 @@ const updateResumeData = vi.hoisted(() => vi.fn());
 
 vi.mock("@/features/resume/builder/draft", () => ({
 	useCurrentResume: () => ({
+		kind: "resume",
 		data: { metadata: { template: "ditto" } },
 	}),
 	useUpdateResumeData: () => updateResumeData,
+}));
+
+// No plan restriction data in these tests -- every tile renders unlocked (see template-card.test.tsx
+// for lock-badge coverage).
+vi.mock("@tanstack/react-query", () => ({ useQuery: () => ({ data: undefined }) }));
+vi.mock("@/libs/orpc/client", () => ({
+	orpc: { billing: { getMySubscription: { queryOptions: () => ({}) } } },
 }));
 
 const { TemplateGalleryDialog } = await import("./gallery");

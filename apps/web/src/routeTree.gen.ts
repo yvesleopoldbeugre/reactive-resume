@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from "./routes/__root";
 import { Route as DashboardRouteRouteImport } from "./routes/dashboard/route";
 import { Route as AuthRouteRouteImport } from "./routes/auth/route";
 import { Route as AgentRouteRouteImport } from "./routes/agent/route";
+import { Route as AdminRouteRouteImport } from "./routes/admin/route";
 import { Route as HomeRouteRouteImport } from "./routes/_home/route";
 import { Route as DashboardIndexRouteImport } from "./routes/dashboard/index";
 import { Route as AuthIndexRouteImport } from "./routes/auth/index";
 import { Route as AgentIndexRouteImport } from "./routes/agent/index";
+import { Route as AdminIndexRouteImport } from "./routes/admin/index";
 import { Route as HomeIndexRouteImport } from "./routes/_home/index";
 import { Route as TemplatesSplatRouteImport } from "./routes/templates/$";
 import { Route as AuthVerify2faBackupRouteImport } from "./routes/auth/verify-2fa-backup";
@@ -29,14 +31,21 @@ import { Route as AgentNewRouteImport } from "./routes/agent/new";
 import { Route as AgentThreadIdRouteImport } from "./routes/agent/$threadId";
 import { Route as UsernameSlugRouteImport } from "./routes/$username/$slug";
 import { Route as BuilderResumeIdRouteRouteImport } from "./routes/builder/$resumeId/route";
+import { Route as DashboardTemplatesIndexRouteImport } from "./routes/dashboard/templates/index";
 import { Route as DashboardResumesIndexRouteImport } from "./routes/dashboard/resumes/index";
+import { Route as DashboardCoverLettersIndexRouteImport } from "./routes/dashboard/cover-letters/index";
+import { Route as DashboardCoverLetterTemplatesIndexRouteImport } from "./routes/dashboard/cover-letter-templates/index";
 import { Route as DashboardApplicationsIndexRouteImport } from "./routes/dashboard/applications/index";
 import { Route as BuilderResumeIdIndexRouteImport } from "./routes/builder/$resumeId/index";
+import { Route as AdminTemplatePresetsIndexRouteImport } from "./routes/admin/template-presets/index";
 import { Route as DashboardSettingsProfileRouteImport } from "./routes/dashboard/settings/profile";
 import { Route as DashboardSettingsPreferencesRouteImport } from "./routes/dashboard/settings/preferences";
 import { Route as DashboardSettingsJobSearchRouteImport } from "./routes/dashboard/settings/job-search";
 import { Route as DashboardSettingsDangerZoneRouteImport } from "./routes/dashboard/settings/danger-zone";
+import { Route as DashboardSettingsBillingRouteImport } from "./routes/dashboard/settings/billing";
 import { Route as DashboardSettingsApiKeysRouteImport } from "./routes/dashboard/settings/api-keys";
+import { Route as AdminTemplatePresetsNewRouteImport } from "./routes/admin/template-presets/new";
+import { Route as AdminTemplatePresetsPresetIdRouteImport } from "./routes/admin/template-presets/$presetId";
 import { Route as DashboardSettingsIntegrationsRouteRouteImport } from "./routes/dashboard/settings/integrations/route";
 import { Route as DashboardSettingsAuthenticationIndexRouteImport } from "./routes/dashboard/settings/authentication/index";
 
@@ -53,6 +62,11 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const AgentRouteRoute = AgentRouteRouteImport.update({
   id: "/agent",
   path: "/agent",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: "/admin",
+  path: "/admin",
   getParentRoute: () => rootRouteImport,
 } as any);
 const HomeRouteRoute = HomeRouteRouteImport.update({
@@ -73,6 +87,11 @@ const AgentIndexRoute = AgentIndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => AgentRouteRoute,
+} as any);
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: "/",
+  path: "/",
+  getParentRoute: () => AdminRouteRoute,
 } as any);
 const HomeIndexRoute = HomeIndexRouteImport.update({
   id: "/",
@@ -139,11 +158,28 @@ const BuilderResumeIdRouteRoute = BuilderResumeIdRouteRouteImport.update({
   path: "/builder/$resumeId",
   getParentRoute: () => rootRouteImport,
 } as any);
+const DashboardTemplatesIndexRoute = DashboardTemplatesIndexRouteImport.update({
+  id: "/templates/",
+  path: "/templates/",
+  getParentRoute: () => DashboardRouteRoute,
+} as any);
 const DashboardResumesIndexRoute = DashboardResumesIndexRouteImport.update({
   id: "/resumes/",
   path: "/resumes/",
   getParentRoute: () => DashboardRouteRoute,
 } as any);
+const DashboardCoverLettersIndexRoute =
+  DashboardCoverLettersIndexRouteImport.update({
+    id: "/cover-letters/",
+    path: "/cover-letters/",
+    getParentRoute: () => DashboardRouteRoute,
+  } as any);
+const DashboardCoverLetterTemplatesIndexRoute =
+  DashboardCoverLetterTemplatesIndexRouteImport.update({
+    id: "/cover-letter-templates/",
+    path: "/cover-letter-templates/",
+    getParentRoute: () => DashboardRouteRoute,
+  } as any);
 const DashboardApplicationsIndexRoute =
   DashboardApplicationsIndexRouteImport.update({
     id: "/applications/",
@@ -155,6 +191,12 @@ const BuilderResumeIdIndexRoute = BuilderResumeIdIndexRouteImport.update({
   path: "/",
   getParentRoute: () => BuilderResumeIdRouteRoute,
 } as any);
+const AdminTemplatePresetsIndexRoute =
+  AdminTemplatePresetsIndexRouteImport.update({
+    id: "/template-presets/",
+    path: "/template-presets/",
+    getParentRoute: () => AdminRouteRoute,
+  } as any);
 const DashboardSettingsProfileRoute =
   DashboardSettingsProfileRouteImport.update({
     id: "/settings/profile",
@@ -179,11 +221,28 @@ const DashboardSettingsDangerZoneRoute =
     path: "/settings/danger-zone",
     getParentRoute: () => DashboardRouteRoute,
   } as any);
+const DashboardSettingsBillingRoute =
+  DashboardSettingsBillingRouteImport.update({
+    id: "/settings/billing",
+    path: "/settings/billing",
+    getParentRoute: () => DashboardRouteRoute,
+  } as any);
 const DashboardSettingsApiKeysRoute =
   DashboardSettingsApiKeysRouteImport.update({
     id: "/settings/api-keys",
     path: "/settings/api-keys",
     getParentRoute: () => DashboardRouteRoute,
+  } as any);
+const AdminTemplatePresetsNewRoute = AdminTemplatePresetsNewRouteImport.update({
+  id: "/template-presets/new",
+  path: "/template-presets/new",
+  getParentRoute: () => AdminRouteRoute,
+} as any);
+const AdminTemplatePresetsPresetIdRoute =
+  AdminTemplatePresetsPresetIdRouteImport.update({
+    id: "/template-presets/$presetId",
+    path: "/template-presets/$presetId",
+    getParentRoute: () => AdminRouteRoute,
   } as any);
 const DashboardSettingsIntegrationsRouteRoute =
   DashboardSettingsIntegrationsRouteRouteImport.update({
@@ -200,6 +259,7 @@ const DashboardSettingsAuthenticationIndexRoute =
 
 export interface FileRoutesByFullPath {
   "/": typeof HomeIndexRoute;
+  "/admin": typeof AdminRouteRouteWithChildren;
   "/agent": typeof AgentRouteRouteWithChildren;
   "/auth": typeof AuthRouteRouteWithChildren;
   "/dashboard": typeof DashboardRouteRouteWithChildren;
@@ -215,18 +275,26 @@ export interface FileRoutesByFullPath {
   "/auth/verify-2fa": typeof AuthVerify2faRoute;
   "/auth/verify-2fa-backup": typeof AuthVerify2faBackupRoute;
   "/templates/$": typeof TemplatesSplatRoute;
+  "/admin/": typeof AdminIndexRoute;
   "/agent/": typeof AgentIndexRoute;
   "/auth/": typeof AuthIndexRoute;
   "/dashboard/": typeof DashboardIndexRoute;
   "/dashboard/settings/integrations": typeof DashboardSettingsIntegrationsRouteRoute;
+  "/admin/template-presets/$presetId": typeof AdminTemplatePresetsPresetIdRoute;
+  "/admin/template-presets/new": typeof AdminTemplatePresetsNewRoute;
   "/dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
+  "/dashboard/settings/billing": typeof DashboardSettingsBillingRoute;
   "/dashboard/settings/danger-zone": typeof DashboardSettingsDangerZoneRoute;
   "/dashboard/settings/job-search": typeof DashboardSettingsJobSearchRoute;
   "/dashboard/settings/preferences": typeof DashboardSettingsPreferencesRoute;
   "/dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
+  "/admin/template-presets/": typeof AdminTemplatePresetsIndexRoute;
   "/builder/$resumeId/": typeof BuilderResumeIdIndexRoute;
   "/dashboard/applications/": typeof DashboardApplicationsIndexRoute;
+  "/dashboard/cover-letter-templates/": typeof DashboardCoverLetterTemplatesIndexRoute;
+  "/dashboard/cover-letters/": typeof DashboardCoverLettersIndexRoute;
   "/dashboard/resumes/": typeof DashboardResumesIndexRoute;
+  "/dashboard/templates/": typeof DashboardTemplatesIndexRoute;
   "/dashboard/settings/authentication/": typeof DashboardSettingsAuthenticationIndexRoute;
 }
 export interface FileRoutesByTo {
@@ -242,23 +310,32 @@ export interface FileRoutesByTo {
   "/auth/verify-2fa-backup": typeof AuthVerify2faBackupRoute;
   "/templates/$": typeof TemplatesSplatRoute;
   "/": typeof HomeIndexRoute;
+  "/admin": typeof AdminIndexRoute;
   "/agent": typeof AgentIndexRoute;
   "/auth": typeof AuthIndexRoute;
   "/dashboard": typeof DashboardIndexRoute;
   "/dashboard/settings/integrations": typeof DashboardSettingsIntegrationsRouteRoute;
+  "/admin/template-presets/$presetId": typeof AdminTemplatePresetsPresetIdRoute;
+  "/admin/template-presets/new": typeof AdminTemplatePresetsNewRoute;
   "/dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
+  "/dashboard/settings/billing": typeof DashboardSettingsBillingRoute;
   "/dashboard/settings/danger-zone": typeof DashboardSettingsDangerZoneRoute;
   "/dashboard/settings/job-search": typeof DashboardSettingsJobSearchRoute;
   "/dashboard/settings/preferences": typeof DashboardSettingsPreferencesRoute;
   "/dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
+  "/admin/template-presets": typeof AdminTemplatePresetsIndexRoute;
   "/builder/$resumeId": typeof BuilderResumeIdIndexRoute;
   "/dashboard/applications": typeof DashboardApplicationsIndexRoute;
+  "/dashboard/cover-letter-templates": typeof DashboardCoverLetterTemplatesIndexRoute;
+  "/dashboard/cover-letters": typeof DashboardCoverLettersIndexRoute;
   "/dashboard/resumes": typeof DashboardResumesIndexRoute;
+  "/dashboard/templates": typeof DashboardTemplatesIndexRoute;
   "/dashboard/settings/authentication": typeof DashboardSettingsAuthenticationIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   "/_home": typeof HomeRouteRouteWithChildren;
+  "/admin": typeof AdminRouteRouteWithChildren;
   "/agent": typeof AgentRouteRouteWithChildren;
   "/auth": typeof AuthRouteRouteWithChildren;
   "/dashboard": typeof DashboardRouteRouteWithChildren;
@@ -275,24 +352,33 @@ export interface FileRoutesById {
   "/auth/verify-2fa-backup": typeof AuthVerify2faBackupRoute;
   "/templates/$": typeof TemplatesSplatRoute;
   "/_home/": typeof HomeIndexRoute;
+  "/admin/": typeof AdminIndexRoute;
   "/agent/": typeof AgentIndexRoute;
   "/auth/": typeof AuthIndexRoute;
   "/dashboard/": typeof DashboardIndexRoute;
   "/dashboard/settings/integrations": typeof DashboardSettingsIntegrationsRouteRoute;
+  "/admin/template-presets/$presetId": typeof AdminTemplatePresetsPresetIdRoute;
+  "/admin/template-presets/new": typeof AdminTemplatePresetsNewRoute;
   "/dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
+  "/dashboard/settings/billing": typeof DashboardSettingsBillingRoute;
   "/dashboard/settings/danger-zone": typeof DashboardSettingsDangerZoneRoute;
   "/dashboard/settings/job-search": typeof DashboardSettingsJobSearchRoute;
   "/dashboard/settings/preferences": typeof DashboardSettingsPreferencesRoute;
   "/dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
+  "/admin/template-presets/": typeof AdminTemplatePresetsIndexRoute;
   "/builder/$resumeId/": typeof BuilderResumeIdIndexRoute;
   "/dashboard/applications/": typeof DashboardApplicationsIndexRoute;
+  "/dashboard/cover-letter-templates/": typeof DashboardCoverLetterTemplatesIndexRoute;
+  "/dashboard/cover-letters/": typeof DashboardCoverLettersIndexRoute;
   "/dashboard/resumes/": typeof DashboardResumesIndexRoute;
+  "/dashboard/templates/": typeof DashboardTemplatesIndexRoute;
   "/dashboard/settings/authentication/": typeof DashboardSettingsAuthenticationIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | "/"
+    | "/admin"
     | "/agent"
     | "/auth"
     | "/dashboard"
@@ -308,18 +394,26 @@ export interface FileRouteTypes {
     | "/auth/verify-2fa"
     | "/auth/verify-2fa-backup"
     | "/templates/$"
+    | "/admin/"
     | "/agent/"
     | "/auth/"
     | "/dashboard/"
     | "/dashboard/settings/integrations"
+    | "/admin/template-presets/$presetId"
+    | "/admin/template-presets/new"
     | "/dashboard/settings/api-keys"
+    | "/dashboard/settings/billing"
     | "/dashboard/settings/danger-zone"
     | "/dashboard/settings/job-search"
     | "/dashboard/settings/preferences"
     | "/dashboard/settings/profile"
+    | "/admin/template-presets/"
     | "/builder/$resumeId/"
     | "/dashboard/applications/"
+    | "/dashboard/cover-letter-templates/"
+    | "/dashboard/cover-letters/"
     | "/dashboard/resumes/"
+    | "/dashboard/templates/"
     | "/dashboard/settings/authentication/";
   fileRoutesByTo: FileRoutesByTo;
   to:
@@ -335,22 +429,31 @@ export interface FileRouteTypes {
     | "/auth/verify-2fa-backup"
     | "/templates/$"
     | "/"
+    | "/admin"
     | "/agent"
     | "/auth"
     | "/dashboard"
     | "/dashboard/settings/integrations"
+    | "/admin/template-presets/$presetId"
+    | "/admin/template-presets/new"
     | "/dashboard/settings/api-keys"
+    | "/dashboard/settings/billing"
     | "/dashboard/settings/danger-zone"
     | "/dashboard/settings/job-search"
     | "/dashboard/settings/preferences"
     | "/dashboard/settings/profile"
+    | "/admin/template-presets"
     | "/builder/$resumeId"
     | "/dashboard/applications"
+    | "/dashboard/cover-letter-templates"
+    | "/dashboard/cover-letters"
     | "/dashboard/resumes"
+    | "/dashboard/templates"
     | "/dashboard/settings/authentication";
   id:
     | "__root__"
     | "/_home"
+    | "/admin"
     | "/agent"
     | "/auth"
     | "/dashboard"
@@ -367,23 +470,32 @@ export interface FileRouteTypes {
     | "/auth/verify-2fa-backup"
     | "/templates/$"
     | "/_home/"
+    | "/admin/"
     | "/agent/"
     | "/auth/"
     | "/dashboard/"
     | "/dashboard/settings/integrations"
+    | "/admin/template-presets/$presetId"
+    | "/admin/template-presets/new"
     | "/dashboard/settings/api-keys"
+    | "/dashboard/settings/billing"
     | "/dashboard/settings/danger-zone"
     | "/dashboard/settings/job-search"
     | "/dashboard/settings/preferences"
     | "/dashboard/settings/profile"
+    | "/admin/template-presets/"
     | "/builder/$resumeId/"
     | "/dashboard/applications/"
+    | "/dashboard/cover-letter-templates/"
+    | "/dashboard/cover-letters/"
     | "/dashboard/resumes/"
+    | "/dashboard/templates/"
     | "/dashboard/settings/authentication/";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   HomeRouteRoute: typeof HomeRouteRouteWithChildren;
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren;
   AgentRouteRoute: typeof AgentRouteRouteWithChildren;
   AuthRouteRoute: typeof AuthRouteRouteWithChildren;
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren;
@@ -415,6 +527,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AgentRouteRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/admin": {
+      id: "/admin";
+      path: "/admin";
+      fullPath: "/admin";
+      preLoaderRoute: typeof AdminRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/_home": {
       id: "/_home";
       path: "";
@@ -442,6 +561,13 @@ declare module "@tanstack/react-router" {
       fullPath: "/agent/";
       preLoaderRoute: typeof AgentIndexRouteImport;
       parentRoute: typeof AgentRouteRoute;
+    };
+    "/admin/": {
+      id: "/admin/";
+      path: "/";
+      fullPath: "/admin/";
+      preLoaderRoute: typeof AdminIndexRouteImport;
+      parentRoute: typeof AdminRouteRoute;
     };
     "/_home/": {
       id: "/_home/";
@@ -534,11 +660,32 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof BuilderResumeIdRouteRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/dashboard/templates/": {
+      id: "/dashboard/templates/";
+      path: "/templates";
+      fullPath: "/dashboard/templates/";
+      preLoaderRoute: typeof DashboardTemplatesIndexRouteImport;
+      parentRoute: typeof DashboardRouteRoute;
+    };
     "/dashboard/resumes/": {
       id: "/dashboard/resumes/";
       path: "/resumes";
       fullPath: "/dashboard/resumes/";
       preLoaderRoute: typeof DashboardResumesIndexRouteImport;
+      parentRoute: typeof DashboardRouteRoute;
+    };
+    "/dashboard/cover-letters/": {
+      id: "/dashboard/cover-letters/";
+      path: "/cover-letters";
+      fullPath: "/dashboard/cover-letters/";
+      preLoaderRoute: typeof DashboardCoverLettersIndexRouteImport;
+      parentRoute: typeof DashboardRouteRoute;
+    };
+    "/dashboard/cover-letter-templates/": {
+      id: "/dashboard/cover-letter-templates/";
+      path: "/cover-letter-templates";
+      fullPath: "/dashboard/cover-letter-templates/";
+      preLoaderRoute: typeof DashboardCoverLetterTemplatesIndexRouteImport;
       parentRoute: typeof DashboardRouteRoute;
     };
     "/dashboard/applications/": {
@@ -554,6 +701,13 @@ declare module "@tanstack/react-router" {
       fullPath: "/builder/$resumeId/";
       preLoaderRoute: typeof BuilderResumeIdIndexRouteImport;
       parentRoute: typeof BuilderResumeIdRouteRoute;
+    };
+    "/admin/template-presets/": {
+      id: "/admin/template-presets/";
+      path: "/template-presets";
+      fullPath: "/admin/template-presets/";
+      preLoaderRoute: typeof AdminTemplatePresetsIndexRouteImport;
+      parentRoute: typeof AdminRouteRoute;
     };
     "/dashboard/settings/profile": {
       id: "/dashboard/settings/profile";
@@ -583,12 +737,33 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardSettingsDangerZoneRouteImport;
       parentRoute: typeof DashboardRouteRoute;
     };
+    "/dashboard/settings/billing": {
+      id: "/dashboard/settings/billing";
+      path: "/settings/billing";
+      fullPath: "/dashboard/settings/billing";
+      preLoaderRoute: typeof DashboardSettingsBillingRouteImport;
+      parentRoute: typeof DashboardRouteRoute;
+    };
     "/dashboard/settings/api-keys": {
       id: "/dashboard/settings/api-keys";
       path: "/settings/api-keys";
       fullPath: "/dashboard/settings/api-keys";
       preLoaderRoute: typeof DashboardSettingsApiKeysRouteImport;
       parentRoute: typeof DashboardRouteRoute;
+    };
+    "/admin/template-presets/new": {
+      id: "/admin/template-presets/new";
+      path: "/template-presets/new";
+      fullPath: "/admin/template-presets/new";
+      preLoaderRoute: typeof AdminTemplatePresetsNewRouteImport;
+      parentRoute: typeof AdminRouteRoute;
+    };
+    "/admin/template-presets/$presetId": {
+      id: "/admin/template-presets/$presetId";
+      path: "/template-presets/$presetId";
+      fullPath: "/admin/template-presets/$presetId";
+      preLoaderRoute: typeof AdminTemplatePresetsPresetIdRouteImport;
+      parentRoute: typeof AdminRouteRoute;
     };
     "/dashboard/settings/integrations": {
       id: "/dashboard/settings/integrations";
@@ -617,6 +792,24 @@ const HomeRouteRouteChildren: HomeRouteRouteChildren = {
 
 const HomeRouteRouteWithChildren = HomeRouteRoute._addFileChildren(
   HomeRouteRouteChildren,
+);
+
+interface AdminRouteRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute;
+  AdminTemplatePresetsPresetIdRoute: typeof AdminTemplatePresetsPresetIdRoute;
+  AdminTemplatePresetsNewRoute: typeof AdminTemplatePresetsNewRoute;
+  AdminTemplatePresetsIndexRoute: typeof AdminTemplatePresetsIndexRoute;
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+  AdminTemplatePresetsPresetIdRoute: AdminTemplatePresetsPresetIdRoute,
+  AdminTemplatePresetsNewRoute: AdminTemplatePresetsNewRoute,
+  AdminTemplatePresetsIndexRoute: AdminTemplatePresetsIndexRoute,
+};
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
 );
 
 interface AgentRouteRouteChildren {
@@ -665,12 +858,16 @@ interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute;
   DashboardSettingsIntegrationsRouteRoute: typeof DashboardSettingsIntegrationsRouteRoute;
   DashboardSettingsApiKeysRoute: typeof DashboardSettingsApiKeysRoute;
+  DashboardSettingsBillingRoute: typeof DashboardSettingsBillingRoute;
   DashboardSettingsDangerZoneRoute: typeof DashboardSettingsDangerZoneRoute;
   DashboardSettingsJobSearchRoute: typeof DashboardSettingsJobSearchRoute;
   DashboardSettingsPreferencesRoute: typeof DashboardSettingsPreferencesRoute;
   DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute;
   DashboardApplicationsIndexRoute: typeof DashboardApplicationsIndexRoute;
+  DashboardCoverLetterTemplatesIndexRoute: typeof DashboardCoverLetterTemplatesIndexRoute;
+  DashboardCoverLettersIndexRoute: typeof DashboardCoverLettersIndexRoute;
   DashboardResumesIndexRoute: typeof DashboardResumesIndexRoute;
+  DashboardTemplatesIndexRoute: typeof DashboardTemplatesIndexRoute;
   DashboardSettingsAuthenticationIndexRoute: typeof DashboardSettingsAuthenticationIndexRoute;
 }
 
@@ -679,12 +876,17 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardSettingsIntegrationsRouteRoute:
     DashboardSettingsIntegrationsRouteRoute,
   DashboardSettingsApiKeysRoute: DashboardSettingsApiKeysRoute,
+  DashboardSettingsBillingRoute: DashboardSettingsBillingRoute,
   DashboardSettingsDangerZoneRoute: DashboardSettingsDangerZoneRoute,
   DashboardSettingsJobSearchRoute: DashboardSettingsJobSearchRoute,
   DashboardSettingsPreferencesRoute: DashboardSettingsPreferencesRoute,
   DashboardSettingsProfileRoute: DashboardSettingsProfileRoute,
   DashboardApplicationsIndexRoute: DashboardApplicationsIndexRoute,
+  DashboardCoverLetterTemplatesIndexRoute:
+    DashboardCoverLetterTemplatesIndexRoute,
+  DashboardCoverLettersIndexRoute: DashboardCoverLettersIndexRoute,
   DashboardResumesIndexRoute: DashboardResumesIndexRoute,
+  DashboardTemplatesIndexRoute: DashboardTemplatesIndexRoute,
   DashboardSettingsAuthenticationIndexRoute:
     DashboardSettingsAuthenticationIndexRoute,
 };
@@ -706,6 +908,7 @@ const BuilderResumeIdRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   HomeRouteRoute: HomeRouteRouteWithChildren,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   AgentRouteRoute: AgentRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,

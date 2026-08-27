@@ -7,7 +7,7 @@ import { I18nProvider } from "@lingui/react";
 
 vi.stubGlobal("__APP_VERSION__", "9.9.9");
 
-// The footer module evaluates `socialLinks = [{ label: t`...`, ... }]` at module
+// The footer module evaluates `getContactLinks = () => [{ label: t`...`, ... }]` at module
 // scope. That `t` call needs an activated locale BEFORE the import, so do that
 // here instead of in beforeAll.
 i18n.loadAndActivate({ locale: "en", messages: {} });
@@ -22,37 +22,20 @@ const renderFooter = () =>
 	);
 
 describe("Footer", () => {
-	it("renders Resources and Community link group headings", () => {
+	it("renders the brand name and tagline", () => {
 		renderFooter();
-		expect(screen.getByText("Resources")).toBeInTheDocument();
-		expect(screen.getByText("Community")).toBeInTheDocument();
+		expect(screen.getByText("Essor")).toBeInTheDocument();
+		expect(screen.getByText("Un CV qui prend son envol")).toBeInTheDocument();
 	});
 
-	it("renders the documented resource links", () => {
+	it("renders a Contact group with a mailto link", () => {
 		const { container } = renderFooter();
-		const text = container.textContent ?? "";
-		for (const label of ["Documentation", "Sponsorships", "Source Code", "Changelog"]) {
-			expect(text, label).toContain(label);
-		}
-	});
-
-	it("renders the documented community links", () => {
-		const { container } = renderFooter();
-		const text = container.textContent ?? "";
-		for (const label of ["Report an issue", "Translations", "Subreddit", "Discord"]) {
-			expect(text, label).toContain(label);
-		}
-	});
-
-	it("renders social media icon links to GitHub, LinkedIn, and X", () => {
-		const { container } = renderFooter();
+		expect(screen.getByText("Contact")).toBeInTheDocument();
 		const hrefs = Array.from(container.querySelectorAll<HTMLAnchorElement>("a")).map((a) => a.href);
-		expect(hrefs.some((h) => h.includes("github.com/amruthpillai/reactive-resume"))).toBe(true);
-		expect(hrefs.some((h) => h.includes("linkedin.com/in/amruthpillai"))).toBe(true);
-		expect(hrefs.some((h) => h.includes("x.com/KingOKings"))).toBe(true);
+		expect(hrefs.some((h) => h.startsWith("mailto:"))).toBe(true);
 	});
 
-	it("includes Reactive Resume version copy via Copyright", () => {
+	it("includes the app version copy via Copyright", () => {
 		renderFooter();
 		// The version is wrapped in <bdi> for RTL isolation, so it is its own text node.
 		expect(screen.getByText("9.9.9")).toBeInTheDocument();

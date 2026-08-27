@@ -20,6 +20,7 @@
 		"@better-auth/infra": "^0.3.5",
 		"@better-auth/oauth-provider": "^1.6.23",
 		"@better-auth/passkey": "^1.6.23",
+		"@reactive-resume/brand": "workspace:*",
 		"@reactive-resume/db": "workspace:*",
 		"@reactive-resume/email": "workspace:*",
 		"@reactive-resume/env": "workspace:*",

@@ -98,3 +98,18 @@ export const protectedProcedure = publicProcedure.use(async ({ context, next }) 
 		},
 	});
 });
+
+/**
+ * `User` (better-auth's base type) doesn't declare `role`, even though the admin plugin adds a
+ * real `role` column/session field at runtime -- widening it here to the admin plugin's session
+ * shape would cascade type mismatches through every session-resolution path in this file, since
+ * `auth.api.getSession()`'s inferred type doesn't line up 1:1 with the plugin's standalone
+ * `UserWithRole` type (nullable vs. optional fields differ). Reading `.role` off the same object
+ * with a narrow local type is simpler and confines the gap to the one place that needs it.
+ */
+export const adminProcedure = protectedProcedure.use(async ({ context, next }) => {
+	const role = (context.user as { role?: string | null }).role;
+	if (role !== "admin") throw new ORPCError("FORBIDDEN");
+
+	return next({ context });
+});

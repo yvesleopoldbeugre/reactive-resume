@@ -12,7 +12,6 @@ import { useBuilderSidebar } from "../../-store/sidebar";
 import { CustomStylesSectionBuilder } from "./sections/custom-styles";
 import { DesignSectionBuilder } from "./sections/design";
 import { ExportSectionBuilder } from "./sections/export";
-import { InformationSectionBuilder } from "./sections/information";
 import { LayoutSectionBuilder } from "./sections/layout";
 import { NotesSectionBuilder } from "./sections/notes";
 import { PageSectionBuilder } from "./sections/page";
@@ -21,6 +20,13 @@ import { SharingSectionBuilder } from "./sections/sharing";
 import { StatisticsSectionBuilder } from "./sections/statistics";
 import { TemplateSectionBuilder } from "./sections/template";
 import { TypographySectionBuilder } from "./sections/typography";
+
+// Resume Analysis is hidden from the right sidebar for now — the section component and route
+// stay intact, just not linked here yet.
+const HIDDEN_RIGHT_SIDEBAR_SECTIONS: RightSidebarSection[] = ["analysis"];
+const visibleRightSidebarSections = rightSidebarSections.filter(
+	(section) => !HIDDEN_RIGHT_SIDEBAR_SECTIONS.includes(section),
+);
 
 function getSectionComponent(type: RightSidebarSection) {
 	return match(type)
@@ -35,7 +41,6 @@ function getSectionComponent(type: RightSidebarSection) {
 		.with("statistics", () => <StatisticsSectionBuilder />)
 		.with("analysis", () => <ResumeAnalysisSectionBuilder />)
 		.with("export", () => <ExportSectionBuilder />)
-		.with("information", () => <InformationSectionBuilder />)
 		.exhaustive();
 }
 
@@ -51,7 +56,7 @@ export function BuilderSidebarRight() {
 				className="@container h-[calc(100svh-3.5rem)] overflow-hidden bg-background sm:me-12"
 			>
 				<div className="space-y-4 p-4">
-					{rightSidebarSections.map((section) => (
+					{visibleRightSidebarSections.map((section) => (
 						<Fragment key={section}>
 							{getSectionComponent(section)}
 							<Separator />
@@ -83,7 +88,7 @@ function SidebarEdge() {
 		<BuilderSidebarEdge side="right">
 			<div className="no-scrollbar min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden">
 				<div className="flex min-h-full flex-col items-center justify-center gap-y-2">
-					{rightSidebarSections.map((section) => (
+					{visibleRightSidebarSections.map((section) => (
 						<Tooltip key={section}>
 							<TooltipTrigger
 								render={

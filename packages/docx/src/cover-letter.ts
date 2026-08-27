@@ -1,4 +1,5 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
+import { isDedicatedCoverLetterTemplate } from "@reactive-resume/schema/templates";
 
 const isCoverLetterSection = (data: ResumeData, sectionId: string) => {
 	const section = data.customSections.find((customSection) => customSection.id === sectionId);
@@ -12,4 +13,5 @@ const isCoverLetterOnlyDocument = (data: ResumeData) => {
 	return sectionIds.length > 0 && sectionIds.every((sectionId) => isCoverLetterSection(data, sectionId));
 };
 
-export const shouldShowResumeHeader = (data: ResumeData) => !isCoverLetterOnlyDocument(data);
+export const shouldShowResumeHeader = (data: ResumeData) =>
+	isDedicatedCoverLetterTemplate(data.metadata.template) || !isCoverLetterOnlyDocument(data);

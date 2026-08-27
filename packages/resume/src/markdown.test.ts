@@ -59,4 +59,9 @@ describe("buildMarkdown", () => {
 		expect(cover).not.toContain(`_${sampleResumeData.basics.headline}_`);
 		expect(cover).not.toContain("## Cover Letter");
 	});
+
+	it("bolds the cover letter's subject part", () => {
+		const cover = buildMarkdown(getResumeExportData(sampleResumeData, "cover-letter"));
+		expect(cover).toContain("**Subject: Application for the Senior Gameplay Engineer position**");
+	});
 });

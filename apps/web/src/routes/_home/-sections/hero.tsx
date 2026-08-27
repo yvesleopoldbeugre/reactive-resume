@@ -1,9 +1,9 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { ArrowRightIcon, BookIcon, SparkleIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { m } from "motion/react";
-import { Badge } from "@reactive-resume/ui/components/badge";
+import { BRAND } from "@reactive-resume/brand";
 import { Button } from "@reactive-resume/ui/components/button";
 import { CometCard } from "@/components/animation/comet-card";
 import { Spotlight } from "@/components/animation/spotlight";
@@ -22,50 +22,40 @@ export function Hero() {
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 1.1, ease: "easeOut" }}
 			>
-				<CometCard
-					glareOpacity={0}
-					className="relative mx-auto -mb-12 3xl:max-w-7xl max-w-4xl px-8 md:-mb-24 md:px-12 lg:px-0"
-				>
-					<video
-						loop
-						muted
-						autoPlay
-						playsInline
-						width={1146}
-						height={720}
-						src="/videos/timelapse.mp4"
-						aria-label={t`Timelapse demonstration of building a resume with Reactive Resume`}
-						// Reserve the intrinsic aspect ratio so the box height is known before the video
-						// metadata loads — otherwise it reflows the centered hero column and causes CLS (~0.10).
-						className="pointer-events-none aspect-[1146/720] w-full rounded-md border object-cover"
-					/>
+				<div className="relative mx-auto max-w-sm px-8 md:max-w-md md:px-12 lg:px-0">
+					{/* Cover letter, fanned out from behind the resume card — same size and same interactive
+					    tilt effect as the resume, so it reads as an equal, real second document, not decoration. */}
+					<CometCard
+						glareOpacity={0.15}
+						className="absolute inset-0 z-0 translate-x-[38%] translate-y-10 rotate-6 md:translate-x-[42%]"
+					>
+						<img
+							width={510}
+							height={720}
+							src="/templates/jpg/cover-letter-sample.jpg"
+							alt={t`A sample cover letter built with ${BRAND.name}`}
+							className="pointer-events-none aspect-page w-full rounded-md border object-cover shadow-2xl"
+						/>
+					</CometCard>
 
-					<div
-						aria-hidden="true"
-						className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-40% via-transparent to-background"
-					/>
-				</CometCard>
+					<CometCard glareOpacity={0.15} className="relative z-10 -mb-12 md:-mb-24">
+						<img
+							width={510}
+							height={720}
+							src="/templates/jpg/onyx.jpg"
+							alt={t`A sample resume built with ${BRAND.name}, using the Onyx template`}
+							className="pointer-events-none aspect-page w-full rounded-md border object-cover shadow-2xl"
+						/>
+
+						<div
+							aria-hidden="true"
+							className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-60% via-transparent to-background"
+						/>
+					</CometCard>
+				</div>
 			</m.div>
 
 			<div className="relative z-10 flex max-w-2xl flex-col items-center gap-y-6 px-4 xs:px-0 text-center">
-				{/* Badge */}
-				<m.a
-					className="will-change-[transform,opacity]"
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.45, delay: 0.55 }}
-					whileHover={{ y: -2, scale: 1.01 }}
-					whileTap={{ scale: 0.985 }}
-					target="_blank"
-					rel="noopener noreferrer"
-					href="https://docs.rxresu.me/getting-started"
-				>
-					<Badge variant="secondary" className="h-auto gap-1.5 px-3 py-0.5">
-						<SparkleIcon aria-hidden="true" className="size-3.5" weight="fill" />
-						<Trans>What's new in the latest version?</Trans>
-					</Badge>
-				</m.a>
-
 				{/* Headline */}
 				<m.div
 					className="will-change-[transform,opacity]"
@@ -73,12 +63,9 @@ export function Hero() {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.45, delay: 0.7 }}
 				>
-					<Trans>
-						<p className="font-medium text-muted-foreground tracking-tight md:text-lg">Finally,</p>
-						<h1 className="mt-1 font-semibold text-4xl tracking-tight md:text-5xl lg:text-6xl">
-							A free and open-source resume builder
-						</h1>
-					</Trans>
+					<h1 className="font-semibold text-4xl tracking-tight md:text-5xl lg:text-6xl">
+						<Trans>A resume & cover letter builder that gets you noticed</Trans>
+					</h1>
 				</m.div>
 
 				{/* Description */}
@@ -88,10 +75,7 @@ export function Hero() {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.45, delay: 0.82 }}
 				>
-					<Trans>
-						Reactive Resume is a free and open-source resume builder that simplifies the process of creating, updating,
-						and sharing your resume.
-					</Trans>
+					{t`${BRAND.name} helps you build, customize, and share a professional resume and cover letter in minutes.`}
 				</m.p>
 
 				{/* CTA Buttons */}
@@ -115,22 +99,6 @@ export function Hero() {
 									/>
 								</span>
 							</Link>
-						}
-					/>
-
-					<Button
-						size="lg"
-						variant="ghost"
-						className="gap-2 px-4"
-						nativeButton={false}
-						render={
-							<a href="https://docs.rxresu.me" target="_blank" rel="noopener noreferrer">
-								<BookIcon aria-hidden="true" className="size-4" />
-								<Trans>Learn More</Trans>
-								<span className="sr-only">
-									<Trans>(opens in new tab)</Trans>
-								</span>
-							</a>
 						}
 					/>
 				</m.div>

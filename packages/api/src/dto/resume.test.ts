@@ -10,6 +10,7 @@ describe("resume DTO output validation", () => {
 			userId: "019bef93-a165-72cb-9c0e-d96e00000000",
 			name: "Armed Amaranth Catshark",
 			slug: "armed-amaranth-catshark",
+			kind: "resume" as const,
 			tags: [],
 			data: {
 				...defaultResumeData,
