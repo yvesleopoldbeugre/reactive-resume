@@ -9,9 +9,11 @@ services:
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
+      # Override via POSTGRES_PASSWORD in .env for any real deployment -- this default is only
+      # safe for local dev, where nothing external can reach this container anyway.
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    # No host port: nothing outside the Docker network needs to reach Postgres directly --
+    # reactive_resume connects to it as `postgres:5432` over the internal data_network.
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
