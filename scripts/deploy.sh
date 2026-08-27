@@ -85,7 +85,10 @@ log "Waiting for $SERVICE to report healthy"
 CONTAINER_ID="$(docker compose ps -q "$SERVICE")"
 [[ -n "$CONTAINER_ID" ]] || die "Could not find the $SERVICE container after 'docker compose up -d'."
 
-ATTEMPTS=30
+# The container's own healthcheck only starts probing after its `start_period` (10s) and
+# probes every `interval` (30s) thereafter, so this budget must comfortably clear a couple of
+# those intervals -- 60 attempts * 2s = 120s.
+ATTEMPTS=60
 for ((i = 1; i <= ATTEMPTS; i++)); do
 	STATUS="$(docker inspect "$CONTAINER_ID" --format '{{.State.Health.Status}}' 2>/dev/null || echo "unknown")"
 	if [[ "$STATUS" == "healthy" ]]; then
