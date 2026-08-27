@@ -127,8 +127,8 @@ const FLOW_COLORS = ["#a5b4fc", "#818cf8", "#22d3ee", "#fbbf24", "#34d399"];
 const FLOW_BG = "#0a0a0f";
 const FLOW_REJECTED = "#fb7185";
 const FLOW_FONT = '"Poppins", ui-sans-serif, sans-serif';
-// Essor mark ~24px wide, rendered directly from its 256-unit icon viewBox.
-const ICON_SCALE = 24 / 256;
+// Essor mark ~24px wide, rendered directly from its 120-unit icon viewBox.
+const ICON_SCALE = 24 / 120;
 
 function toBase64(buffer: ArrayBuffer): string {
 	const bytes = new Uint8Array(buffer);
@@ -329,11 +329,12 @@ function PipelineFlow({ insights }: { insights: ReturnType<typeof computeInsight
 				<g
 					data-export-only
 					style={{ display: "none" }}
-					transform={`translate(${W - 8 - 256 * ICON_SCALE}, ${H - 8 - 256 * ICON_SCALE}) scale(${ICON_SCALE})`}
+					transform={`translate(${W - 8 - 120 * ICON_SCALE}, ${H - 8 - 120 * ICON_SCALE}) scale(${ICON_SCALE})`}
 				>
-					<polygon points="44,204 44,116 136,204" fill="#F3E1CC" />
-					<polygon points="84,204 84,72 212,204" fill="#E96B63" />
-					<polygon points="176,52 220,52 220,96" fill="#E96B63" />
+					<rect x="26" y="26" width="18" height="72" rx="4" fill="#7D92F0" />
+					<rect x="26" y="80" width="58" height="18" rx="4" fill="#7D92F0" />
+					<rect x="26" y="51" width="48" height="18" rx="4" fill="#7D92F0" />
+					<rect x="26" y="26" width="58" height="18" rx="4" fill="#F2A63D" transform="rotate(-20 26 35)" />
 				</g>
 			</svg>
 		</div>

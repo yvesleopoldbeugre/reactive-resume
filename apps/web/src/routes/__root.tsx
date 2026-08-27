@@ -65,7 +65,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 				{ name: "description", content: description },
 				{ name: "viewport", content: "width=device-width, initial-scale=1" },
 				// Meta Tags
-				{ name: "theme-color", content: "#0E4377" },
+				{ name: "theme-color", content: "#1B2E8C" },
 				{ name: "application-name", content: appName },
 				{ name: "mobile-web-app-capable", content: "yes" },
 				{ name: "apple-mobile-web-app-capable", content: "yes" },
