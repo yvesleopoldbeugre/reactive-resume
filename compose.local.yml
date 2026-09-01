@@ -1,0 +1,16 @@
+# Local override: republishes the app directly on http://localhost:3000, for testing without
+# a real Traefik instance running. compose.yml still declares the `traefik-public` network
+# (Compose merges service `networks:`/`ports:` lists across -f files rather than replacing
+# them, so it can't be removed here) -- create a one-time empty stand-in for it locally:
+#   docker network create traefik-public
+#
+# Usage:
+#   docker compose -f compose.yml -f compose.local.yml up -d reactive_resume
+#
+# Do NOT use this on the actual deployment server -- there, `compose.yml` alone (routed through
+# the real Traefik) is what you want.
+
+services:
+  reactive_resume:
+    ports:
+      - "3000:3000"
