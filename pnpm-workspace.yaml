@@ -18,3 +18,4 @@ overrides:
   postcss@<8.5.10: ^8.5.14
   samlify@<2.13.0: ^2.13.0
   uuid@<11.1.1: ^11.1.1
+autoInstallPeers: false

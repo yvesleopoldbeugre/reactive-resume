@@ -37,6 +37,18 @@ COPY --from=runtime-pruner /app/out/json/ ./
 COPY --from=runtime-pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store,sharing=locked \
     pnpm install --prod --frozen-lockfile
+# `--prod` doesn't fully exclude test-only tools that better-auth's optional peers (vitest, etc.)
+# transitively resolve against elsewhere in the workspace. Verified with `pnpm why <pkg> --prod -r`
+# that each of these has NO real (non-web, non-devDependency) path into the server runtime --
+# unlike prettier/esbuild/typescript, which despite looking like build tools are genuinely
+# imported at runtime (by @react-email/render and @t3-oss/env-core respectively) and must stay.
+RUN find node_modules/.pnpm -maxdepth 1 \( \
+      -iname 'happy-dom@*' -o \
+      -iname 'msw@*' -o \
+      -iname 'playwright-core@*' -o \
+      -iname 'lightningcss*' -o \
+      -iname '@rolldown+*' \
+    \) -exec rm -rf {} +
 
 FROM node:${NODE_VERSION}-slim AS runtime
 
