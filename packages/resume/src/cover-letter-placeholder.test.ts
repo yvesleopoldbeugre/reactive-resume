@@ -64,6 +64,19 @@ describe("withPlaceholderCoverLetter", () => {
 		withPlaceholderCoverLetter(defaultResumeData, undefined, makeId);
 		expect(defaultResumeData.customSections).toHaveLength(originalLength);
 	});
+
+	it("uses customParts instead of the locale placeholder when given (an admin preset's own letter text)", () => {
+		const customParts = [
+			{ partType: "salutation" as const, content: "<p>Hi there,</p>" },
+			{ partType: "signature" as const, content: "<p>Best,<br />[Your name]</p>" },
+		];
+
+		const result = withPlaceholderCoverLetter(defaultResumeData, "fr-FR", makeId, customParts);
+
+		const section = result.customSections.find((s) => s.type === "cover-letter");
+		expect(section?.items).toHaveLength(2);
+		expect((section?.items[0] as { content: string } | undefined)?.content).toBe("<p>Hi there,</p>");
+	});
 });
 
 describe("buildPlaceholderCoverLetterData", () => {

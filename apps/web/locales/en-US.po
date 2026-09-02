@@ -2707,6 +2707,10 @@ msgstr "Let AI read the posting and fill the fields below."
 msgid "Letter"
 msgstr "Letter"
 
+#: src/routes/admin/template-presets/$presetId.tsx
+msgid "Letter text"
+msgstr "Letter text"
+
 #: src/dialogs/resume/sections/language.tsx
 #: src/dialogs/resume/sections/skill.tsx
 #: src/routes/builder/$resumeId/-sidebar/right/sections/design.tsx
@@ -4467,6 +4471,10 @@ msgstr "The password you entered is incorrect"
 #: src/features/auth/pages/resume-password.tsx
 msgid "The resume you are trying to access is password protected"
 msgstr "The resume you are trying to access is password protected"
+
+#: src/routes/admin/template-presets/$presetId.tsx
+msgid "The starting text for cover letters created from this preset, in place of the generic fill-in-the-blank placeholder."
+msgstr "The starting text for cover letters created from this preset, in place of the generic fill-in-the-blank placeholder."
 
 #: src/routes/admin/template-presets/$presetId.tsx
 #: src/routes/admin/template-presets/index.tsx

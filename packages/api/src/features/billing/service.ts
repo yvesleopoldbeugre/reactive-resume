@@ -17,7 +17,18 @@ function addPeriod(from: Date, period: "monthly" | "yearly"): Date {
 
 /** The effective plan for a user: their active, non-expired subscription, or "free" otherwise. */
 export const billingService = {
-	getMySubscription: async (input: { userId: string }): Promise<{ plan: Plan; currentPeriodEnd: Date | null }> => {
+	getMySubscription: async (input: {
+		userId: string;
+		isAdmin?: boolean | undefined;
+	}): Promise<{ plan: Plan; currentPeriodEnd: Date | null }> => {
+		// Admins get every template and no quota as a privilege of the role, not a purchased
+		// subscription -- so this is never persisted as a `subscription` row. Reuses "pro-yearly"'s
+		// already-correct allowedTemplates/documentLimit rather than adding a new PlanId, since a
+		// synthetic id would also need to be a valid `subscription.planId` (it never is one).
+		if (input.isAdmin) {
+			return { plan: { ...getPlan("pro-yearly"), name: "Administrateur" }, currentPeriodEnd: null };
+		}
+
 		const [row] = await db
 			.select()
 			.from(schema.subscription)

@@ -16,8 +16,9 @@ export const crudRouter = {
 		})
 		.output(billingDto.getMySubscription.output)
 		.handler(async ({ context }) => {
+			const isAdmin = (context.user as { role?: string | null }).role === "admin";
 			const [subscription, documentCount] = await Promise.all([
-				billingService.getMySubscription({ userId: context.user.id }),
+				billingService.getMySubscription({ userId: context.user.id, isAdmin }),
 				billingService.countDocuments(context.user.id),
 			]);
 

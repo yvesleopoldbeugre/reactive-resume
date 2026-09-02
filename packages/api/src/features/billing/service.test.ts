@@ -71,6 +71,15 @@ describe("getMySubscription", () => {
 
 		expect(result.plan.id).toBe("free");
 	});
+
+	it("gives admins unlimited documents and every template without a subscription row, and skips the DB entirely", async () => {
+		const result = await billingService.getMySubscription({ userId: "u1", isAdmin: true });
+
+		expect(result.plan.documentLimit).toBeNull();
+		expect(result.plan.allowedTemplates.length).toBeGreaterThan(6); // more than the free plan's set
+		expect(result.currentPeriodEnd).toBeNull();
+		expect(dbMock.select).not.toHaveBeenCalled();
+	});
 });
 
 describe("createCheckout", () => {

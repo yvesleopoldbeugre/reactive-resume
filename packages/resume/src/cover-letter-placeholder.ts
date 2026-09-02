@@ -88,8 +88,9 @@ export function withPlaceholderCoverLetter(
 	data: ResumeData,
 	locale: string | undefined,
 	generateId: () => string,
+	customParts?: CoverLetterPlaceholderPart[] | undefined,
 ): ResumeData {
-	const parts = getCoverLetterPlaceholderParts(locale);
+	const parts = customParts ?? getCoverLetterPlaceholderParts(locale);
 
 	const section: CustomSection = {
 		id: generateId(),
@@ -113,6 +114,7 @@ export function buildPlaceholderCoverLetterData(
 	data: ResumeData,
 	locale: string | undefined,
 	generateId: () => string,
+	customParts?: CoverLetterPlaceholderPart[] | undefined,
 ): ResumeData {
-	return getResumeExportData(withPlaceholderCoverLetter(data, locale, generateId), "cover-letter");
+	return getResumeExportData(withPlaceholderCoverLetter(data, locale, generateId, customParts), "cover-letter");
 }

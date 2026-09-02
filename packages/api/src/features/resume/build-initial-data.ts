@@ -42,7 +42,12 @@ export function buildInitialResumeData(input: {
 
 	if (input.kind === "cover-letter") {
 		const source = base ?? defaultResumeData;
-		const projected = buildPlaceholderCoverLetterData(source, input.locale, generateId);
+		const projected = buildPlaceholderCoverLetterData(
+			source,
+			input.locale,
+			generateId,
+			input.preset?.config.coverLetterParts,
+		);
 		const withTemplate: ResumeData = template
 			? { ...projected, metadata: { ...projected.metadata, template } }
 			: projected;

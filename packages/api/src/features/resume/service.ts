@@ -552,12 +552,13 @@ export const resumeService = {
 		tags: string[];
 		locale: Locale;
 		data?: ResumeData;
+		isAdmin?: boolean;
 	}) => {
 		const id = generateId();
 		const data = input.data ?? defaultResumeData;
 		data.metadata.page.locale = input.locale;
 
-		const { plan } = await billingService.getMySubscription({ userId: input.userId });
+		const { plan } = await billingService.getMySubscription({ userId: input.userId, isAdmin: input.isAdmin });
 
 		if (plan.documentLimit !== null) {
 			const documentCount = await billingService.countDocuments(input.userId);
@@ -617,6 +618,7 @@ export const resumeService = {
 		data?: ResumeData;
 		isPublic?: boolean;
 		skipAutoSnapshot?: boolean;
+		isAdmin?: boolean;
 	}) => {
 		const [resume] = await db
 			.select({ isLocked: schema.resume.isLocked, data: schema.resume.data })
@@ -628,7 +630,7 @@ export const resumeService = {
 		// Only a genuine template *switch* is gated -- a plan that has since lost access to a
 		// template a document already uses may keep editing everything else about that document.
 		if (input.data !== undefined && resume && input.data.metadata.template !== resume.data.metadata.template) {
-			const { plan } = await billingService.getMySubscription({ userId: input.userId });
+			const { plan } = await billingService.getMySubscription({ userId: input.userId, isAdmin: input.isAdmin });
 			if (!isTemplateAllowedForPlan(plan.id, input.data.metadata.template)) {
 				throw new ORPCError("TEMPLATE_LOCKED", {
 					status: 402,

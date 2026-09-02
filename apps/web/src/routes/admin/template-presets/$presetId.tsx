@@ -1,3 +1,4 @@
+import type { CoverLetterPlaceholderPart } from "@reactive-resume/resume/cover-letter-placeholder";
 import type { Skin } from "@reactive-resume/schema/resume/skin";
 import type { Template } from "@reactive-resume/schema/templates";
 import type { Locale } from "@reactive-resume/utils/locale";
@@ -7,6 +8,7 @@ import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import {
 	FloppyDiskIcon,
+	NotePencilIcon,
 	PaletteIcon,
 	PencilSimpleIcon,
 	SlideshowIcon,
@@ -19,7 +21,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { buildPlaceholderCoverLetterData } from "@reactive-resume/resume/cover-letter-placeholder";
+import {
+	buildPlaceholderCoverLetterData,
+	getCoverLetterPlaceholderParts,
+} from "@reactive-resume/resume/cover-letter-placeholder";
 import { applyPresetConfig } from "@reactive-resume/resume/preset";
 import { colorDesignSchema, typographySchema } from "@reactive-resume/schema/resume/data";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
@@ -41,6 +46,7 @@ import { Separator } from "@reactive-resume/ui/components/separator";
 import { Switch } from "@reactive-resume/ui/components/switch";
 import { generateId } from "@reactive-resume/utils/string";
 import { ColorPicker } from "@/components/input/color-picker";
+import { RichInput } from "@/components/input/rich-input";
 import { FontFamilyCombobox, FontWeightCombobox } from "@/components/typography/combobox";
 import { getNextWeights } from "@/components/typography/get-next-weights";
 import { getTemplateMetadataForKind, getTemplatesForKind, templates } from "@/dialogs/resume/template/data";
@@ -49,6 +55,7 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { useSyncFormValues } from "@/hooks/use-sync-form-values";
 import { getTemplatePresetErrorMessage } from "@/libs/error-message";
 import { orpc } from "@/libs/orpc/client";
+import { getCoverLetterPartTypeLabel } from "@/libs/resume/cover-letter-part-labels";
 import { useAppForm } from "@/libs/tanstack-form";
 import { AdminHeader } from "../-components/header";
 
@@ -73,6 +80,7 @@ function RouteComponent() {
 	const [colors, setColors] = useState<ColorValues>(defaultResumeData.metadata.design.colors);
 	const [typography, setTypography] = useState<TypographyValues>(defaultResumeData.metadata.typography);
 	const [skin, setSkin] = useState<Skin>(defaultSkin);
+	const [coverLetterParts, setCoverLetterParts] = useState<CoverLetterPlaceholderPart[]>([]);
 	const [isChangingTemplate, setIsChangingTemplate] = useState(false);
 
 	useEffect(() => {
@@ -82,7 +90,12 @@ function RouteComponent() {
 		setColors(preset.config.colors ?? defaultResumeData.metadata.design.colors);
 		setTypography(preset.config.typography ?? defaultResumeData.metadata.typography);
 		setSkin(preset.config.skin ?? defaultSkin);
-	}, [preset]);
+		// A brand-new cover-letter preset has no saved text yet -- start from the same generic
+		// placeholder real documents fall back to, so there's always something to edit and preview.
+		// Deliberately keyed on `preset` only: this should re-seed the editor when the preset
+		// itself (re)loads, not on every locale change while already editing.
+		setCoverLetterParts(preset.config.coverLetterParts ?? getCoverLetterPlaceholderParts(i18n.locale));
+	}, [preset, i18n.locale]);
 
 	// A preset is fixed to the document kind it was created for, so the preview always renders
 	// that kind — a resume-kind preset never needs a cover-letter preview and vice versa.
@@ -90,9 +103,9 @@ function RouteComponent() {
 		const sample = createSampleResumeData(undefined, i18n.locale as Locale);
 		const configured = applyPresetConfig(sample, { colors, typography, skin });
 		return preset?.kind === "cover-letter"
-			? buildPlaceholderCoverLetterData(configured, i18n.locale, generateId)
+			? buildPlaceholderCoverLetterData(configured, i18n.locale, generateId, coverLetterParts)
 			: configured;
-	}, [colors, typography, skin, i18n.locale, preset?.kind]);
+	}, [colors, typography, skin, coverLetterParts, i18n.locale, preset?.kind]);
 
 	const { mutate: updatePreset, isPending: isSaving } = useMutation(orpc.templatePresets.update.mutationOptions());
 	const { mutate: setPublished } = useMutation(
@@ -117,7 +130,17 @@ function RouteComponent() {
 
 	const onSave = () => {
 		updatePreset(
-			{ id: presetId, name: name.trim(), baseTemplate, config: { colors, typography, skin } },
+			{
+				id: presetId,
+				name: name.trim(),
+				baseTemplate,
+				config: {
+					colors,
+					typography,
+					skin,
+					...(preset?.kind === "cover-letter" ? { coverLetterParts } : {}),
+				},
+			},
 			{
 				onSuccess: () => {
 					toast.success(t`Your template preset has been saved successfully.`);
@@ -259,6 +282,26 @@ function RouteComponent() {
 						</h2>
 						<TypographyForm typography={typography} onChange={setTypography} />
 					</section>
+
+					{preset.kind === "cover-letter" && (
+						<>
+							<Separator />
+
+							<section className="space-y-3">
+								<h2 className="flex items-center gap-x-2 font-semibold text-lg">
+									<NotePencilIcon />
+									<Trans>Letter text</Trans>
+								</h2>
+								<p className="text-muted-foreground text-sm leading-relaxed">
+									<Trans>
+										The starting text for cover letters created from this preset, in place of the generic
+										fill-in-the-blank placeholder.
+									</Trans>
+								</p>
+								<CoverLetterContentForm parts={coverLetterParts} onChange={setCoverLetterParts} />
+							</section>
+						</>
+					)}
 				</div>
 
 				<div className="lg:sticky lg:top-4 lg:self-start">
@@ -467,6 +510,48 @@ function SkinForm({ skin, onChange }: SkinFormProps) {
 					]}
 				/>
 			</SkinField>
+		</div>
+	);
+}
+
+type CoverLetterContentFormProps = {
+	parts: CoverLetterPlaceholderPart[];
+	onChange: (parts: CoverLetterPlaceholderPart[]) => void;
+};
+
+function CoverLetterContentForm({ parts, onChange }: CoverLetterContentFormProps) {
+	const { i18n } = useLingui();
+
+	// Paragraphs repeat, so a raw part-type label alone can't tell them apart -- number same-type
+	// parts as they appear (e.g. two "paragraph" items become "Paragraph 1"/"Paragraph 2").
+	const seenCounts = new Map<CoverLetterPlaceholderPart["partType"], number>();
+
+	return (
+		<div className="space-y-4">
+			{parts.map((part, index) => {
+				const occurrence = (seenCounts.get(part.partType) ?? 0) + 1;
+				seenCounts.set(part.partType, occurrence);
+				const repeatsType = parts.filter((p) => p.partType === part.partType).length > 1;
+				const label = i18n._(getCoverLetterPartTypeLabel(part.partType));
+
+				return (
+					<FormItem key={`${part.partType}-${index}`}>
+						<FormLabel>{repeatsType ? `${label} ${occurrence}` : label}</FormLabel>
+						<FormControl
+							render={
+								<RichInput
+									value={part.content}
+									onChange={(content) => {
+										const next = [...parts];
+										next[index] = { ...part, content };
+										onChange(next);
+									}}
+								/>
+							}
+						/>
+					</FormItem>
+				);
+			})}
 		</div>
 	);
 }

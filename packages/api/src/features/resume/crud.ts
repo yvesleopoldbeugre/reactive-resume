@@ -1,3 +1,4 @@
+import type { User } from "better-auth";
 import { generateRandomName, slugify } from "@reactive-resume/utils/string";
 import { protectedProcedure } from "../../context";
 import { resumeDto } from "../../dto/resume";
@@ -5,6 +6,13 @@ import { resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { templatePresetService } from "../template-presets/service";
 import { buildInitialResumeData } from "./build-initial-data";
 import { resumeService } from "./service";
+
+// `User` (better-auth's base type) doesn't declare `role` -- see the identical cast in
+// ../../context.ts's adminProcedure for why this stays a narrow local cast instead of a
+// shared-type change.
+function isAdminUser(user: User): boolean {
+	return (user as { role?: string | null }).role === "admin";
+}
 
 export const crudRouter = {
 	list: protectedProcedure
@@ -97,6 +105,7 @@ export const crudRouter = {
 				tags: input.tags,
 				locale: context.locale,
 				userId: context.user.id,
+				isAdmin: isAdminUser(context.user),
 				...(data ? { data } : {}),
 			});
 		}),
@@ -140,6 +149,7 @@ export const crudRouter = {
 				data: input.data,
 				locale: context.locale,
 				userId: context.user.id,
+				isAdmin: isAdminUser(context.user),
 			});
 
 			// Milestone checkpoint for the imported document (best-effort).
@@ -181,6 +191,7 @@ export const crudRouter = {
 			return resumeService.update({
 				id: input.id,
 				userId: context.user.id,
+				isAdmin: isAdminUser(context.user),
 				...(input.name !== undefined ? { name: input.name } : {}),
 				...(input.slug !== undefined ? { slug: input.slug } : {}),
 				...(input.tags !== undefined ? { tags: input.tags } : {}),
@@ -279,6 +290,7 @@ export const crudRouter = {
 				tags: input.tags ?? original.tags,
 				locale: context.locale,
 				data: original.data,
+				isAdmin: isAdminUser(context.user),
 			});
 		}),
 

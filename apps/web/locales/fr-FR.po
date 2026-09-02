@@ -2712,6 +2712,10 @@ msgstr "Laissez l'AI lire l'offre et remplir les champs ci-dessous."
 msgid "Letter"
 msgstr "Lettre"
 
+#: src/routes/admin/template-presets/$presetId.tsx
+msgid "Letter text"
+msgstr "Texte de la lettre"
+
 #: src/dialogs/resume/sections/language.tsx
 #: src/dialogs/resume/sections/skill.tsx
 #: src/routes/builder/$resumeId/-sidebar/right/sections/design.tsx
@@ -4472,6 +4476,10 @@ msgstr "Le mot de passe saisi est incorrect"
 #: src/features/auth/pages/resume-password.tsx
 msgid "The resume you are trying to access is password protected"
 msgstr "Le CV auquel vous essayez d'accéder est protégé par un mot de passe"
+
+#: src/routes/admin/template-presets/$presetId.tsx
+msgid "The starting text for cover letters created from this preset, in place of the generic fill-in-the-blank placeholder."
+msgstr "Le texte de départ des lettres de motivation créées à partir de ce pré-réglage, à la place du modèle générique à compléter."
 
 #: src/routes/admin/template-presets/$presetId.tsx
 #: src/routes/admin/template-presets/index.tsx

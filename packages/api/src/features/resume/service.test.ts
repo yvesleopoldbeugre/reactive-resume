@@ -164,6 +164,14 @@ describe("create", () => {
 		expect(countDocumentsMock).not.toHaveBeenCalled();
 	});
 
+	it("forwards isAdmin to billingService.getMySubscription so admins bypass quota/template checks", async () => {
+		dbMock.insert.mockReturnValueOnce({ values: vi.fn(() => Promise.resolve()) });
+
+		await resumeService.create({ userId: "u1", name: "New", slug: "new", tags: [], locale: "en-US", isAdmin: true });
+
+		expect(getMySubscriptionMock).toHaveBeenCalledWith({ userId: "u1", isAdmin: true });
+	});
+
 	it("throws TEMPLATE_LOCKED when the requested template isn't in the free plan's real allowed list", async () => {
 		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: null }, currentPeriodEnd: null });
 		// "gengar" is a real CV template but not one of the free plan's unlocked templates.
@@ -258,6 +266,20 @@ describe("update", () => {
 			code: "TEMPLATE_LOCKED",
 		});
 		expect(dbMock.update).not.toHaveBeenCalled();
+	});
+
+	it("forwards isAdmin to billingService.getMySubscription on a template switch", async () => {
+		const existing = structuredClone(defaultResumeData);
+		existing.metadata.template = "azurill";
+		dbMock.select.mockReturnValueOnce(createSelectChain([{ isLocked: false, data: existing }]));
+		const next = structuredClone(defaultResumeData);
+		next.metadata.template = "gengar";
+		const row = { ...existing, id: "r1", updatedAt: new Date("2026-01-01T00:00:00Z"), hasPassword: false };
+		dbMock.update.mockReturnValueOnce(createUpdateChain([row]).chain);
+
+		await resumeService.update({ id: "r1", userId: "u1", data: next, isAdmin: true });
+
+		expect(getMySubscriptionMock).toHaveBeenCalledWith({ userId: "u1", isAdmin: true });
 	});
 
 	it("does not re-check the template when a document already on a now-locked template is edited without switching", async () => {

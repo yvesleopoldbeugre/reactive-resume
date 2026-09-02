@@ -41,6 +41,7 @@ export function BillingSettingsPage() {
 	}
 
 	const currentPlan = subscription?.plan;
+	const isAdmin = currentPlan?.name === "Administrateur";
 	const documentsUsed = subscription?.documentCount ?? 0;
 	const documentLimit = currentPlan?.documentLimit ?? null;
 	const usageRatio = documentLimit ? Math.min(1, documentsUsed / documentLimit) : 0;
@@ -100,7 +101,11 @@ export function BillingSettingsPage() {
 
 			<div className="grid gap-4 sm:grid-cols-3">
 				{plans.map((plan) => {
-					const isCurrent = plan.id === currentPlan?.id;
+					// Admins get a synthetic plan that reuses "pro-yearly"'s id/allowedTemplates (see
+					// billingService.getMySubscription's hardcoded "Administrateur" name) rather than an
+					// actual subscription -- excluding it here keeps it from also highlighting the real
+					// "Pro annuel" purchase card below.
+					const isCurrent = plan.id === currentPlan?.id && currentPlan.name !== "Administrateur";
 					const isFree = plan.priceXof === 0;
 					const visibleTemplates = plan.allowedTemplates.filter((template) => template !== "custom");
 
@@ -164,12 +169,16 @@ export function BillingSettingsPage() {
 
 							{!isFree && (
 								<Button
-									variant={isCurrent ? "outline" : "default"}
-									disabled={isCurrent || checkingOutPlanId !== null}
+									variant={isCurrent || isAdmin ? "outline" : "default"}
+									disabled={isCurrent || isAdmin || checkingOutPlanId !== null}
 									onClick={() => onUpgrade(plan.id)}
 								>
 									<SparkleIcon />
-									{checkingOutPlanId === plan.id ? t`Redirecting…` : isCurrent ? t`Current plan` : t`Upgrade`}
+									{checkingOutPlanId === plan.id
+										? t`Redirecting…`
+										: isCurrent || isAdmin
+											? t`Current plan`
+											: t`Upgrade`}
 								</Button>
 							)}
 						</div>

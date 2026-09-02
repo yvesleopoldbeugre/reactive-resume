@@ -187,5 +187,20 @@ describe("buildInitialResumeData", () => {
 			expect(data?.metadata.design.colors).toEqual(colors);
 			expect(data?.customSections).toHaveLength(1);
 		});
+
+		it("uses the preset's own letter text instead of the generic placeholder when the preset has one", () => {
+			const data = buildInitialResumeData({
+				withSampleData: false,
+				kind: "cover-letter",
+				preset: {
+					baseTemplate: "chikorita",
+					config: { coverLetterParts: [{ partType: "salutation", content: "<p>Yo,</p>" }] },
+				},
+			});
+
+			const section = data?.customSections.find((s) => s.type === "cover-letter");
+			expect(section?.items).toHaveLength(1);
+			expect((section?.items[0] as { content: string } | undefined)?.content).toBe("<p>Yo,</p>");
+		});
 	});
 });
