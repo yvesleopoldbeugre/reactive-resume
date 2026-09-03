@@ -1,4 +1,4 @@
-import { adminProcedure, protectedProcedure, publicProcedure } from "../../context";
+import { adminProcedure, protectedProcedure, publicProcedure, verifiedProcedure } from "../../context";
 import { billingDto } from "../../dto/billing";
 import { billingService } from "./service";
 
@@ -59,7 +59,7 @@ export const crudRouter = {
 			return billingService.updatePlan(input);
 		}),
 
-	createCheckout: protectedProcedure
+	createCheckout: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/billing/checkout",

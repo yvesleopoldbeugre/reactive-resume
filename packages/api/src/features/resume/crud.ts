@@ -1,6 +1,6 @@
 import type { User } from "better-auth";
 import { generateRandomName, slugify } from "@reactive-resume/utils/string";
-import { protectedProcedure } from "../../context";
+import { protectedProcedure, verifiedProcedure } from "../../context";
 import { resumeDto } from "../../dto/resume";
 import { resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { templatePresetService } from "../template-presets/service";
@@ -56,7 +56,7 @@ export const crudRouter = {
 			return resumeService.getById({ id: input.id, userId: context.user.id });
 		}),
 
-	create: protectedProcedure
+	create: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/resumes",
@@ -110,7 +110,7 @@ export const crudRouter = {
 			});
 		}),
 
-	import: protectedProcedure
+	import: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/resumes/import",
@@ -163,7 +163,7 @@ export const crudRouter = {
 			return id;
 		}),
 
-	update: protectedProcedure
+	update: verifiedProcedure
 		.route({
 			method: "PUT",
 			path: "/resumes/{id}",
@@ -200,7 +200,7 @@ export const crudRouter = {
 			});
 		}),
 
-	patch: protectedProcedure
+	patch: verifiedProcedure
 		.route({
 			method: "PATCH",
 			path: "/resumes/{id}",
@@ -233,7 +233,7 @@ export const crudRouter = {
 			});
 		}),
 
-	setLocked: protectedProcedure
+	setLocked: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/resumes/{id}/lock",
@@ -255,7 +255,7 @@ export const crudRouter = {
 			});
 		}),
 
-	duplicate: protectedProcedure
+	duplicate: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/resumes/{id}/duplicate",
@@ -294,7 +294,7 @@ export const crudRouter = {
 			});
 		}),
 
-	delete: protectedProcedure
+	delete: verifiedProcedure
 		.route({
 			method: "DELETE",
 			path: "/resumes/{id}",

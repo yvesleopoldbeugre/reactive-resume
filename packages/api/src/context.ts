@@ -113,3 +113,22 @@ export const adminProcedure = protectedProcedure.use(async ({ context, next }) =
 
 	return next({ context });
 });
+
+/**
+ * Gate for anything that creates, edits, or deletes data (as opposed to just reading it). An
+ * unverified account keeps full read access -- they can sign in and see their existing CVs/cover
+ * letters -- but can't create, edit, or delete anything until they verify their email, to keep
+ * spam/throwaway accounts from being usable. Profile management (name/email/username, resending
+ * the verification email) goes through Better Auth's own endpoints, not this oRPC layer, so it's
+ * never affected by this gate.
+ */
+export const verifiedProcedure = protectedProcedure.use(async ({ context, next }) => {
+	if (!context.user.emailVerified) {
+		throw new ORPCError("EMAIL_NOT_VERIFIED", {
+			status: 403,
+			message: "Please verify your email address before making changes.",
+		});
+	}
+
+	return next({ context });
+});

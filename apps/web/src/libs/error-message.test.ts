@@ -5,6 +5,7 @@ import {
 	getReadableErrorMessage,
 	getResumeErrorMessage,
 	isBillingRestrictedError,
+	isEmailNotVerifiedError,
 } from "./error-message";
 
 describe("getReadableErrorMessage", () => {
@@ -78,6 +79,23 @@ describe("getOrpcErrorMessage", () => {
 		const error = new ORPCError("UNKNOWN_CODE");
 		expect(getOrpcErrorMessage(error, { fallback: "fallback" })).toBe("fallback");
 	});
+
+	it("maps EMAIL_NOT_VERIFIED for every caller, even without an explicit byCode entry", () => {
+		const error = new ORPCError("EMAIL_NOT_VERIFIED");
+		expect(getOrpcErrorMessage(error, { fallback: "fallback" })).toBe(
+			"Please verify your email address before making changes.",
+		);
+	});
+
+	it("lets a caller's own byCode override the common EMAIL_NOT_VERIFIED message", () => {
+		const error = new ORPCError("EMAIL_NOT_VERIFIED");
+		expect(
+			getOrpcErrorMessage(error, {
+				fallback: "fallback",
+				byCode: { EMAIL_NOT_VERIFIED: "Custom override." },
+			}),
+		).toBe("Custom override.");
+	});
 });
 
 describe("getResumeErrorMessage", () => {
@@ -126,5 +144,17 @@ describe("isBillingRestrictedError", () => {
 		expect(isBillingRestrictedError(new ORPCError("RESUME_LOCKED"))).toBe(false);
 		expect(isBillingRestrictedError(new Error("boom"))).toBe(false);
 		expect(isBillingRestrictedError(null)).toBe(false);
+	});
+});
+
+describe("isEmailNotVerifiedError", () => {
+	it("is true for EMAIL_NOT_VERIFIED", () => {
+		expect(isEmailNotVerifiedError(new ORPCError("EMAIL_NOT_VERIFIED"))).toBe(true);
+	});
+
+	it("is false for other ORPCErrors and non-ORPCErrors", () => {
+		expect(isEmailNotVerifiedError(new ORPCError("RESUME_LOCKED"))).toBe(false);
+		expect(isEmailNotVerifiedError(new Error("boom"))).toBe(false);
+		expect(isEmailNotVerifiedError(null)).toBe(false);
 	});
 });

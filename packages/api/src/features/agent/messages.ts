@@ -1,12 +1,12 @@
 import type { UIMessage } from "ai";
 import z from "zod";
-import { protectedProcedure } from "../../context";
+import { protectedProcedure, verifiedProcedure } from "../../context";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
 import { isUiMessage, mapAgentEnvironmentError } from "./routing";
 import { agentService } from "./service";
 
 export const messagesRouter = {
-	send: protectedProcedure
+	send: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/agent/messages/send",
@@ -32,7 +32,7 @@ export const messagesRouter = {
 			});
 		}),
 
-	stop: protectedProcedure
+	stop: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/agent/messages/stop",

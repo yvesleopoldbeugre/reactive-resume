@@ -1,5 +1,5 @@
 import z from "zod";
-import { protectedProcedure } from "../../context";
+import { verifiedProcedure } from "../../context";
 import { storageUploadRateLimit } from "../../middleware/rate-limit";
 import { mapAgentEnvironmentError } from "./routing";
 import { agentService } from "./service";
@@ -9,7 +9,7 @@ function base64ToUint8Array(value: string) {
 }
 
 export const attachmentsRouter = {
-	create: protectedProcedure
+	create: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/agent/attachments",
@@ -37,7 +37,7 @@ export const attachmentsRouter = {
 			});
 		}),
 
-	delete: protectedProcedure
+	delete: verifiedProcedure
 		.route({
 			method: "DELETE",
 			path: "/agent/attachments/{id}",

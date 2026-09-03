@@ -5,7 +5,7 @@ import { type } from "@orpc/server";
 import { AISDKError } from "ai";
 import { flattenError, ZodError, z } from "zod";
 import { storedResumeAnalysisSchema } from "@reactive-resume/schema/resume/analysis";
-import { protectedProcedure } from "../../context";
+import { verifiedProcedure } from "../../context";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
 import { aiProvidersService } from "../ai-providers/service";
 import { resumeService } from "../resume/service";
@@ -56,7 +56,7 @@ async function getRunnableProvider(userId: string, aiProviderId?: string) {
 }
 
 export const aiRouter = {
-	parsePdf: protectedProcedure
+	parsePdf: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/ai/parse-pdf",
@@ -92,7 +92,7 @@ export const aiRouter = {
 			}
 		}),
 
-	parseDocx: protectedProcedure
+	parseDocx: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/ai/parse-docx",
@@ -138,7 +138,7 @@ export const aiRouter = {
 			}
 		}),
 
-	chat: protectedProcedure
+	chat: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/ai/chat",
@@ -180,7 +180,7 @@ export const aiRouter = {
 			}
 		}),
 
-	analyzeResume: protectedProcedure
+	analyzeResume: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/ai/analyze-resume",

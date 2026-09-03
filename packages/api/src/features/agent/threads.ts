@@ -1,5 +1,5 @@
 import z from "zod";
-import { protectedProcedure } from "../../context";
+import { protectedProcedure, verifiedProcedure } from "../../context";
 import { mapAgentEnvironmentError } from "./routing";
 import { agentService } from "./service";
 
@@ -17,7 +17,7 @@ export const threadsRouter = {
 			return await agentService.threads.list({ userId: context.user.id });
 		}),
 
-	create: protectedProcedure
+	create: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/agent/threads",
@@ -36,7 +36,7 @@ export const threadsRouter = {
 			});
 		}),
 
-	getOrCreateForResume: protectedProcedure
+	getOrCreateForResume: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/agent/threads/for-resume",
@@ -68,7 +68,7 @@ export const threadsRouter = {
 			return await agentService.threads.get({ id: input.id, userId: context.user.id });
 		}),
 
-	archive: protectedProcedure
+	archive: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/agent/threads/{id}/archive",
@@ -83,7 +83,7 @@ export const threadsRouter = {
 			await agentService.threads.archive({ id: input.id, userId: context.user.id });
 		}),
 
-	delete: protectedProcedure
+	delete: verifiedProcedure
 		.route({
 			method: "DELETE",
 			path: "/agent/threads/{id}",

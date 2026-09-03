@@ -8,6 +8,12 @@ export function getReadableErrorMessage(error: unknown, fallback: string): strin
 
 type ErrorMessageByCode = Record<string, string>;
 
+// Applies to every `getOrpcErrorMessage` caller regardless of feature -- unverified accounts can
+// hit this on essentially any create/edit/delete action across the app (see `verifiedProcedure`).
+const COMMON_ERROR_MESSAGES: ErrorMessageByCode = {
+	EMAIL_NOT_VERIFIED: "Please verify your email address before making changes.",
+};
+
 export function getOrpcErrorMessage(
 	error: unknown,
 	options: {
@@ -18,11 +24,16 @@ export function getOrpcErrorMessage(
 ): string {
 	if (!(error instanceof ORPCError)) return getReadableErrorMessage(error, options.fallback);
 
-	const mappedMessage = options.byCode?.[error.code];
+	const mappedMessage = options.byCode?.[error.code] ?? COMMON_ERROR_MESSAGES[error.code];
 	if (mappedMessage) return mappedMessage;
 
 	if (options.allowServerMessage && error.message) return error.message;
 	return options.fallback;
+}
+
+/** Whether an oRPC error means the action was blocked because the caller's email isn't verified yet. */
+export function isEmailNotVerifiedError(error: unknown): boolean {
+	return error instanceof ORPCError && error.code === "EMAIL_NOT_VERIFIED";
 }
 
 export function getResumeErrorMessage(error: unknown): string {

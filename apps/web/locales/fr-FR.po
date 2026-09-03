@@ -172,6 +172,7 @@ msgid "A link to your resume has been copied to clipboard."
 msgstr "Un lien vers votre CV a été copié dans le presse-papiers."
 
 #: src/features/settings/pages/profile.tsx
+#: src/routes/dashboard/-components/email-verification-banner.tsx
 msgid "A new verification link has been sent to your email address. Please check your inbox to verify your account."
 msgstr "Un nouveau lien de vérification a été envoyé à votre adresse email. Veuillez consulter votre boîte de réception pour vérifier votre compte."
 
@@ -1947,7 +1948,9 @@ msgid "Failed to request email change. Please try again."
 msgstr "La demande de changement d'adresse électronique a échoué. Veuillez réessayer."
 
 #. Fallback toast when resending account verification email fails
+#. Fallback toast when resending account verification email fails
 #: src/features/settings/pages/profile.tsx
+#: src/routes/dashboard/-components/email-verification-banner.tsx
 msgid "Failed to resend verification email. Please try again."
 msgstr "L'envoi de l'email de vérification a échoué. Veuillez réessayer."
 
@@ -3403,6 +3406,10 @@ msgstr "Veuillez saisir l'URL vers laquelle vous souhaitez rediriger :"
 msgid "Please upload a PDF file."
 msgstr "Veuillez téléverser un fichier PDF."
 
+#: src/routes/dashboard/-components/email-verification-banner.tsx
+msgid "Please verify your email address"
+msgstr "Veuillez vérifier votre adresse e-mail"
+
 #: src/features/resume/export/use-resume-export.ts
 msgid "Please wait while your PDF is being generated..."
 msgstr "Veuillez patienter pendant que votre PDF est en cours de génération..."
@@ -3651,10 +3658,12 @@ msgid "Reorder custom field"
 msgstr "Réorganiser le champ personnalisé"
 
 #: src/features/settings/pages/profile.tsx
+#: src/routes/dashboard/-components/email-verification-banner.tsx
 msgid "Resend verification email"
 msgstr "Renvoyer l'email de vérification"
 
 #: src/features/settings/pages/profile.tsx
+#: src/routes/dashboard/-components/email-verification-banner.tsx
 msgid "Resending verification email..."
 msgstr "Renvoi de l'e-mail de vérification..."
 
@@ -4621,8 +4630,8 @@ msgid "This section is reserved for your personal notes specific to this resume.
 msgstr "Cette section est réservée à vos notes personnelles spécifiques à ce CV. Le contenu ici reste privé et n’est partagé avec personne d’autre."
 
 #: src/features/auth/pages/register.tsx
-msgid "This step is optional, but recommended."
-msgstr "Cette étape est facultative, mais recommandée."
+msgid "This step is required."
+msgstr "Cette étape est obligatoire."
 
 #: src/routes/agent/-components/agent-chat.tsx
 msgid "This thread is archived. New messages cannot be sent."
@@ -5114,10 +5123,6 @@ msgstr "Code de vérification…"
 msgid "Verifying password..."
 msgstr "Vérification du mot de passe..."
 
-#: src/features/auth/pages/register.tsx
-msgid "Verifying your email is required when resetting your password."
-msgstr "La vérification de votre adresse e-mail est requise lors de la réinitialisation de votre mot de passe."
-
 #: src/routes/builder/$resumeId/-components/version-history.tsx
 msgid "Version history"
 msgstr "Historique des versions"
@@ -5224,6 +5229,18 @@ msgstr "Oui ! Les lettres de motivation sont gérées comme des documents à pa
 #: src/features/auth/pages/login.tsx
 msgid "You can also use your username to login."
 msgstr "Vous pouvez également utiliser votre nom d'utilisateur pour vous connecter."
+
+#: src/routes/dashboard/-components/email-verification-banner.tsx
+msgid "You can browse your CVs and cover letters, but creating, editing, or deleting anything is disabled until you verify your email."
+msgstr "Vous pouvez consulter vos CV et lettres de motivation, mais la création, la modification ou la suppression est désactivée tant que votre e-mail n'est pas vérifié."
+
+#: src/routes/dashboard/-components/email-verification-banner.tsx
+msgid "You can browse your CVs and cover letters, but creating, editing, or deleting anything requires a verified email -- and email delivery isn't configured on this instance yet."
+msgstr "Vous pouvez consulter vos CV et lettres de motivation, mais la création, la modification ou la suppression nécessite un e-mail vérifié — et l'envoi d'e-mails n'est pas encore configuré sur cette instance."
+
+#: src/features/auth/pages/register.tsx
+msgid "You can look around until then, but creating, editing, or deleting a CV or cover letter needs a verified email."
+msgstr "Vous pouvez regarder en attendant, mais créer, modifier ou supprimer un CV ou une lettre de motivation nécessite un e-mail vérifié."
 
 #: src/routes/_home/-sections/faq.tsx
 msgid "You can share your resume via a unique public URL, protect it with a password, or download it as a PDF to share directly. The choice is yours!"

@@ -7,7 +7,7 @@ import { ORPCError } from "@orpc/client";
 import { generateText } from "ai";
 import z from "zod";
 import { generateId, slugify } from "@reactive-resume/utils/string";
-import { protectedProcedure } from "../../context";
+import { verifiedProcedure } from "../../context";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
 import { getModel } from "../ai/service";
 import { aiProvidersService } from "../ai-providers/service";
@@ -234,7 +234,7 @@ const matchScoreOutput = z.object({
 
 export const aiRouter = {
 	// Extract structured fields from a pasted job description or a posting URL.
-	autofill: protectedProcedure
+	autofill: verifiedProcedure
 		.route({ method: "POST", path: "/applications/ai/autofill", operationId: "aiAutofillApplication", ...reserved })
 		.input(autofillInputSchema)
 		.use(aiRequestRateLimit)
@@ -255,7 +255,7 @@ export const aiRouter = {
 		}),
 
 	// Score the linked resume against the application's job description.
-	matchScore: protectedProcedure
+	matchScore: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/applications/{id}/ai/match-score",
@@ -295,7 +295,7 @@ export const aiRouter = {
 		}),
 
 	// Generate a cover letter or recruiter follow-up from the application + resume context.
-	draftMessage: protectedProcedure
+	draftMessage: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/applications/{id}/ai/draft-message",
@@ -323,7 +323,7 @@ export const aiRouter = {
 		}),
 
 	// Create a tailored copy of the linked resume (job-specific summary) and link it to the application.
-	tailorResume: protectedProcedure
+	tailorResume: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/applications/{id}/ai/tailor-resume",

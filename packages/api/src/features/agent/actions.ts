@@ -1,10 +1,10 @@
 import z from "zod";
-import { protectedProcedure } from "../../context";
+import { verifiedProcedure } from "../../context";
 import { mapAgentEnvironmentError } from "./routing";
 import { agentService } from "./service";
 
 export const actionsRouter = {
-	revert: protectedProcedure
+	revert: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/agent/actions/{id}/revert",

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const lookupMock = vi.hoisted(() => vi.fn());
 const requestMock = vi.hoisted(() => vi.fn());
-const protectedProcedureMock = vi.hoisted(() => {
+const verifiedProcedureMock = vi.hoisted(() => {
 	const chain = {
 		route: vi.fn(() => chain),
 		input: vi.fn(() => chain),
@@ -18,7 +18,7 @@ vi.mock("node:dns/promises", () => ({ lookup: lookupMock }));
 vi.mock("node:http", () => ({ request: requestMock }));
 vi.mock("node:https", () => ({ request: requestMock }));
 vi.mock("ai", () => ({ generateText: vi.fn() }));
-vi.mock("../../context", () => ({ protectedProcedure: protectedProcedureMock }));
+vi.mock("../../context", () => ({ verifiedProcedure: verifiedProcedureMock }));
 vi.mock("../../middleware/rate-limit", () => ({ aiRequestRateLimit: vi.fn() }));
 vi.mock("../ai/service", () => ({ getModel: vi.fn() }));
 vi.mock("../ai-providers/service", () => ({ aiProvidersService: { getDefaultRunnable: vi.fn() } }));

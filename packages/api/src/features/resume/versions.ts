@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../../context";
+import { protectedProcedure, verifiedProcedure } from "../../context";
 import { resumeDto } from "../../dto/resume";
 import { resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { resumeService } from "./service";
@@ -21,7 +21,7 @@ export const versionsRouter = {
 			return resumeService.versions.list({ resumeId: input.resumeId, userId: context.user.id });
 		}),
 
-	restoreVersion: protectedProcedure
+	restoreVersion: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/resumes/{resumeId}/versions/{versionId}/restore",

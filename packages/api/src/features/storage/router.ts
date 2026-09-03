@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import z from "zod";
-import { protectedProcedure } from "../../context";
+import { verifiedProcedure } from "../../context";
 import { storageDeleteRateLimit, storageUploadRateLimit } from "../../middleware/rate-limit";
 import { getStorageService, isImageFile, processImageForUpload, uploadFile } from "./service";
 
@@ -21,7 +21,7 @@ function isUnsafeStorageKey(key: string): boolean {
 }
 
 export const storageRouter = {
-	uploadFile: protectedProcedure
+	uploadFile: verifiedProcedure
 		.route({
 			tags: ["Internal"],
 			operationId: "uploadFile",
@@ -65,7 +65,7 @@ export const storageRouter = {
 			};
 		}),
 
-	deleteFile: protectedProcedure
+	deleteFile: verifiedProcedure
 		.route({
 			tags: ["Internal"],
 			operationId: "deleteFile",

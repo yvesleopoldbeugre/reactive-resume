@@ -2,7 +2,7 @@ import type { AiProviderResponse } from "./service";
 import { ORPCError } from "@orpc/client";
 import { type } from "@orpc/server";
 import z from "zod";
-import { protectedProcedure } from "../../context";
+import { protectedProcedure, verifiedProcedure } from "../../context";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
 import { providerInput, updateProviderInput } from "./inputs";
 import { aiProvidersService } from "./service";
@@ -48,7 +48,7 @@ export const aiProvidersRouter = {
 			}
 		}),
 
-	create: protectedProcedure
+	create: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/ai-providers",
@@ -80,7 +80,7 @@ export const aiProvidersRouter = {
 			}
 		}),
 
-	update: protectedProcedure
+	update: verifiedProcedure
 		.route({
 			method: "PATCH",
 			path: "/ai-providers/{id}",
@@ -116,7 +116,7 @@ export const aiProvidersRouter = {
 			}
 		}),
 
-	delete: protectedProcedure
+	delete: verifiedProcedure
 		.route({
 			method: "DELETE",
 			path: "/ai-providers/{id}",
@@ -139,7 +139,7 @@ export const aiProvidersRouter = {
 			}
 		}),
 
-	test: protectedProcedure
+	test: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/ai-providers/{id}/test",

@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../../context";
+import { protectedProcedure, verifiedProcedure } from "../../context";
 import { applicationDto } from "../../dto/application";
 import { resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { applicationService } from "./service";
@@ -43,7 +43,7 @@ export const crudRouter = {
 			return applicationService.getById({ id: input.id, userId: context.user.id });
 		}),
 
-	create: protectedProcedure
+	create: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/applications",
@@ -61,7 +61,7 @@ export const crudRouter = {
 			return applicationService.create({ userId: context.user.id, ...input });
 		}),
 
-	import: protectedProcedure
+	import: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/applications/import",
@@ -79,7 +79,7 @@ export const crudRouter = {
 			return applicationService.importMany({ userId: context.user.id, items: input.items });
 		}),
 
-	update: protectedProcedure
+	update: verifiedProcedure
 		.route({
 			method: "PUT",
 			path: "/applications/{id}",
@@ -97,7 +97,7 @@ export const crudRouter = {
 			return applicationService.update({ userId: context.user.id, ...input });
 		}),
 
-	attachDocument: protectedProcedure
+	attachDocument: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/applications/{id}/documents/{kind}",
@@ -139,7 +139,7 @@ export const crudRouter = {
 			});
 		}),
 
-	removeDocument: protectedProcedure
+	removeDocument: verifiedProcedure
 		.route({
 			method: "DELETE",
 			path: "/applications/{id}/documents/{kind}",
@@ -157,7 +157,7 @@ export const crudRouter = {
 			return applicationService.removeDocument({ id: input.id, userId: context.user.id, kind: input.kind });
 		}),
 
-	addNote: protectedProcedure
+	addNote: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/applications/{id}/notes",
@@ -174,7 +174,7 @@ export const crudRouter = {
 			return applicationService.addNote({ id: input.id, userId: context.user.id, text: input.text, date: input.date });
 		}),
 
-	updateTimelineEntry: protectedProcedure
+	updateTimelineEntry: verifiedProcedure
 		.route({
 			method: "PUT",
 			path: "/applications/{id}/timeline/{entryId}",
@@ -191,7 +191,7 @@ export const crudRouter = {
 			return applicationService.updateTimelineEntry({ ...input, userId: context.user.id });
 		}),
 
-	deleteTimelineEntry: protectedProcedure
+	deleteTimelineEntry: verifiedProcedure
 		.route({
 			method: "DELETE",
 			path: "/applications/{id}/timeline/{entryId}",
@@ -209,7 +209,7 @@ export const crudRouter = {
 			return applicationService.deleteTimelineEntry({ ...input, userId: context.user.id });
 		}),
 
-	delete: protectedProcedure
+	delete: verifiedProcedure
 		.route({
 			method: "DELETE",
 			path: "/applications/{id}",
@@ -226,7 +226,7 @@ export const crudRouter = {
 			return applicationService.delete({ id: input.id, userId: context.user.id });
 		}),
 
-	bulkUpdate: protectedProcedure
+	bulkUpdate: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/applications/bulk-update",
@@ -244,7 +244,7 @@ export const crudRouter = {
 			return applicationService.bulkUpdate({ userId: context.user.id, ...input });
 		}),
 
-	bulkDelete: protectedProcedure
+	bulkDelete: verifiedProcedure
 		.route({
 			method: "POST",
 			path: "/applications/bulk-delete",

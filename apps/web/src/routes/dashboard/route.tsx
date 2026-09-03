@@ -2,6 +2,7 @@ import { Trans } from "@lingui/react/macro";
 import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { SidebarProvider } from "@reactive-resume/ui/components/sidebar";
 import { createNoindexFollowMeta } from "@/libs/seo";
+import { EmailVerificationBanner } from "./-components/email-verification-banner";
 import { getDashboardSidebarState, setDashboardSidebarState } from "./-components/functions";
 import { DashboardSidebar } from "./-components/sidebar";
 
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/dashboard")({
 function RouteComponent() {
 	const router = useRouter();
 	const { sidebarState } = Route.useLoaderData();
+	const { session, flags } = Route.useRouteContext();
 
 	const handleSidebarOpenChange = (open: boolean) => {
 		setDashboardSidebarState(open);
@@ -41,6 +43,7 @@ function RouteComponent() {
 			<DashboardSidebar />
 
 			<main id="main-content" className="@container flex-1 p-4 md:ps-2">
+				<EmailVerificationBanner session={session} smtpEnabled={flags.smtpEnabled} />
 				<Outlet />
 			</main>
 		</SidebarProvider>

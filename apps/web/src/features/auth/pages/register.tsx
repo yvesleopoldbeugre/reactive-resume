@@ -261,10 +261,13 @@ function PostSignupScreen() {
 
 			<Alert>
 				<AlertTitle>
-					<Trans>This step is optional, but recommended.</Trans>
+					<Trans>This step is required.</Trans>
 				</AlertTitle>
 				<AlertDescription>
-					<Trans>Verifying your email is required when resetting your password.</Trans>
+					<Trans>
+						You can look around until then, but creating, editing, or deleting a CV or cover letter needs a verified
+						email.
+					</Trans>
 				</AlertDescription>
 			</Alert>
 

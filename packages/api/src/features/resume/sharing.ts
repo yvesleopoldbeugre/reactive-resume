@@ -1,5 +1,5 @@
 import z from "zod";
-import { protectedProcedure, publicProcedure } from "../../context";
+import { publicProcedure, verifiedProcedure } from "../../context";
 import { resumeDto } from "../../dto/resume";
 import { resumeMutationRateLimit, resumePasswordRateLimit } from "../../middleware/rate-limit";
 import { resumeService } from "./service";
@@ -26,7 +26,7 @@ export const sharingRouter = {
 			});
 		}),
 
-	setPassword: protectedProcedure
+	setPassword: verifiedProcedure
 		.route({
 			method: "PUT",
 			path: "/resumes/{id}/password",
@@ -77,7 +77,7 @@ export const sharingRouter = {
 			});
 		}),
 
-	removePassword: protectedProcedure
+	removePassword: verifiedProcedure
 		.route({
 			method: "DELETE",
 			path: "/resumes/{id}/password",
