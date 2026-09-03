@@ -8,7 +8,7 @@ import {
 
 describe("getCanonicalRootUrl", () => {
 	it("uses the production root when no origin is available", () => {
-		expect(getCanonicalRootUrl()).toBe("https://essor.cv/");
+		expect(getCanonicalRootUrl()).toBe("https://essor.askoetude.com/");
 	});
 
 	it("normalizes an app origin to the root URL", () => {

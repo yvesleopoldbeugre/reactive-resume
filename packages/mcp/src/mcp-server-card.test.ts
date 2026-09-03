@@ -13,7 +13,7 @@ describe("buildMcpServerCard", () => {
 	it("identifies the server as essor", () => {
 		expect(card.serverInfo.name).toBe("essor");
 		expect(card.serverInfo.title).toBe("Essor");
-		expect(card.serverInfo.websiteUrl).toBe("https://essor.cv");
+		expect(card.serverInfo.websiteUrl).toBe("https://essor.askoetude.com");
 	});
 
 	it("exposes light + dark theme icons", () => {

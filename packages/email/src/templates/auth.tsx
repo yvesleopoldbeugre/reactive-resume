@@ -22,9 +22,110 @@ import { BRAND } from "@reactive-resume/brand";
 void React;
 
 const appName = BRAND.name;
-const logoUrl = `${BRAND.url}/icon/dark.svg`;
+// A PNG, not the site's usual SVG icon -- most email clients (Gmail, Outlook, ...) don't render
+// inline SVG images at all, which was silently dropping the logo from every auth email.
+const logoUrl = `${BRAND.url}/icon/dark-email.png`;
+
+/**
+ * Auth emails only support the languages this deployment's audience actually needs -- not the
+ * full ~54-locale catalog the web app has (most of which are still machine-pretranslated). Any
+ * locale other than French falls back to English, the source language.
+ */
+export type EmailLocale = "fr-FR" | "en-US";
+
+export function resolveEmailLocale(locale: string | null | undefined): EmailLocale {
+	return locale === "fr-FR" ? "fr-FR" : "en-US";
+}
+
+type AuthEmailCopy = {
+	resetPassword: {
+		subject: string;
+		heading: string;
+		intro: string;
+		details: string;
+		actionLabel: string;
+		outro: string;
+	};
+	verifyEmail: {
+		subject: string;
+		heading: string;
+		intro: string;
+		details: string;
+		actionLabel: string;
+		outro: string;
+	};
+	verifyEmailChange: {
+		subject: string;
+		heading: string;
+		intro: (previousEmail: string, newEmail: string) => string;
+		details: string;
+		actionLabel: string;
+		outro: string;
+	};
+	linkFallback: string;
+};
+
+const COPY: Record<EmailLocale, AuthEmailCopy> = {
+	"en-US": {
+		resetPassword: {
+			subject: `Reset your ${appName} password`,
+			heading: "Password Reset",
+			intro: `We received a request to reset your ${appName} password.`,
+			details: "If this was not you, you can ignore this message and your password will remain unchanged.",
+			actionLabel: "Create New Password",
+			outro: `For security, only use links from emails sent by ${appName}.`,
+		},
+		verifyEmail: {
+			subject: `Verify your email for ${appName}`,
+			heading: "Verify Email",
+			intro: `Thanks for signing up for ${appName}. Please verify your email address to continue.`,
+			details: "Verification helps us protect your account and keep your sign-in secure.",
+			actionLabel: "Verify Email",
+			outro: "If you did not create this account, you can safely ignore this email.",
+		},
+		verifyEmailChange: {
+			subject: `Confirm your new ${appName} email address`,
+			heading: "Confirm Email Change",
+			intro: (previousEmail, newEmail) =>
+				`You requested to change your ${appName} email from ${previousEmail} to ${newEmail}.`,
+			details: "Confirm this change to complete the update and keep your account access uninterrupted.",
+			actionLabel: "Verify New Email",
+			outro: "If you did not request this change, ignore this email and secure your account.",
+		},
+		linkFallback: "If the button does not work, copy and paste this link into your browser:",
+	},
+	"fr-FR": {
+		resetPassword: {
+			subject: `Réinitialisez votre mot de passe ${appName}`,
+			heading: "Réinitialisation du mot de passe",
+			intro: `Nous avons reçu une demande de réinitialisation de votre mot de passe ${appName}.`,
+			details: "Si ce n'est pas vous, vous pouvez ignorer ce message : votre mot de passe restera inchangé.",
+			actionLabel: "Créer un nouveau mot de passe",
+			outro: `Pour votre sécurité, n'utilisez que les liens envoyés par ${appName}.`,
+		},
+		verifyEmail: {
+			subject: `Vérifiez votre adresse e-mail pour ${appName}`,
+			heading: "Vérification de l'e-mail",
+			intro: `Merci de vous être inscrit(e) sur ${appName}. Veuillez vérifier votre adresse e-mail pour continuer.`,
+			details: "La vérification nous aide à protéger votre compte et à sécuriser votre connexion.",
+			actionLabel: "Vérifier mon e-mail",
+			outro: "Si vous n'êtes pas à l'origine de la création de ce compte, vous pouvez ignorer cet e-mail.",
+		},
+		verifyEmailChange: {
+			subject: `Confirmez votre nouvelle adresse e-mail ${appName}`,
+			heading: "Confirmation du changement d'e-mail",
+			intro: (previousEmail, newEmail) =>
+				`Vous avez demandé à changer votre adresse e-mail ${appName} de ${previousEmail} vers ${newEmail}.`,
+			details: "Confirmez ce changement pour finaliser la mise à jour et conserver l'accès à votre compte.",
+			actionLabel: "Vérifier ma nouvelle adresse",
+			outro: "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail et sécurisez votre compte.",
+		},
+		linkFallback: "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :",
+	},
+};
 
 interface AuthEmailLayoutProps {
+	locale: EmailLocale;
 	preview: string;
 	heading: string;
 	intro: string;
@@ -34,9 +135,20 @@ interface AuthEmailLayoutProps {
 	outro: string;
 }
 
-function AuthEmailLayout({ preview, heading, intro, details, actionLabel, actionUrl, outro }: AuthEmailLayoutProps) {
+function AuthEmailLayout({
+	locale,
+	preview,
+	heading,
+	intro,
+	details,
+	actionLabel,
+	actionUrl,
+	outro,
+}: AuthEmailLayoutProps) {
+	const linkFallback = COPY[locale].linkFallback;
+
 	return (
-		<Html lang="en">
+		<Html lang={locale === "fr-FR" ? "fr" : "en"}>
 			<Tailwind
 				config={{
 					presets: [pixelBasedPreset],
@@ -98,9 +210,7 @@ function AuthEmailLayout({ preview, heading, intro, details, actionLabel, action
 							</Button>
 
 							<Section className="mt-8">
-								<Text className="leading-0">
-									If the button does not work, copy and paste this link into your browser:
-								</Text>
+								<Text className="leading-0">{linkFallback}</Text>
 								<Link className="text-zinc-200/60 leading-0 underline underline-offset-2" href={actionUrl}>
 									{actionUrl}
 								</Link>
@@ -123,36 +233,52 @@ function AuthEmailLayout({ preview, heading, intro, details, actionLabel, action
 
 interface ResetPasswordEmailProps {
 	url: string;
+	locale?: EmailLocale;
 }
 
-export function ResetPasswordEmail({ url }: ResetPasswordEmailProps) {
+export function getResetPasswordEmailSubject(locale: EmailLocale): string {
+	return COPY[locale].resetPassword.subject;
+}
+
+export function ResetPasswordEmail({ url, locale = "en-US" }: ResetPasswordEmailProps) {
+	const copy = COPY[locale].resetPassword;
+
 	return (
 		<AuthEmailLayout
-			preview={`Reset your ${appName} password`}
-			heading="Password Reset"
-			intro={`We received a request to reset your ${appName} password.`}
-			details="If this was not you, you can ignore this message and your password will remain unchanged."
-			actionLabel="Create New Password"
+			locale={locale}
+			preview={copy.subject}
+			heading={copy.heading}
+			intro={copy.intro}
+			details={copy.details}
+			actionLabel={copy.actionLabel}
 			actionUrl={url}
-			outro={`For security, only use links from emails sent by ${appName}.`}
+			outro={copy.outro}
 		/>
 	);
 }
 
 interface VerifyEmailProps {
 	url: string;
+	locale?: EmailLocale;
 }
 
-export function VerifyEmail({ url }: VerifyEmailProps) {
+export function getVerifyEmailSubject(locale: EmailLocale): string {
+	return COPY[locale].verifyEmail.subject;
+}
+
+export function VerifyEmail({ url, locale = "en-US" }: VerifyEmailProps) {
+	const copy = COPY[locale].verifyEmail;
+
 	return (
 		<AuthEmailLayout
-			preview={`Verify your email for ${appName}`}
-			heading="Verify Email"
-			intro={`Thanks for signing up for ${appName}. Please verify your email address to continue.`}
-			details="Verification helps us protect your account and keep your sign-in secure."
-			actionLabel="Verify Email"
+			locale={locale}
+			preview={copy.subject}
+			heading={copy.heading}
+			intro={copy.intro}
+			details={copy.details}
+			actionLabel={copy.actionLabel}
 			actionUrl={url}
-			outro="If you did not create this account, you can safely ignore this email."
+			outro={copy.outro}
 		/>
 	);
 }
@@ -161,18 +287,26 @@ interface VerifyEmailChangeProps {
 	url: string;
 	previousEmail: string;
 	newEmail: string;
+	locale?: EmailLocale;
 }
 
-export function VerifyEmailChange({ url, previousEmail, newEmail }: VerifyEmailChangeProps) {
+export function getVerifyEmailChangeSubject(locale: EmailLocale): string {
+	return COPY[locale].verifyEmailChange.subject;
+}
+
+export function VerifyEmailChange({ url, previousEmail, newEmail, locale = "en-US" }: VerifyEmailChangeProps) {
+	const copy = COPY[locale].verifyEmailChange;
+
 	return (
 		<AuthEmailLayout
-			preview={`Confirm your new ${appName} email address`}
-			heading="Confirm Email Change"
-			intro={`You requested to change your ${appName} email from ${previousEmail} to ${newEmail}.`}
-			details="Confirm this change to complete the update and keep your account access uninterrupted."
-			actionLabel="Verify New Email"
+			locale={locale}
+			preview={copy.subject}
+			heading={copy.heading}
+			intro={copy.intro(previousEmail, newEmail)}
+			details={copy.details}
+			actionLabel={copy.actionLabel}
 			actionUrl={url}
-			outro="If you did not request this change, ignore this email and secure your account."
+			outro={copy.outro}
 		/>
 	);
 }

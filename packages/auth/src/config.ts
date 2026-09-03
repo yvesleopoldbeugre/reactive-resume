@@ -17,7 +17,15 @@ import { createElement } from "react";
 import { BRAND } from "@reactive-resume/brand";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
-import { ResetPasswordEmail, VerifyEmail, VerifyEmailChange } from "@reactive-resume/email/templates/auth";
+import {
+	getResetPasswordEmailSubject,
+	getVerifyEmailChangeSubject,
+	getVerifyEmailSubject,
+	ResetPasswordEmail,
+	resolveEmailLocale,
+	VerifyEmail,
+	VerifyEmailChange,
+} from "@reactive-resume/email/templates/auth";
 import { sendEmail } from "@reactive-resume/email/transport";
 import { env } from "@reactive-resume/env/server";
 import { rateLimitConfig, TRUSTED_IP_HEADERS } from "@reactive-resume/utils/rate-limit";
@@ -45,6 +53,21 @@ export async function verifyOAuthToken(token: string): Promise<JWTPayload> {
 			audience: OAUTH_AUDIENCES,
 		},
 	});
+}
+
+const LOCALE_COOKIE_NAME = "locale";
+
+/**
+ * Auth emails read the "locale" cookie directly off the triggering request instead of a stored
+ * user preference (there isn't one) -- this is always the language the user was actually using at
+ * the moment they registered / requested a password reset / changed their email, which is a
+ * better signal than trying to remember a stale preference from some earlier session.
+ */
+function resolveEmailLocaleFromRequest(request: Request | undefined) {
+	const cookieHeader = request?.headers.get("cookie");
+	const match = cookieHeader?.match(new RegExp(`(?:^|;\\s*)${LOCALE_COOKIE_NAME}=([^;]+)`));
+	const rawValue = match?.[1];
+	return resolveEmailLocale(rawValue ? decodeURIComponent(rawValue) : undefined);
 }
 
 function isCustomOAuthProviderEnabled() {
@@ -155,11 +178,12 @@ const getAuthConfig = () => {
 			maxPasswordLength: 64,
 			requireEmailVerification: false,
 			disableSignUp: env.FLAG_DISABLE_SIGNUPS || env.FLAG_DISABLE_EMAIL_AUTH,
-			sendResetPassword: async ({ user, url }) => {
+			sendResetPassword: async ({ user, url }, request) => {
+				const locale = resolveEmailLocaleFromRequest(request);
 				await sendEmail({
 					to: user.email,
-					subject: "Reset your password",
-					react: createElement(ResetPasswordEmail, { url }),
+					subject: getResetPasswordEmailSubject(locale),
+					react: createElement(ResetPasswordEmail, { url, locale }),
 				});
 			},
 			password: {
@@ -171,11 +195,12 @@ const getAuthConfig = () => {
 		emailVerification: {
 			sendOnSignUp: true,
 			autoSignInAfterVerification: true,
-			sendVerificationEmail: async ({ user, url }) => {
+			sendVerificationEmail: async ({ user, url }, request) => {
+				const locale = resolveEmailLocaleFromRequest(request);
 				await sendEmail({
 					to: user.email,
-					subject: "Verify your email",
-					react: createElement(VerifyEmail, { url }),
+					subject: getVerifyEmailSubject(locale),
+					react: createElement(VerifyEmail, { url, locale }),
 				});
 			},
 		},
@@ -183,11 +208,12 @@ const getAuthConfig = () => {
 		user: {
 			changeEmail: {
 				enabled: true,
-				sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
+				sendChangeEmailConfirmation: async ({ user, newEmail, url }, request) => {
+					const locale = resolveEmailLocaleFromRequest(request);
 					await sendEmail({
 						to: newEmail,
-						subject: "Verify your new email",
-						react: createElement(VerifyEmailChange, { url, previousEmail: user.email, newEmail }),
+						subject: getVerifyEmailChangeSubject(locale),
+						react: createElement(VerifyEmailChange, { url, previousEmail: user.email, newEmail, locale }),
 					});
 				},
 			},

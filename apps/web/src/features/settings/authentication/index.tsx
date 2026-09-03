@@ -1,9 +1,7 @@
 import { m } from "motion/react";
 import { useEnabledProviders } from "./components/hooks";
-import { PasskeysSection } from "./components/passkeys";
 import { PasswordSection } from "./components/password";
 import { SocialProviderSection } from "./components/social-provider";
-import { TwoFactorSection } from "./components/two-factor";
 
 export function AuthenticationSettingsPage() {
 	const { enabledProviders } = useEnabledProviders();
@@ -16,10 +14,6 @@ export function AuthenticationSettingsPage() {
 			className="grid max-w-xl gap-4 will-change-[transform,opacity]"
 		>
 			<PasswordSection />
-
-			<TwoFactorSection />
-
-			<PasskeysSection />
 
 			{"google" in enabledProviders && <SocialProviderSection provider="google" animationDelay={0.04} />}
 

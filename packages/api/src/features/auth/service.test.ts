@@ -33,11 +33,11 @@ const resetEnv = () => {
 };
 
 describe("authService.providers.list", () => {
-	it("always includes credential and passkey providers", () => {
+	it("always includes the credential provider, but not passkey (hidden from the UI for now)", () => {
 		resetEnv();
 		const providers = authService.providers.list();
 		expect(providers.credential).toBe("Password");
-		expect(providers.passkey).toBe("Passkey");
+		expect(providers.passkey).toBeUndefined();
 	});
 
 	it("omits social providers when credentials are not configured", () => {

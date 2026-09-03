@@ -10,7 +10,9 @@ export type ProviderList = Partial<Record<AuthProvider, string>>;
 
 const providers = {
 	list: (): ProviderList => {
-		const providers: ProviderList = { credential: "Password", passkey: "Passkey" };
+		// Passkey isn't advertised here -- it (and two-factor) are hidden from the UI for now,
+		// though the underlying better-auth plugins stay registered.
+		const providers: ProviderList = { credential: "Password" };
 
 		if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) providers.google = "Google";
 		if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET) providers.github = "GitHub";
