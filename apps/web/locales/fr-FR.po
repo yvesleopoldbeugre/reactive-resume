@@ -180,6 +180,10 @@ msgstr "Un nouveau lien de vérification a été envoyé à votre adresse email.
 msgid "A resume & cover letter builder that gets you noticed"
 msgstr "Un générateur de CV et de lettres de motivation qui vous fait remarquer"
 
+#: src/libs/error-message.ts
+msgid "A resume with this slug already exists."
+msgstr "Un CV avec ce slug existe déjà."
+
 #. placeholder {0}: BRAND.name
 #: src/routes/_home/-sections/hero.tsx
 msgid "A sample cover letter built with {0}"
@@ -201,6 +205,10 @@ msgstr "Un bandeau aux teintes pastel douces derrière le nom et les coordonnée
 #: src/features/applications/components/application-ai-copilot.tsx
 msgid "A stretch"
 msgstr "Ambitieux"
+
+#: src/libs/error-message.ts
+msgid "A template preset with this slug already exists."
+msgstr "Un pré-réglage de modèle avec ce slug existe déjà."
 
 #: src/routes/builder/$resumeId/-sidebar/right/sections/page.tsx
 msgid "A4"
@@ -3410,6 +3418,10 @@ msgstr "Veuillez téléverser un fichier PDF."
 msgid "Please verify your email address"
 msgstr "Veuillez vérifier votre adresse e-mail"
 
+#: src/libs/error-message.ts
+msgid "Please verify your email address before making changes."
+msgstr "Veuillez vérifier votre adresse e-mail avant d'apporter des modifications."
+
 #: src/features/resume/export/use-resume-export.ts
 msgid "Please wait while your PDF is being generated..."
 msgstr "Veuillez patienter pendant que votre PDF est en cours de génération..."
@@ -4242,6 +4254,7 @@ msgstr "Une erreur s'est produite lors de l'analyse de votre CV."
 
 #: src/features/applications/components/application-actions-menu.tsx
 #: src/features/applications/components/application-detail-sheet.tsx
+#: src/libs/error-message.ts
 #: src/routes/builder/$resumeId/-sidebar/right/sections/sharing.tsx
 msgid "Something went wrong. Please try again."
 msgstr "Une erreur s'est produite. Veuillez réessayer."
@@ -4588,6 +4601,10 @@ msgstr "Impossible d'ouvrir cette discussion avec cet agent."
 msgid "This assistant could not be opened."
 msgstr "Impossible d'ouvrir cet assistant."
 
+#: src/libs/error-message.ts
+msgid "This base template isn't built for that document kind."
+msgstr "Ce modèle de base n'est pas conçu pour ce type de document."
+
 #: src/features/applications/components/application-detail-sheet.tsx
 msgid "This entry will be permanently deleted. This can't be undone."
 msgstr "Cette entrée sera supprimée définitivement. Cette action est irréversible."
@@ -4617,6 +4634,10 @@ msgstr "Ce CV est verrouillé."
 msgid "This resume is locked and cannot be updated."
 msgstr "Ce CV est verrouillé et ne peut pas être modifié."
 
+#: src/libs/error-message.ts
+msgid "This resume is locked. Unlock it first to make changes."
+msgstr "Ce CV est verrouillé. Déverrouillez-le d'abord pour apporter des modifications."
+
 #: src/features/resume/builder/draft.ts
 msgid "This resume was updated by an AI agent."
 msgstr "Ce CV a été mis à jour par un agent d'IA."
@@ -4632,6 +4653,10 @@ msgstr "Cette section est réservée à vos notes personnelles spécifiques à c
 #: src/features/auth/pages/register.tsx
 msgid "This step is required."
 msgstr "Cette étape est obligatoire."
+
+#: src/libs/error-message.ts
+msgid "This template isn't included in your plan. Upgrade to unlock it."
+msgstr "Ce modèle n'est pas inclus dans votre palier. Passez à un palier supérieur pour le débloquer."
 
 #: src/routes/agent/-components/agent-chat.tsx
 msgid "This thread is archived. New messages cannot be sent."
@@ -5254,6 +5279,10 @@ msgstr "Vous avez des modifications non enregistrées qui seront perdues."
 #: src/features/auth/pages/register.tsx
 msgid "You've got mail!"
 msgstr "Vous avez du courrier !"
+
+#: src/libs/error-message.ts
+msgid "You've reached your plan's document limit. Upgrade to create more."
+msgstr "Vous avez atteint la limite de documents de votre palier. Passez à un palier supérieur pour en créer davantage."
 
 #: src/features/settings/pages/danger-zone.tsx
 msgid "Your account has been deleted successfully."

@@ -1,3 +1,4 @@
+import { t } from "@lingui/core/macro";
 import { ORPCError } from "@orpc/client";
 
 export function getReadableErrorMessage(error: unknown, fallback: string): string {
@@ -10,9 +11,13 @@ type ErrorMessageByCode = Record<string, string>;
 
 // Applies to every `getOrpcErrorMessage` caller regardless of feature -- unverified accounts can
 // hit this on essentially any create/edit/delete action across the app (see `verifiedProcedure`).
-const COMMON_ERROR_MESSAGES: ErrorMessageByCode = {
-	EMAIL_NOT_VERIFIED: "Please verify your email address before making changes.",
-};
+// Built fresh on every call (not a module-level constant) so each message reflects whichever
+// locale is active at the moment the error is shown, not whichever was active at module load.
+function getCommonErrorMessages(): ErrorMessageByCode {
+	return {
+		EMAIL_NOT_VERIFIED: t`Please verify your email address before making changes.`,
+	};
+}
 
 export function getOrpcErrorMessage(
 	error: unknown,
@@ -24,7 +29,7 @@ export function getOrpcErrorMessage(
 ): string {
 	if (!(error instanceof ORPCError)) return getReadableErrorMessage(error, options.fallback);
 
-	const mappedMessage = options.byCode?.[error.code] ?? COMMON_ERROR_MESSAGES[error.code];
+	const mappedMessage = options.byCode?.[error.code] ?? getCommonErrorMessages()[error.code];
 	if (mappedMessage) return mappedMessage;
 
 	if (options.allowServerMessage && error.message) return error.message;
@@ -39,12 +44,12 @@ export function isEmailNotVerifiedError(error: unknown): boolean {
 export function getResumeErrorMessage(error: unknown): string {
 	return getOrpcErrorMessage(error, {
 		byCode: {
-			RESUME_SLUG_ALREADY_EXISTS: "A resume with this slug already exists.",
-			RESUME_LOCKED: "This resume is locked. Unlock it first to make changes.",
-			DOCUMENT_QUOTA_EXCEEDED: "You've reached your plan's document limit. Upgrade to create more.",
-			TEMPLATE_LOCKED: "This template isn't included in your plan. Upgrade to unlock it.",
+			RESUME_SLUG_ALREADY_EXISTS: t`A resume with this slug already exists.`,
+			RESUME_LOCKED: t`This resume is locked. Unlock it first to make changes.`,
+			DOCUMENT_QUOTA_EXCEEDED: t`You've reached your plan's document limit. Upgrade to create more.`,
+			TEMPLATE_LOCKED: t`This template isn't included in your plan. Upgrade to unlock it.`,
 		},
-		fallback: "Something went wrong. Please try again.",
+		fallback: t`Something went wrong. Please try again.`,
 	});
 }
 
@@ -56,9 +61,9 @@ export function isBillingRestrictedError(error: unknown): boolean {
 export function getTemplatePresetErrorMessage(error: unknown): string {
 	return getOrpcErrorMessage(error, {
 		byCode: {
-			TEMPLATE_PRESET_SLUG_ALREADY_EXISTS: "A template preset with this slug already exists.",
-			TEMPLATE_PRESET_KIND_MISMATCH: "This base template isn't built for that document kind.",
+			TEMPLATE_PRESET_SLUG_ALREADY_EXISTS: t`A template preset with this slug already exists.`,
+			TEMPLATE_PRESET_KIND_MISMATCH: t`This base template isn't built for that document kind.`,
 		},
-		fallback: "Something went wrong. Please try again.",
+		fallback: t`Something went wrong. Please try again.`,
 	});
 }

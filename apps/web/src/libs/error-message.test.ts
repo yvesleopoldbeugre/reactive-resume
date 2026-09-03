@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+import { i18n } from "@lingui/core";
 import { ORPCError } from "@orpc/client";
 import {
 	getOrpcErrorMessage,
@@ -7,6 +8,13 @@ import {
 	isBillingRestrictedError,
 	isEmailNotVerifiedError,
 } from "./error-message";
+
+// The byCode/fallback messages below go through Lingui's `t` macro (so they're translated in the
+// real app) -- it needs a locale activated, even an empty one, or it throws instead of falling
+// back to the source text.
+beforeAll(() => {
+	i18n.loadAndActivate({ locale: "en", messages: {} });
+});
 
 describe("getReadableErrorMessage", () => {
 	it("returns the string error directly", () => {
