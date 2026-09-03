@@ -27,6 +27,14 @@ type TemplateCardProps<TId extends string = Template> = {
 	locked?: boolean;
 	metadata: TemplateMetadata;
 	onSelect: (id: TId) => void;
+	/**
+	 * Picker/grid tiles only: "custom" (the from-scratch skin engine) has no fixed look of its own,
+	 * so live-rendering it with sample data would show one arbitrary skin combination as if it were
+	 * "the" custom template — blank it instead. Never set this on a card that shows *this preset's
+	 * own already-configured* custom template (e.g. the admin editor's live "Preview" card) — that
+	 * one must keep rendering the real, current skin/content, exactly like any other template.
+	 */
+	blankIfCustom?: boolean;
 };
 
 export function TemplateCard<TId extends string = Template>({
@@ -37,6 +45,7 @@ export function TemplateCard<TId extends string = Template>({
 	isActive,
 	locked,
 	onSelect,
+	blankIfCustom,
 }: TemplateCardProps<TId>) {
 	const tileClassName = cn(
 		"relative block aspect-page size-full cursor-pointer overflow-hidden rounded-md bg-popover outline-none",
@@ -44,11 +53,8 @@ export function TemplateCard<TId extends string = Template>({
 		locked && "opacity-60",
 	);
 
-	// "custom" (the from-scratch skin engine) has no fixed look of its own -- rendering it with
-	// sample data would show one arbitrary skin combination as if it were "the" custom template,
-	// which is misleading. Always blank, never live-rendered.
 	const preview =
-		template === "custom" ? (
+		blankIfCustom && template === "custom" ? (
 			<div className="size-full bg-white" />
 		) : (
 			// Blank instead of the static (fake sample data) template image while the preview module itself

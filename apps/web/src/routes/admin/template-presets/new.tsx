@@ -138,6 +138,7 @@ function RouteComponent() {
 							id={template as Template}
 							template={template as Template}
 							onSelect={onSelectTemplate}
+							blankIfCustom
 						/>
 					))}
 				</div>

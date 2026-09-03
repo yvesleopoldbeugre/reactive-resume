@@ -234,6 +234,7 @@ function RouteComponent() {
 											setBaseTemplate(selected);
 											setIsChangingTemplate(false);
 										}}
+										blankIfCustom
 									/>
 								))}
 							</div>
