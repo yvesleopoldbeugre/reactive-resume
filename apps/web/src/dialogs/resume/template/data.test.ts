@@ -98,10 +98,10 @@ describe("getTemplatesForKind", () => {
 		);
 	});
 
-	it("returns only the 5 dedicated cover-letter templates for kind: cover-letter", () => {
+	it("returns the 5 dedicated cover-letter templates plus custom for kind: cover-letter", () => {
 		const ids = getTemplatesForKind("cover-letter")
 			.map(([id]) => id)
 			.sort();
-		expect(ids).toEqual(["eevee", "espeon", "snorlax", "togepi", "vulpix"].sort());
+		expect(ids).toEqual(["custom", "eevee", "espeon", "snorlax", "togepi", "vulpix"].sort());
 	});
 });

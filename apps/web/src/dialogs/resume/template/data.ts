@@ -171,10 +171,17 @@ export const templates = {
  * All templates authored for `kind`, in catalog order. Does not exclude `custom` (a `kind:
  * "resume"` template) — callers that already filter it out for other reasons keep doing so
  * themselves, same as before this helper existed.
+ *
+ * `custom` (the from-scratch skin engine) is included for both kinds even though
+ * `templateKindMap` maps it to `"resume"` -- that map means "not a dedicated cover-letter
+ * template" everywhere else (DOCX export, forced-header rendering, ...), which is accurate: the
+ * skin engine renders generically from `metadata.skin` and already supports cover-letter
+ * `customSections` through the same section pipeline every template uses. Kind-picking here is
+ * the one place that distinction doesn't apply.
  */
 export function getTemplatesForKind(kind: "resume" | "cover-letter"): [Template, TemplateMetadata][] {
 	return (Object.entries(templates) as [Template, TemplateMetadata][]).filter(
-		([template]) => templateKindMap[template] === kind,
+		([template]) => template === "custom" || templateKindMap[template] === kind,
 	);
 }
 

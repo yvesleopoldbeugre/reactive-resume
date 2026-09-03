@@ -174,6 +174,22 @@ describe("create", () => {
 
 		expect(dbMock.insert).not.toHaveBeenCalled();
 	});
+
+	it("allows the 'custom' base template for a cover-letter-kind preset even though templateKindMap maps it to 'resume'", async () => {
+		const customPreset = { ...preset, baseTemplate: "custom" as const, kind: "cover-letter" as const };
+		dbMock.insert.mockReturnValueOnce(createInsertChain([customPreset]));
+
+		await expect(
+			templatePresetService.create({
+				name: customPreset.name,
+				slug: customPreset.slug,
+				baseTemplate: "custom",
+				config: customPreset.config,
+				kind: "cover-letter",
+				createdBy: customPreset.createdBy,
+			}),
+		).resolves.toEqual(customPreset);
+	});
 });
 
 describe("update", () => {

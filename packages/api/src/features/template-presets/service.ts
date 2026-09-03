@@ -7,8 +7,10 @@ import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { templateKindMap } from "@reactive-resume/schema/templates";
 
+// "custom" (the from-scratch skin engine) is valid for either kind -- see `getTemplatesForKind`
+// in the web package for why `templateKindMap` itself still maps it to "resume".
 function assertTemplateMatchesKind(baseTemplate: Template, kind: "resume" | "cover-letter") {
-	if (templateKindMap[baseTemplate] !== kind) {
+	if (baseTemplate !== "custom" && templateKindMap[baseTemplate] !== kind) {
 		throw new ORPCError("TEMPLATE_PRESET_KIND_MISMATCH", { status: 400 });
 	}
 }

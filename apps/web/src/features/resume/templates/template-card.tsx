@@ -44,13 +44,19 @@ export function TemplateCard<TId extends string = Template>({
 		locked && "opacity-60",
 	);
 
-	const preview = (
-		// Blank instead of the static (fake sample data) template image while the preview module itself
-		// is still loading -- matches TemplateLivePreview's own loading treatment once it mounts.
-		<Suspense fallback={<div className="size-full bg-white" />}>
-			<TemplateLivePreview data={data} template={template} fallbackSrc={metadata.imageUrl} alt={metadata.name} />
-		</Suspense>
-	);
+	// "custom" (the from-scratch skin engine) has no fixed look of its own -- rendering it with
+	// sample data would show one arbitrary skin combination as if it were "the" custom template,
+	// which is misleading. Always blank, never live-rendered.
+	const preview =
+		template === "custom" ? (
+			<div className="size-full bg-white" />
+		) : (
+			// Blank instead of the static (fake sample data) template image while the preview module itself
+			// is still loading -- matches TemplateLivePreview's own loading treatment once it mounts.
+			<Suspense fallback={<div className="size-full bg-white" />}>
+				<TemplateLivePreview data={data} template={template} fallbackSrc={metadata.imageUrl} alt={metadata.name} />
+			</Suspense>
+		);
 
 	return (
 		<CometCard translateDepth={3} rotateDepth={6} glareOpacity={0}>
