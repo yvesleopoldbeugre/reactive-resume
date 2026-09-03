@@ -40,9 +40,11 @@ type TemplateLivePreviewProps = {
 
 /**
  * Renders the first page of the user's actual resume data through a given template, lazily.
- * Reuses the browser PDF pipeline (`createResumePdfBlob` + pdf.js first-page render). Falls back to the
- * static template image while generating or if generation fails. Intended to be mounted on demand (e.g.
- * inside a hover/preview card) so the render stays off the hover critical path.
+ * Reuses the browser PDF pipeline (`createResumePdfBlob` + pdf.js first-page render). Shows a blank
+ * page while generating -- never the static template image, which shows fake sample data and would
+ * misleadingly flash as if it were the user's own document -- and falls back to that static image
+ * only if generation actually fails. Intended to be mounted on demand (e.g. inside a hover/preview
+ * card) so the render stays off the hover critical path.
  */
 export function TemplateLivePreview({ alt, className, data, fallbackSrc, template }: TemplateLivePreviewProps) {
 	const [imageUrl, setImageUrl] = useState<string | null>(() => getCachedPreview(data, template) ?? null);
@@ -92,10 +94,13 @@ export function TemplateLivePreview({ alt, className, data, fallbackSrc, templat
 	}, [data, template]);
 
 	const isLoading = !imageUrl && !hasError;
+	// Blank while generating -- only fall back to the static (fake sample data) template image once
+	// generation has actually failed, never merely because it hasn't finished yet.
+	const displaySrc = imageUrl ?? (hasError ? fallbackSrc : null);
 
 	return (
 		<div className={cn("relative aspect-page w-full overflow-hidden rounded-md bg-white", className)}>
-			<img src={imageUrl ?? fallbackSrc} alt={alt} className="size-full object-contain" />
+			{displaySrc ? <img src={displaySrc} alt={alt} className="size-full object-contain" /> : null}
 			{isLoading ? (
 				<div className="absolute inset-0 flex items-center justify-center bg-white/40">
 					<Spinner className="size-8" />

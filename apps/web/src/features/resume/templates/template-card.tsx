@@ -45,7 +45,9 @@ export function TemplateCard<TId extends string = Template>({
 	);
 
 	const preview = (
-		<Suspense fallback={<img src={metadata.imageUrl} alt={metadata.name} className="size-full object-cover" />}>
+		// Blank instead of the static (fake sample data) template image while the preview module itself
+		// is still loading -- matches TemplateLivePreview's own loading treatment once it mounts.
+		<Suspense fallback={<div className="size-full bg-white" />}>
 			<TemplateLivePreview data={data} template={template} fallbackSrc={metadata.imageUrl} alt={metadata.name} />
 		</Suspense>
 	);
@@ -53,7 +55,7 @@ export function TemplateCard<TId extends string = Template>({
 	return (
 		<CometCard translateDepth={3} rotateDepth={6} glareOpacity={0}>
 			{locked ? (
-				<Link to="/dashboard/settings/billing" className={tileClassName}>
+				<Link to="/dashboard/settings/billing" aria-label={metadata.name} className={tileClassName}>
 					{preview}
 					<div className="absolute inset-0 flex items-center justify-center bg-background/40">
 						<Badge className="gap-1">
@@ -63,7 +65,7 @@ export function TemplateCard<TId extends string = Template>({
 					</div>
 				</Link>
 			) : (
-				<button type="button" onClick={() => onSelect(id)} className={tileClassName}>
+				<button type="button" aria-label={metadata.name} onClick={() => onSelect(id)} className={tileClassName}>
 					{preview}
 				</button>
 			)}

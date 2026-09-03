@@ -53,22 +53,20 @@ describe("TemplateGalleryDialog", () => {
 
 	it("renders one tile per template", () => {
 		renderGallery();
-		// Each tile renders an <img alt={metadata.name}>. The data module lists 14 templates.
-		const images = screen.getAllByRole("img");
-		expect(images.length).toBeGreaterThanOrEqual(14);
+		// Each tile is a <button aria-label={metadata.name}>. The data module lists 14 templates.
+		const tiles = screen.getAllByRole("button");
+		expect(tiles.length).toBeGreaterThanOrEqual(14);
 	});
 
 	it("ring-highlights the currently-selected template tile (Ditto)", () => {
 		renderGallery();
-		const dittoImg = screen.getByAltText("Ditto");
-		const button = dittoImg.closest("button") as HTMLButtonElement;
+		const button = screen.getByRole("button", { name: "Ditto" });
 		expect(button.className).toContain("ring-ring");
 	});
 
 	it("selecting a different template calls updateResumeData with the new template id", () => {
 		renderGallery();
-		const onyxImg = screen.getByAltText("Onyx");
-		const button = onyxImg.closest("button") as HTMLButtonElement;
+		const button = screen.getByRole("button", { name: "Onyx" });
 		fireEvent.click(button);
 
 		expect(updateResumeData).toHaveBeenCalledTimes(1);
