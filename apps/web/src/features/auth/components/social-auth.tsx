@@ -4,10 +4,12 @@ import { Trans } from "@lingui/react/macro";
 import { FingerprintIcon, GithubLogoIcon, GoogleLogoIcon, LinkedinLogoIcon, VaultIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Skeleton } from "@reactive-resume/ui/components/skeleton";
 import { cn } from "@reactive-resume/utils/style";
+import { LoadingScreen } from "@/components/layout/loading-screen";
 import { authClient } from "@/libs/auth/client";
 import { orpc } from "@/libs/orpc/client";
 
@@ -65,6 +67,7 @@ type SocialAuthButtonsProps = {
 
 function SocialAuthButtons({ providers, requestSignUp }: SocialAuthButtonsProps) {
 	const router = useRouter();
+	const [isRedirectingToAskoetude, setIsRedirectingToAskoetude] = useState(false);
 
 	const runSignIn = async (fn: () => Promise<{ error: { message?: string } | null }>) => {
 		const toastId = toast.loading(t`Signing in...`);
@@ -84,18 +87,35 @@ function SocialAuthButtons({ providers, requestSignUp }: SocialAuthButtonsProps)
 		await router.invalidate();
 	};
 
+	const handleAskoetudeSignIn = async () => {
+		setIsRedirectingToAskoetude(true);
+		const { error } = await authClient.signIn.oauth2({
+			providerId: "custom",
+			callbackURL: "/dashboard",
+		});
+		if (error) {
+			setIsRedirectingToAskoetude(false);
+			toast.error(
+				error.message ||
+					t({
+						comment: "Fallback toast when sign-in fails without an error message",
+						message: "Failed to sign in. Please try again.",
+					}),
+			);
+		}
+		// On success, authClient.signIn.oauth2 navigates the browser away to Askoetude's
+		// SSO page itself -- leave the overlay up until that navigation happens so the user
+		// can't click anything else in the meantime.
+	};
+
 	return (
 		<div className="grid grid-cols-2 gap-4">
+			{isRedirectingToAskoetude && <LoadingScreen />}
+
 			<Button
 				variant="secondary"
-				onClick={() =>
-					runSignIn(() =>
-						authClient.signIn.oauth2({
-							providerId: "custom",
-							callbackURL: "/dashboard",
-						}),
-					)
-				}
+				onClick={handleAskoetudeSignIn}
+				disabled={isRedirectingToAskoetude}
 				className={cn("hidden", "custom" in providers && "inline-flex")}
 			>
 				<VaultIcon />
