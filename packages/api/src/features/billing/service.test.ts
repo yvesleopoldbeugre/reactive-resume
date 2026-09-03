@@ -19,6 +19,7 @@ vi.mock("@reactive-resume/db/schema", () => ({
 		status: "status",
 	},
 	resume: { id: "id", userId: "user_id" },
+	plan: { id: "id" },
 }));
 vi.mock("drizzle-orm", () => ({
 	and: (...a: unknown[]) => a,
@@ -35,6 +36,10 @@ const { billingService } = await import("./service");
 // A `db.select(...).from(...).where(...)` chain that resolves to `rows`.
 const createSelectChain = (rows: unknown[]) => ({ from: () => ({ where: () => Promise.resolve(rows) }) });
 
+// A `db.select(...).from(...)` chain (no `.where()`) for the plan catalog lookup. Empty rows makes
+// `getPlanCatalog` fall back to the real static catalog, which is what the assertions below expect.
+const createPlanCatalogChain = () => ({ from: () => Promise.resolve([]) });
+
 beforeEach(() => {
 	dbMock.select.mockReset();
 	dbMock.insert.mockReset();
@@ -46,6 +51,7 @@ beforeEach(() => {
 describe("getMySubscription", () => {
 	it("returns the free plan when the user has no subscription row", async () => {
 		dbMock.select.mockReturnValueOnce(createSelectChain([]));
+		dbMock.select.mockReturnValueOnce(createPlanCatalogChain());
 
 		const result = await billingService.getMySubscription({ userId: "u1" });
 
@@ -56,6 +62,7 @@ describe("getMySubscription", () => {
 	it("returns the subscribed plan when the row is active and not expired", async () => {
 		const currentPeriodEnd = new Date(Date.now() + 1000 * 60 * 60 * 24);
 		dbMock.select.mockReturnValueOnce(createSelectChain([{ planId: "pro-monthly", currentPeriodEnd }]));
+		dbMock.select.mockReturnValueOnce(createPlanCatalogChain());
 
 		const result = await billingService.getMySubscription({ userId: "u1" });
 
@@ -66,6 +73,7 @@ describe("getMySubscription", () => {
 	it("falls back to the free plan when the row's period has already ended", async () => {
 		const currentPeriodEnd = new Date(Date.now() - 1000);
 		dbMock.select.mockReturnValueOnce(createSelectChain([{ planId: "pro-monthly", currentPeriodEnd }]));
+		dbMock.select.mockReturnValueOnce(createPlanCatalogChain());
 
 		const result = await billingService.getMySubscription({ userId: "u1" });
 
@@ -98,6 +106,7 @@ describe("createCheckout", () => {
 	});
 
 	it("inserts a pending transaction and returns CinetPay's payment URL", async () => {
+		dbMock.select.mockReturnValueOnce(createPlanCatalogChain());
 		const values = vi.fn(() => Promise.resolve());
 		dbMock.insert.mockReturnValueOnce({ values });
 		initiatePaymentMock.mockResolvedValueOnce({ paymentUrl: "https://pay/1", paymentToken: "tok" });
@@ -120,6 +129,7 @@ describe("createCheckout", () => {
 	});
 
 	it("never inserts a transaction row when CinetPay initiation fails (no orphaned pending rows)", async () => {
+		dbMock.select.mockReturnValueOnce(createPlanCatalogChain());
 		initiatePaymentMock.mockRejectedValueOnce(new Error("CinetPay not configured"));
 
 		await expect(
@@ -155,6 +165,7 @@ describe("confirmPayment", () => {
 		dbMock.select.mockReturnValueOnce(
 			createSelectChain([{ id: "tx1", userId: "u1", planId: "pro-monthly", status: "pending" }]),
 		);
+		dbMock.select.mockReturnValueOnce(createPlanCatalogChain());
 		const updateSet = vi.fn(() => ({ where: vi.fn(() => Promise.resolve()) }));
 		dbMock.update.mockReturnValueOnce({ set: updateSet });
 		const upsert = vi.fn(() => Promise.resolve());

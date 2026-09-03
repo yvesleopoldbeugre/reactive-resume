@@ -1,10 +1,12 @@
 import type { Plan, PlanId } from "@reactive-resume/schema/billing/plans";
+import type { Template } from "@reactive-resume/schema/templates";
 import { ORPCError } from "@orpc/client";
 import { and, eq } from "drizzle-orm";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { env } from "@reactive-resume/env/server";
-import { getPlan, planCatalog } from "@reactive-resume/schema/billing/plans";
+import { planCatalog as DEFAULT_PLAN_CATALOG } from "@reactive-resume/schema/billing/plans";
+import { templateSchema } from "@reactive-resume/schema/templates";
 import { generateId } from "@reactive-resume/utils/string";
 import { initiatePayment, verifyTransaction } from "./cinetpay-client";
 
@@ -15,6 +17,36 @@ function addPeriod(from: Date, period: "monthly" | "yearly"): Date {
 	return result;
 }
 
+function rowToPlan(row: typeof schema.plan.$inferSelect): Plan {
+	return {
+		id: row.id,
+		name: row.name,
+		priceXof: row.priceXof,
+		billingPeriod: row.billingPeriod,
+		documentLimit: row.documentLimit,
+		allowedTemplates: row.allowedTemplates,
+	};
+}
+
+/**
+ * The live, admin-editable plan catalog (the `plan` table). Falls back to the static catalog
+ * only when the table is genuinely empty — a fresh database whose seed migration hasn't run yet
+ * — so the app still has sane defaults rather than failing outright.
+ */
+async function getPlanCatalog(): Promise<Record<PlanId, Plan>> {
+	const rows = await db.select().from(schema.plan);
+	if (rows.length === 0) return DEFAULT_PLAN_CATALOG;
+
+	const catalog = {} as Record<PlanId, Plan>;
+	for (const row of rows) catalog[row.id] = rowToPlan(row);
+	return catalog;
+}
+
+async function getPlan(planId: PlanId): Promise<Plan> {
+	const catalog = await getPlanCatalog();
+	return catalog[planId] ?? DEFAULT_PLAN_CATALOG[planId];
+}
+
 /** The effective plan for a user: their active, non-expired subscription, or "free" otherwise. */
 export const billingService = {
 	getMySubscription: async (input: {
@@ -22,11 +54,21 @@ export const billingService = {
 		isAdmin?: boolean | undefined;
 	}): Promise<{ plan: Plan; currentPeriodEnd: Date | null }> => {
 		// Admins get every template and no quota as a privilege of the role, not a purchased
-		// subscription -- so this is never persisted as a `subscription` row. Reuses "pro-yearly"'s
-		// already-correct allowedTemplates/documentLimit rather than adding a new PlanId, since a
-		// synthetic id would also need to be a valid `subscription.planId` (it never is one).
+		// subscription -- so this is never persisted as a `subscription` row, and deliberately
+		// isn't derived from the (admin-editable) "pro-yearly" plan: an admin who narrows what
+		// pro-yearly unlocks shouldn't accidentally narrow their own access too.
 		if (input.isAdmin) {
-			return { plan: { ...getPlan("pro-yearly"), name: "Administrateur" }, currentPeriodEnd: null };
+			return {
+				plan: {
+					id: "pro-yearly",
+					name: "Administrateur",
+					priceXof: 0,
+					billingPeriod: null,
+					documentLimit: null,
+					allowedTemplates: templateSchema.options as Template[],
+				},
+				currentPeriodEnd: null,
+			};
 		}
 
 		const [row] = await db
@@ -35,16 +77,45 @@ export const billingService = {
 			.where(and(eq(schema.subscription.userId, input.userId), eq(schema.subscription.status, "active")));
 
 		if (row && (!row.currentPeriodEnd || row.currentPeriodEnd > new Date())) {
-			return { plan: getPlan(row.planId), currentPeriodEnd: row.currentPeriodEnd };
+			return { plan: await getPlan(row.planId), currentPeriodEnd: row.currentPeriodEnd };
 		}
 
-		return { plan: getPlan("free"), currentPeriodEnd: null };
+		return { plan: await getPlan("free"), currentPeriodEnd: null };
 	},
 
 	/** Documents currently owned by a user, across both kinds — what the free plan's quota counts against. */
 	countDocuments: async (userId: string): Promise<number> => {
 		const rows = await db.select({ id: schema.resume.id }).from(schema.resume).where(eq(schema.resume.userId, userId));
 		return rows.length;
+	},
+
+	listPlans: async (): Promise<Plan[]> => {
+		const catalog = await getPlanCatalog();
+		return Object.values(catalog);
+	},
+
+	/** Admin-only: edits a plan's price, document quota, or unlocked templates. `id`/`billingPeriod` are fixed. */
+	updatePlan: async (input: {
+		id: PlanId;
+		name?: string | undefined;
+		priceXof?: number | undefined;
+		documentLimit?: number | null | undefined;
+		allowedTemplates?: Template[] | undefined;
+	}): Promise<Plan> => {
+		const [row] = await db
+			.update(schema.plan)
+			.set({
+				...(input.name !== undefined ? { name: input.name } : {}),
+				...(input.priceXof !== undefined ? { priceXof: input.priceXof } : {}),
+				...(input.documentLimit !== undefined ? { documentLimit: input.documentLimit } : {}),
+				...(input.allowedTemplates !== undefined ? { allowedTemplates: input.allowedTemplates } : {}),
+			})
+			.where(eq(schema.plan.id, input.id))
+			.returning();
+
+		if (!row) throw new ORPCError("NOT_FOUND", { message: "Unknown plan." });
+
+		return rowToPlan(row);
 	},
 
 	createCheckout: async (input: {
@@ -58,7 +129,7 @@ export const billingService = {
 			throw new ORPCError("BAD_REQUEST", { message: "The free plan has nothing to check out." });
 		}
 
-		const plan = getPlan(input.planId);
+		const plan = await getPlan(input.planId);
 		const transactionId = generateId();
 
 		// Call CinetPay first: if it fails (not configured, network error, ...), there must be no
@@ -117,7 +188,7 @@ export const billingService = {
 
 		if (!verification.accepted) return { accepted: false };
 
-		const plan = getPlan(transaction.planId);
+		const plan = await getPlan(transaction.planId);
 		const currentPeriodEnd = plan.billingPeriod ? addPeriod(new Date(), plan.billingPeriod) : null;
 
 		await db
@@ -131,7 +202,3 @@ export const billingService = {
 		return { accepted: true };
 	},
 };
-
-export function listPlans(): Plan[] {
-	return Object.values(planCatalog);
-}

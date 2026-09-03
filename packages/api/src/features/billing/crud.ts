@@ -1,6 +1,6 @@
-import { protectedProcedure } from "../../context";
+import { adminProcedure, protectedProcedure, publicProcedure } from "../../context";
 import { billingDto } from "../../dto/billing";
-import { billingService, listPlans } from "./service";
+import { billingService } from "./service";
 
 export const crudRouter = {
 	getMySubscription: protectedProcedure
@@ -25,7 +25,9 @@ export const crudRouter = {
 			return { ...subscription, documentCount };
 		}),
 
-	listPlans: protectedProcedure
+	// Public: the landing page's pricing section shows the same live catalog to signed-out
+	// visitors, and pricing/quota/template info isn't sensitive.
+	listPlans: publicProcedure
 		.route({
 			method: "GET",
 			path: "/billing/plans",
@@ -37,7 +39,24 @@ export const crudRouter = {
 		})
 		.output(billingDto.listPlans.output)
 		.handler(async () => {
-			return listPlans();
+			return billingService.listPlans();
+		}),
+
+	updatePlan: adminProcedure
+		.route({
+			method: "PUT",
+			path: "/billing/plans/{id}",
+			tags: ["Billing"],
+			operationId: "updateBillingPlan",
+			summary: "Update a subscription plan",
+			description:
+				"Edits a plan's price, document quota, or unlocked templates. The plan id and billing period are fixed. Requires the admin role.",
+			successDescription: "The updated plan.",
+		})
+		.input(billingDto.updatePlan.input)
+		.output(billingDto.updatePlan.output)
+		.handler(async ({ input }) => {
+			return billingService.updatePlan(input);
 		}),
 
 	createCheckout: protectedProcedure

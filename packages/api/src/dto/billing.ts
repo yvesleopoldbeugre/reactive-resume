@@ -24,6 +24,17 @@ export const billingDto = {
 		output: z.array(planSchema),
 	},
 
+	updatePlan: {
+		input: z.object({
+			id: planIdSchema.describe("Which plan to edit."),
+			name: z.string().trim().min(1).optional(),
+			priceXof: z.number().int().min(0).optional(),
+			documentLimit: z.number().int().min(0).nullable().optional().describe("null means unlimited."),
+			allowedTemplates: z.array(templateSchema).optional(),
+		}),
+		output: planSchema,
+	},
+
 	createCheckout: {
 		input: z.object({
 			planId: planIdSchema.describe("The paid plan to subscribe to."),

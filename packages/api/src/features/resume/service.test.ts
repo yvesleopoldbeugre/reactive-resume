@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
+import { templateSchema } from "@reactive-resume/schema/templates";
 
 // Characterization tests for the resume service. The goal is to pin down CURRENT behavior
 // (CRUD / lock / password / statistics branching) so later changes are deliberate. The DB
@@ -123,7 +124,10 @@ beforeEach(() => {
 	storageDeleteMock.mockResolvedValue(true);
 	// Unlimited plan, every template allowed -- billing's own guard logic is exercised by the
 	// "create" and "update" tests below that explicitly override this per case.
-	getMySubscriptionMock.mockResolvedValue({ plan: { id: "pro-monthly" }, currentPeriodEnd: null });
+	getMySubscriptionMock.mockResolvedValue({
+		plan: { id: "pro-monthly", allowedTemplates: templateSchema.options },
+		currentPeriodEnd: null,
+	});
 	countDocumentsMock.mockResolvedValue(0);
 });
 
@@ -143,7 +147,10 @@ describe("create", () => {
 	});
 
 	it("allows creation right up to the document limit, and blocks the one after", async () => {
-		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: 3 }, currentPeriodEnd: null });
+		getMySubscriptionMock.mockResolvedValue({
+			plan: { id: "free", documentLimit: 3, allowedTemplates: ["onyx"] },
+			currentPeriodEnd: null,
+		});
 		countDocumentsMock.mockResolvedValue(2);
 		dbMock.insert.mockReturnValueOnce({ values: vi.fn(() => Promise.resolve()) });
 
@@ -154,7 +161,7 @@ describe("create", () => {
 
 	it("never checks the document count when the plan is unlimited (documentLimit: null)", async () => {
 		getMySubscriptionMock.mockResolvedValue({
-			plan: { id: "pro-monthly", documentLimit: null },
+			plan: { id: "pro-monthly", documentLimit: null, allowedTemplates: ["onyx"] },
 			currentPeriodEnd: null,
 		});
 		dbMock.insert.mockReturnValueOnce({ values: vi.fn(() => Promise.resolve()) });
@@ -173,7 +180,10 @@ describe("create", () => {
 	});
 
 	it("throws TEMPLATE_LOCKED when the requested template isn't in the free plan's real allowed list", async () => {
-		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: null }, currentPeriodEnd: null });
+		getMySubscriptionMock.mockResolvedValue({
+			plan: { id: "free", documentLimit: null, allowedTemplates: ["azurill"] },
+			currentPeriodEnd: null,
+		});
 		// "gengar" is a real CV template but not one of the free plan's unlocked templates.
 		const data = structuredClone(defaultResumeData);
 		data.metadata.template = "gengar";
@@ -185,7 +195,10 @@ describe("create", () => {
 	});
 
 	it("allows creation with a template that is in the free plan's allowed list", async () => {
-		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: null }, currentPeriodEnd: null });
+		getMySubscriptionMock.mockResolvedValue({
+			plan: { id: "free", documentLimit: null, allowedTemplates: ["azurill"] },
+			currentPeriodEnd: null,
+		});
 		dbMock.insert.mockReturnValueOnce({ values: vi.fn(() => Promise.resolve()) });
 		const data = structuredClone(defaultResumeData);
 		data.metadata.template = "azurill";
@@ -255,7 +268,10 @@ describe("update", () => {
 	});
 
 	it("throws TEMPLATE_LOCKED when switching to a template outside the plan, without writing", async () => {
-		getMySubscriptionMock.mockResolvedValue({ plan: { id: "free", documentLimit: null }, currentPeriodEnd: null });
+		getMySubscriptionMock.mockResolvedValue({
+			plan: { id: "free", documentLimit: null, allowedTemplates: ["azurill"] },
+			currentPeriodEnd: null,
+		});
 		const existing = structuredClone(defaultResumeData);
 		existing.metadata.template = "azurill";
 		dbMock.select.mockReturnValueOnce(createSelectChain([{ isLocked: false, data: existing }]));

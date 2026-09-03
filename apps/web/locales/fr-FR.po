@@ -1001,6 +1001,10 @@ msgstr "Entreprise A–Z"
 msgid "Compare this resume against this role URL and update keywords while keeping the voice concise and credible."
 msgstr "Comparez ce CV avec l'URL de ce poste et mettez à jour les mots-clés tout en conservant un style concis et crédible."
 
+#: src/features/settings/pages/billing.tsx
+msgid "Configure the price, document quota, and unlocked templates for each subscription plan. Changes take effect immediately for every account on that plan."
+msgstr "Configurez le prix, le quota de documents et les modèles débloqués pour chaque palier d'abonnement. Les changements prennent effet immédiatement pour tous les comptes de ce palier."
+
 #. Account deletion confirmation dialog confirm action in danger zone
 #. Create API key dialog acknowledgment action after copying
 #: src/dialogs/api-key/create.tsx
@@ -1564,6 +1568,10 @@ msgstr "Rejeter"
 msgid "Divider"
 msgstr "Séparateur"
 
+#: src/features/settings/pages/billing.tsx
+msgid "Document quota"
+msgstr "Quota de documents"
+
 #: src/features/applications/components/application-detail-sheet.tsx
 msgid "Documents sent"
 msgstr "Documents envoyés"
@@ -1993,6 +2001,10 @@ msgstr "Échec de la déconnexion du fournisseur. Veuillez réessayer."
 #: src/features/settings/integrations/components/ai-section.tsx
 msgid "Failed to update provider."
 msgstr "Impossible de mettre à jour le fournisseur."
+
+#: src/features/settings/pages/billing.tsx
+msgid "Failed to update the plan."
+msgstr "Échec de la mise à jour du palier."
 
 #. Fallback toast when changing account password fails
 #: src/dialogs/auth/change-password.tsx
@@ -2909,6 +2921,10 @@ msgstr "Mistral IA"
 msgid "Model"
 msgstr "Modèle"
 
+#: src/features/settings/pages/billing.tsx
+msgid "Monthly"
+msgstr "Mensuel"
+
 #: src/routes/builder/$resumeId/-sidebar/right/sections/layout/pages.tsx
 msgid "Move section to another column or page"
 msgstr "Déplacer la section vers une autre colonne ou page"
@@ -2950,6 +2966,7 @@ msgstr "Doit commencer par https://"
 #: src/dialogs/resume/sections/skill.tsx
 #: src/features/applications/components/application-detail-sheet.tsx
 #: src/features/auth/pages/register.tsx
+#: src/features/settings/pages/billing.tsx
 #: src/features/settings/pages/profile.tsx
 #: src/routes/admin/template-presets/$presetId.tsx
 #: src/routes/admin/template-presets/new.tsx
@@ -3366,6 +3383,10 @@ msgstr "Simple"
 msgid "Plain text, ideal for AI tools and quick edits."
 msgstr "Texte brut, idéal pour les outils d'AI et les modifications rapides."
 
+#: src/features/settings/pages/billing.tsx
+msgid "Plan updated."
+msgstr "Palier mis à jour."
+
 #: src/features/auth/pages/reset-password.tsx
 msgid "Please enter a new password for your account"
 msgstr "Veuillez saisir un nouveau mot de passe pour votre compte"
@@ -3448,6 +3469,10 @@ msgstr "Appuyez sur <0>Entrée</0> pour ouvrir"
 #: src/routes/builder/$resumeId/-components/mobile-builder-shell.tsx
 msgid "Preview"
 msgstr "Aperçu"
+
+#: src/features/settings/pages/billing.tsx
+msgid "Price (FCFA)"
+msgstr "Prix (FCFA)"
 
 #: src/routes/_home/-sections/pricing.tsx
 msgid "Pricing"
@@ -3791,6 +3816,11 @@ msgstr "Formule d'appel"
 msgid "Save"
 msgstr "Économiser"
 
+#: src/features/settings/pages/billing.tsx
+msgctxt "Save an edited subscription plan in the admin billing config page"
+msgid "Save"
+msgstr "Enregistrer"
+
 #: src/routes/admin/template-presets/$presetId.tsx
 msgctxt "Save the template preset being edited"
 msgid "Save"
@@ -3832,6 +3862,7 @@ msgstr "Enregistrer les modifications"
 msgid "Saved"
 msgstr "Enregistré"
 
+#: src/features/settings/pages/billing.tsx
 #: src/routes/builder/$resumeId/-components/header.tsx
 msgid "Saving…"
 msgstr "Sauvegarde…"
@@ -4827,6 +4858,10 @@ msgid "Undo"
 msgstr "Défaire"
 
 #: src/features/settings/pages/billing.tsx
+msgid "Unlimited"
+msgstr "Illimité"
+
+#: src/features/settings/pages/billing.tsx
 msgid "Unlimited CVs and cover letters"
 msgstr "CV et lettres de motivation illimités"
 
@@ -4848,6 +4883,14 @@ msgstr "Déconnexion de votre compte {providerName} ..."
 #: src/routes/dashboard/resumes/-components/menus/dropdown-menu.tsx
 msgid "Unlock"
 msgstr "Déverrouiller"
+
+#: src/features/settings/pages/billing.tsx
+msgid "Unlocked cover letter templates"
+msgstr "Modèles de lettre de motivation débloqués"
+
+#: src/features/settings/pages/billing.tsx
+msgid "Unlocked resume templates"
+msgstr "Modèles de CV débloqués"
 
 #: src/features/settings/authentication/components/passkeys.tsx
 msgid "Unnamed passkey"
@@ -5164,6 +5207,10 @@ msgstr "Rédigez des lettres de motivation autonomes avec les mêmes modèles, s
 #: src/features/settings/integrations/components/ai-section.tsx
 msgid "xAI Grok"
 msgstr "xAI Grok"
+
+#: src/features/settings/pages/billing.tsx
+msgid "Yearly"
+msgstr "Annuel"
 
 #. placeholder {0}: BRAND.name
 #: src/routes/_home/-sections/faq.tsx

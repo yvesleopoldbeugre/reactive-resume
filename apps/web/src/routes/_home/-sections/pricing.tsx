@@ -1,17 +1,20 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { CheckCircleIcon, InfinityIcon, SparkleIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { m } from "motion/react";
-import { planCatalog } from "@reactive-resume/schema/billing/plans";
 import { Badge } from "@reactive-resume/ui/components/badge";
 import { Button } from "@reactive-resume/ui/components/button";
 import { cn } from "@reactive-resume/utils/style";
 import { formatXof } from "@/libs/currency";
-
-const plans = Object.values(planCatalog);
+import { orpc } from "@/libs/orpc/client";
 
 export function Pricing() {
+	// Public and live: reflects whatever an admin has configured in the billing settings page,
+	// rather than a static build-time catalog.
+	const { data: plans = [] } = useQuery(orpc.billing.listPlans.queryOptions());
+
 	return (
 		<section id="pricing" className="p-4 md:p-8 xl:py-16">
 			<m.div

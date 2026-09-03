@@ -11,7 +11,6 @@ import { match } from "ts-pattern";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { applyResumePatches, ResumePatchError } from "@reactive-resume/resume/patch";
-import { isTemplateAllowedForPlan } from "@reactive-resume/schema/billing/plans";
 import { normalizeCoverLetterSection } from "@reactive-resume/schema/resume/data";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { generateId } from "@reactive-resume/utils/string";
@@ -570,7 +569,10 @@ export const resumeService = {
 			}
 		}
 
-		if (!isTemplateAllowedForPlan(plan.id, data.metadata.template)) {
+		// Checked directly against the already-resolved plan's own list (not a separate lookup by
+		// plan.id) so an admin-edited catalog is reflected immediately, with no risk of drifting
+		// from what getMySubscription just returned.
+		if (!plan.allowedTemplates.includes(data.metadata.template)) {
 			throw new ORPCError("TEMPLATE_LOCKED", {
 				status: 402,
 				message: "This template isn't included in your plan. Upgrade to unlock it.",
@@ -631,7 +633,7 @@ export const resumeService = {
 		// template a document already uses may keep editing everything else about that document.
 		if (input.data !== undefined && resume && input.data.metadata.template !== resume.data.metadata.template) {
 			const { plan } = await billingService.getMySubscription({ userId: input.userId, isAdmin: input.isAdmin });
-			if (!isTemplateAllowedForPlan(plan.id, input.data.metadata.template)) {
+			if (!plan.allowedTemplates.includes(input.data.metadata.template)) {
 				throw new ORPCError("TEMPLATE_LOCKED", {
 					status: 402,
 					message: "This template isn't included in your plan. Upgrade to unlock it.",

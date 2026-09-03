@@ -1,7 +1,29 @@
 import type { PlanId } from "@reactive-resume/schema/billing/plans";
+import type { Template } from "@reactive-resume/schema/templates";
 import * as pg from "drizzle-orm/pg-core";
 import { generateId } from "@reactive-resume/utils/string";
 import { user } from "./auth";
+
+// The live, admin-editable subscription tier catalog. Seeded from
+// `@reactive-resume/schema/billing/plans`'s static `planCatalog` by the migration that creates
+// this table; from then on this table is the single source of truth (the static catalog is only
+// a fallback for a genuinely empty table, e.g. a fresh deploy where the seed migration hasn't
+// run yet). `id`/`billingPeriod` are fixed identifiers, not admin-editable -- everything else
+// (price, quota, unlocked templates) is.
+export const plan = pg.pgTable("plan", {
+	id: pg.text("id").notNull().primaryKey().$type<PlanId>(),
+	name: pg.text("name").notNull(),
+	priceXof: pg.integer("price_xof").notNull(),
+	billingPeriod: pg.text("billing_period", { enum: ["monthly", "yearly"] }),
+	// `null` means unlimited.
+	documentLimit: pg.integer("document_limit"),
+	allowedTemplates: pg.text("allowed_templates").$type<Template>().array().notNull(),
+	updatedAt: pg
+		.timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow()
+		.$onUpdate(() => /* @__PURE__ */ new Date()),
+});
 
 // A user's current subscription state. Absence of a row means the free plan — there is no row
 // created at signup, only once a paid checkout succeeds (or the free plan is later formalized
